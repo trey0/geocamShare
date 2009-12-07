@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{% block headline %}Main{% endblock %}{% endblock %}
+
+{% block extrahead %}
+  <script type="text/javascript">
+    SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
+    GALLERY_PAGE_COLS = {{ settings.GALLERY_PAGE_COLS }};
+    GALLERY_PAGE_ROWS = {{ settings.GALLERY_PAGE_ROWS }};
+    GALLERY_THUMB_SIZE = {{ settings.GALLERY_THUMB_SIZE }};
+    DESC_THUMB_SIZE = {{ settings.DESC_THUMB_SIZE }};
+    TASK_CHOICES_DICT = {{ settings.TASK_CHOICES_DICT|safe }};
+
+    window.onload = init;
+  </script>
+{% endblock %}
+
+{% block contents %}
+
+  <table style="width: 100%; height: 100%;">
+    <tr><td colspan="2" style="font-size: 1.2em; font-weight: bold;">Robots at Haughton - Science Interface</td></tr>
+    <tr>
+      <td colspan="2">
+        <ul class="jd_menu">
+          <li><div>File  <img src="/media/test1/menuDownTriangle.png" width="13" height="16"/></div>
+            <ul>
+	      <li><div onclick="javascript:newPlan()">New plan</div></li>
+	      <li><div onclick="javascript:openPlan()">Open plan</div></li>
+	    </ul>
+	  </li>
+          <li><div>View  <img src="/media/test1/menuDownTriangle.png" width="13" height="16"/></div>
+            <ul>
+	      <li><div onclick="javascript:toggleViewGallery()">Gallery</div></li>
+	      <li><div onclick="javascript:toggleViewMap()">Map</div></li>
+	    </ul>
+	  </li>
+        </ul>
+      </td>
+    </tr>
+    <tr style="height: 100%;">
+      <td style="width: 520px; vertical-align: top; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;">
+        <div id="gallery">
+          Loading...
+        </div>
+        <div id="caption">
+        </div>
+      </td>
+      <td>{% include "mapPane.html" %}</td>
+    </tr>
+  </table>
+{% endblock %}

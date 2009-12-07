@@ -1,0 +1,13 @@
+{{ pager.pager }}
+{% regroup data by row as rows %}
+<table>
+{% for row in rows %}
+  <tr>
+    {% for d in row.list %}
+      {{ d.galleryThumb }}
+    {% endfor %}
+  </tr>
+{% endfor %}
+</table>
+
+
