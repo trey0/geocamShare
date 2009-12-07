@@ -354,8 +354,8 @@ function setPage(visibleItems, pageNum, force) {
 function setGalleryItems(visibleItems, pageNum) {
     if (!listsHaveDifferentRequestIds(visibleItemsG, visibleItems)) return;
 
-    fhtml = (itemsG.length - visibleItems.length) + ' of '
-	+ (itemsG.length) + ' features out of view';
+    fhtml = (visibleItems.length) + ' of '
+	+ (itemsG.length) + ' features in view';
     $('#featuresOutOfView').html(fhtml);
 
     setPage(visibleItems, 1, force=true);
