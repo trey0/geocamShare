@@ -8,7 +8,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Trey Smith', 'trey.smith@gmail.com'),
+    ('Your Name', 'root@example.com'),
 )
 
 MANAGERS = ADMINS
@@ -152,7 +152,7 @@ ROBOT_HOST_MAP = dict(k10black = 'k10brain8',
                       )
 ROBOT_CODES = dict([(name, code) for (code, name) in ROBOT_CHOICES])
 
-PROCESSED_DIR = '/home/trey/projects/gds/sw/sandbox/processed'
+PROCESSED_DIR = os.path.join(os.path.dirname(thisDir), 'processed')
 
 GALLERY_PAGE_COLS = 3
 GALLERY_PAGE_ROWS = 4
