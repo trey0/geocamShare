@@ -1,6 +1,8 @@
 var ge; // conventional name for Google Earth plugin instance
 
+var SCRIPT_NAME;
 var SERVER_ROOT_URL;
+var MEDIA_URL;
 var gexG;
 var itemsG = null;
 var pageG = null;
@@ -18,7 +20,7 @@ google.load("earth", "1");
 function init() {
     // fetch JSON items and start GE plugin loading in parallel
     google.earth.createInstance('map3d', handleCreateInstanceDone, handleCreateInstanceFailed);
-    $.getJSON(SERVER_ROOT_URL + "share/gallery.json",
+    $.getJSON(SCRIPT_NAME + "/share/gallery.json",
 	      function(items) {
 		  itemsG = items;
 		  setViewIfReady();
@@ -39,7 +41,7 @@ function addItemsToMap(items) {
 }
 
 function getThumbnailUrl(item, width) {
-    return "/share/data/" + item.requestId + "/" + item.version + "/th" + width + ".jpg";
+    return SCRIPT_NAME + "/data/" + item.requestId + "/" + item.version + "/th" + width + ".jpg";
 }
 
 function getGalleryThumbHtml(item) {
@@ -64,7 +66,7 @@ function getGalleryThumbHtml(item) {
 	+ " padding: 5px 5px 5px 5px;"
 	+ "\">"
 	+ "<img"
-	+ " src=\"/media/share/" + item.icon  + ".png\""
+	+ " src=\"" + MEDIA_URL + "share/" + item.icon  + ".png\""
 	+ " width=\"16\""
 	+ " height=\"16\""
 	+ " style=\"position: absolute; z-index: 100;\""
@@ -83,7 +85,7 @@ function getHostUrl(noHostUrl) {
 }
 
 function getPlacemarkKml(item) {
-    var iconUrl = getHostUrl() + '/media/share/' + item.icon + '.png';
+    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + item.icon + '.png';
     return ''
 	+ '<Placemark id="' + item.requestId + '">\n'
 	+ '  <Style>\n'

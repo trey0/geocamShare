@@ -40,15 +40,18 @@ USE_I18N = True
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = '%s/media/' % thisDir
 
+# (not used by django)
+SCRIPT_NAME = os.environ.get('SHARE2_SCRIPT_NAME', '')
+
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/media/'
+MEDIA_URL = SCRIPT_NAME + '/media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.  Must not be the same as MEDIA_URL!
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_media/'
+ADMIN_MEDIA_PREFIX = SCRIPT_NAME + '/media/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@@2_ck7)x$q#$325tpaw3vq)wuqt2ch+oy77$k-&j5m^1(^f(j'
@@ -74,6 +77,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'share2.urls'
@@ -96,7 +100,16 @@ INSTALLED_APPS = (
     'share2.share',
 )
 
+#DEBUG_TOOLBAR_CONFIG = {
+#    'INTERCEPT_REDIRECTS': False,
+#    'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+#    #'EXTRA_SIGNALS': ['myproject.signals.MySignal'],
+#    'HIDE_DJANGO_SQL': False,
+#}
+
 ######################################################################
+
+USE_STATIC_SERVE = False
 
 STATUS_CHOICES = (('p', 'pending'), # in db but not fully processed yet
                   ('a', 'active'),  # active, display this to user
@@ -150,6 +163,7 @@ SKIP_PATTERNS = ['gdsState']
 ROBOT_HOST_MAP = dict(k10black = 'k10brain8',
                       k10red = 'k10brain9',
                       )
+HOST_ROBOT_MAP = dict([(v, k) for k, v in ROBOT_HOST_MAP.iteritems()])
 ROBOT_CODES = dict([(name, code) for (code, name) in ROBOT_CHOICES])
 
 PROCESSED_DIR = os.path.join(os.path.dirname(thisDir), 'processed')

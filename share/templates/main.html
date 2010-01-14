@@ -4,6 +4,8 @@
 
 {% block extrahead %}
   <script type="text/javascript">
+    SCRIPT_NAME = "{{ request.META.SCRIPT_NAME }}";
+    MEDIA_URL = "{{ settings.MEDIA_URL }}";
     SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
     GALLERY_PAGE_COLS = {{ settings.GALLERY_PAGE_COLS }};
     GALLERY_PAGE_ROWS = {{ settings.GALLERY_PAGE_ROWS }};
@@ -22,13 +24,13 @@
     <tr>
       <td colspan="2">
         <ul class="jd_menu">
-          <li><div>File  <img src="/media/share/menuDownTriangle.png" width="13" height="16"/></div>
+          <li><div>File  <img src="{{ settings.MEDIA_URL }}share/menuDownTriangle.png" width="13" height="16"/></div>
             <ul>
 	      <li><div onclick="javascript:newPlan()">New plan</div></li>
 	      <li><div onclick="javascript:openPlan()">Open plan</div></li>
 	    </ul>
 	  </li>
-          <li><div>View  <img src="/media/share/menuDownTriangle.png" width="13" height="16"/></div>
+          <li><div>View  <img src="{{ settings.MEDIA_URL }}share/menuDownTriangle.png" width="13" height="16"/></div>
             <ul>
 	      <li><div onclick="javascript:toggleViewGallery()">Gallery</div></li>
 	      <li><div onclick="javascript:toggleViewMap()">Map</div></li>

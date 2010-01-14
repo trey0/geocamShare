@@ -1,84 +1,48 @@
 #!/usr/bin/env python
 
 import sys
-import glob
-import re
 import os
-import errno
-from cStringIO import StringIO
 
-import rdflib
-from rdflib.Graph import Graph
-import iso8601
 from django.conf import settings
 
+from share2.share.utils import getIdSuffix
+from share2.share.models import LidarScan, LidarPano, Mic, PancamPano, ALL_TASKS_DICT
+
 class RequestIdPath:
-    def __init__(self, robot, date, requestId):
+    def __init__(self, robot, date, requestId, path=None):
         self.robot = robot
         self.date = date
         self.requestId = requestId
-        self.path = '/irg/data/%s/%s/%s' % (settings.ROBOT_HOST_MAP[robot], date, requestId)
+        self.path = path or '/irg/data/%s/%s/%s' % (settings.ROBOT_HOST_MAP[robot], date, requestId)
 
-class Xmp:
-    def __init__(self, xmpFile):
-        self.graph = Graph()
-        xmp = file(xmpFile, 'r').read()
-        match = re.search('<rdf:RDF.*</rdf:RDF>', xmp, re.DOTALL)
-        xmp = match.group(0)
-        self.graph.parse(StringIO(xmp))
+    @staticmethod
+    def fromPath(path):
+        path = path.rstrip('/')
+        elts = path.split(os.path.sep)
+        robotHost, date, requestId = elts[-3:]
+        robot = settings.HOST_ROBOT_MAP[robotHost]
+        return RequestIdPath(robot, date, requestId, path)
 
-    def _getPredicate(self, field):
-        prefix, attr = field.split(':',1)
-        return rdflib.URIRef(self.graph.namespace_manager.store.namespace(prefix) + attr)
+def nukeDb():
+    for dpType in ALL_TASKS_DICT.values():
+        dpType.objects.all().delete()
 
-    def get(self, field):
-        subject = rdflib.URIRef('')
-        predicate = self._getPredicate(field)
-        value = self.graph.value(subject, predicate, None)
-        if value == None:
-            raise KeyError(field)
-        else:
-            return value
+def processReqPath(reqPath):
+    for pat in settings.SKIP_PATTERNS:
+        if pat in reqPath.requestId:
+            return # no processing needed
+    idSuffix = getIdSuffix(reqPath.requestId)
+    if idSuffix.startswith('LS'):
+        td = LidarScan()
+    elif idSuffix.startswith('LP'):
+        td = LidarPano()
+    elif idSuffix.startswith('P'):
+        td = PancamPano()
+    elif idSuffix.startswith('MIC'):
+        td = Mic()
+    else:
+        print >>sys.stderr, 'skipping requestId with unknown suffix %s' % idSuffix
+        return
+    td.process(reqPath)
+    td.save()
 
-    def getDegMin(self, field, dirValues):
-        val = self.get(field)
-        degMin = val[:-1]
-        degS, minS = degMin.split(',')
-        deg = float(degS)
-        min = float(minS)
-        dirS = val[-1]
-        if dirS == dirValues[0]:
-            sign = 1
-        elif dirS == dirValues[1]:
-            sign = -1
-        else:
-            raise ValueError('expected dir in %s, got %s' % (dirValues, dirS))
-        return sign * (deg + min/60.)
-
-    def getYaw(self):
-        yaw = float(self.get('exif:GPSImgDirection'))
-        if yaw < 0:
-            yaw = yaw + 360
-        elif yaw > 360:
-            yaw = yaw - 360
-        return yaw
-
-    def copyToTaskData(self, td):
-        td.timestamp = iso8601.parse_date(self.get('exif:DateTimeOriginal'))
-        td.lat = self.getDegMin('exif:GPSLatitude', 'NS')
-        td.lon = self.getDegMin('exif:GPSLongitude', 'EW')
-        td.yaw = self.getYaw()
-
-def getMiddleXmpFile(reqPath):
-    allXmps = glob.glob('%s/*.xmp' % reqPath.path)
-    return allXmps[len(allXmps)//2]
-    
-def getIdSuffix(requestId):
-    return requestId.split('_')[-1]
-
-def mkdirP(dir):
-    try:
-        os.makedirs(dir)
-    except OSError, err:
-        if err.errno != errno.EEXIST:
-            raise

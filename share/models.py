@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from tagging.fields import TagField
 from django.conf import settings
 
-from share2.share.indexlib import RequestIdPath, Xmp, getMiddleXmpFile, getIdSuffix, mkdirP
+from share2.share.utils import Xmp, getMiddleXmpFile, getIdSuffix, mkdirP
 
 class TaskData(models.Model):
     robot = models.CharField(max_length=40, choices=settings.ROBOT_CHOICES)

@@ -83,6 +83,9 @@ def galleryJson(request):
 
 def main(request):
     pager, pageData = getGalleryData(request, '1')
+    print >>sys.stderr, request
+    import os
+    print >>sys.stderr, os.environ
     return render_to_response('main.html',
                               dict(pager = pager,
                                    data = pageData),
