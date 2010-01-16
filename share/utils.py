@@ -61,6 +61,10 @@ class Xmp:
 
 def getMiddleXmpFile(reqPath):
     allXmps = glob.glob('%s/*.xmp' % reqPath.path)
+    allXmps = [x for x in allXmps
+               if not x.startswith('thumbnail')]
+    allXmps.sort()
+    assert len(allXmps) > 0
     return allXmps[len(allXmps)//2]
     
 def getIdSuffix(requestId):
