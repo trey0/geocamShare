@@ -18,4 +18,4 @@ if settings.USE_STATIC_SERVE:
               show_indexes=True)),
         )
 
-urlpatterns = patterns('', urltuple)
+urlpatterns = patterns('', *urltuple)
