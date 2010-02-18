@@ -8,6 +8,7 @@ admin.autodiscover()
 urltuple = (
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/', include(admin.site.urls)),
+    (r'^comments/', include('django.contrib.comments.urls')),
 )
 
 if settings.USE_STATIC_SERVE:

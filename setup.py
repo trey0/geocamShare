@@ -13,8 +13,10 @@ def dosys(cmd):
 
 def collectMedia():
     dosys('rm -rf build/media')
-    dosys('mkdir -p build/media')
-    dosys('cp -r share/media build/media/share')
+    dosys('mkdir -p build/media/share')
+    dosys('cp -r shareCore/media/* build/media/share/')
+    if __name__ == '__main__':
+        dosys('cp -r shareGeocam/media/* build/media/share/')
     dosys('cp -r /usr/share/pyshared/django/contrib/admin/media build/media/admin')
 
 def makeLocalSettings():
