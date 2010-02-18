@@ -5,8 +5,8 @@ import glob
 
 from django.conf import settings
 
-from share2.share.models import LidarScan, LidarPano, Mic, PancamPano, ALL_TASKS_DICT
-from share2.share.indexlib import RequestIdPath, nukeDb, processReqPath
+from share2.shareCore.models import LidarScan, LidarPano, Mic, PancamPano, ALL_TASKS_DICT
+from share2.shareCore.indexlib import RequestIdPath, nukeDb, processReqPath
 
 def doit(opts):
     if opts.clean:

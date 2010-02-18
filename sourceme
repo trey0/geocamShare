@@ -1,2 +1,2 @@
-export PYTHONPATH=$HOME/projects/gds/sw/sandbox:$PYTHONPATH
+export PYTHONPATH=$HOME/projects/geocam:$PYTHONPATH
 export DJANGO_SETTINGS_MODULE='share2.settings'

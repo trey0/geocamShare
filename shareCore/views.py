@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.utils import simplejson
 from django.conf import settings
 
-from share2.share.models import TaskData, ALL_TASKS_DICT
+from share2.shareCore.models import TaskData, ALL_TASKS_DICT
 
 class Pager:
     def __init__(self, baseUrl, items, pageSize, pageNum):

@@ -3,7 +3,7 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 
 from share2 import settings
-from share2.share import views
+from share2.shareCore import views
 
 admin.autodiscover()
 
