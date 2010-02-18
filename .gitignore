@@ -1,0 +1,5 @@
+*~
+*.pyc
+build
+data
+local_settings.py
