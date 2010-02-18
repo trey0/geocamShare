@@ -8,12 +8,12 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Your Name', 'root@example.com'),
+    ('Trey Smith', 'trey.smith@gmail.com'),
 )
 
 MANAGERS = ADMINS
 DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = '%s/sqlite3.db' % thisDir
+DATABASE_NAME = '%s/build/sqlite3.db' % thisDir
 #DATABASE_USER = ''             # Not used with sqlite3.
 #DATABASE_PASSWORD = ''         # Not used with sqlite3.
 #DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -52,9 +52,6 @@ MEDIA_URL = SCRIPT_NAME + '/media/'
 # trailing slash.  Must not be the same as MEDIA_URL!
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = SCRIPT_NAME + '/media/admin/'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '@@2_ck7)x$q#$325tpaw3vq)wuqt2ch+oy77$k-&j5m^1(^f(j'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -173,3 +170,5 @@ GALLERY_PAGE_ROWS = 4
 
 GALLERY_THUMB_SIZE = [160, 120]
 DESC_THUMB_SIZE = [480, 360]
+
+from share2.build.local_settings import *
