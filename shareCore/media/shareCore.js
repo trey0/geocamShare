@@ -40,6 +40,14 @@ function addItemsToMap(items) {
     addGeDomObjectToMap(geDomObject);
 }
 
+function getMapIconPrefix(item) {
+    return item.icon + 'Point';
+}
+
+function getGalleryIconPrefix(item) {
+    return item.icon;
+}
+
 function getGalleryThumbHtml(item) {
     var w0 = GALLERY_THUMB_SIZE[0];
     var h0 = GALLERY_THUMB_SIZE[1];
@@ -62,7 +70,7 @@ function getGalleryThumbHtml(item) {
 	+ " padding: 5px 5px 5px 5px;"
 	+ "\">"
 	+ "<img"
-	+ " src=\"" + MEDIA_URL + "share/" + item.icon  + ".png\""
+	+ " src=\"" + MEDIA_URL + "share/" + getGalleryIconPrefix(item)  + ".png\""
 	+ " width=\"16\""
 	+ " height=\"16\""
 	+ " style=\"position: absolute; z-index: 100;\""
@@ -81,7 +89,7 @@ function getHostUrl(noHostUrl) {
 }
 
 function getPlacemarkKml(item) {
-    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + item.icon + 'Point.png';
+    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + getMapIconPrefix(item) + '.png';
     return ''
 	+ '<Placemark id="' + item.id + '">\n'
 	+ '  <Style>\n'
