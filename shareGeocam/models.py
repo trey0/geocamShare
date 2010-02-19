@@ -54,17 +54,19 @@ class Feature(models.Model):
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
-        return dict(id=self.uuid,
+        return dict(name=self.name,
+                    id=self.uuid,
                     version=self.version,
                     lat=self.lat,
                     lon=self.lon,
                     yaw=self.yaw,
-                    w = w,
-                    h = h,
-                    icon = self.getIconPrefix(),
-                    timestamp = self.timestamp.strftime('%Y-%m-%d %H:%M'),
-                    owner = self.owner.username,
-                    dateText = self.getDateText(),
+                    w=w,
+                    h=h,
+                    icon=self.getIconPrefix(),
+                    timestamp=self.timestamp.strftime('%Y-%m-%d %H:%M'),
+                    owner=self.owner.username,
+                    dateText=self.getDateText(),
+                    notes=self.notes,
                     )
 
     def getDirUrl(self):
