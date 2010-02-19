@@ -2,7 +2,7 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
-from share2.shareGeocam import views
+from share2.shareGeocam.views import viewSingleton as views
 
 urlpatterns = patterns(
     '',
@@ -10,7 +10,7 @@ urlpatterns = patterns(
     (r'^gallery/(?P<page>\d+)/$', views.gallery),
     (r'^gallery.json$', views.galleryJson),
     (r'^galleryJson.js', views.galleryJsonJs),
-    (r'^main/$', views.main),
+    (r'^$', views.main),
     (r'^data.kml$', views.kml),
 
     )
