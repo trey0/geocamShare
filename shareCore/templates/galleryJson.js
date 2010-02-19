@@ -1,0 +1,2 @@
+itemsG = {{ galleryJsonText|safe }};
+setViewIfReady();

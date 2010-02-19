@@ -34,7 +34,7 @@ def importDir(opts):
         if firstLine:
             firstLine = False
             continue
-        if i == opts.number:
+        if opts.number != 0 and i >= opts.number:
             break
         latStr, lonStr, compassStr, timeStr, name, notes = row
         lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
@@ -74,7 +74,7 @@ def main():
                       default='root',
                       help='Owner of imported photos')
     parser.add_option('-n', '--number',
-                      default=10,
+                      default=0,
                       help='Number of photos to import')
     opts, args = parser.parse_args()
     doit(opts, args)

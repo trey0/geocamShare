@@ -35,11 +35,18 @@ def gallery(request, page):
                                    data = pageData),
                               context_instance=RequestContext(request))
 
+def getGalleryJsonText():
+    return simplejson.dumps([p.getShortDict() for p in Photo.objects.all()],
+                            separators=(',',':') # omit spaces
+                            )
+
 def galleryJson(request):
-    return HttpResponse(simplejson.dumps([p.getShortDict() for p in Photo.objects.all()],
-                                         separators=(',',':') # omit spaces
-                                         ),
-                        mimetype='application/json')
+    return HttpResponse(getGalleryJsonText(), mimetype='application/json')
+
+def galleryJsonJs(request):
+    return render_to_response('galleryJson.js',
+                              dict(galleryJsonText = getGalleryJsonText()),
+                              mimetype='application/json')
 
 def main(request):
     pager, pageData = getGalleryData(request, '1')

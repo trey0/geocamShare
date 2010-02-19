@@ -21,11 +21,13 @@ google.load("earth", "1");
 function init() {
     // fetch JSON items and start GE plugin loading in parallel
     google.earth.createInstance('map3d', handleCreateInstanceDone, handleCreateInstanceFailed);
+    /*
     $.getJSON(SCRIPT_NAME + "/share/gallery.json",
 	      function(items) {
 		  itemsG = items;
 		  setViewIfReady();
 	      });
+    */
     // set up menus
     $(function() { $('#jd_menu').jdMenu(); });
 }
