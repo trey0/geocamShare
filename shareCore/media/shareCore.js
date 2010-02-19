@@ -40,15 +40,11 @@ function addItemsToMap(items) {
     addGeDomObjectToMap(geDomObject);
 }
 
-function getThumbnailUrl(item, width) {
-    return SCRIPT_NAME + "/data/" + item.requestId + "/" + item.version + "/th" + width + ".jpg";
-}
-
 function getGalleryThumbHtml(item) {
     var w0 = GALLERY_THUMB_SIZE[0];
     var h0 = GALLERY_THUMB_SIZE[1];
     return "<td"
-	+ " id=\"" + item.requestId + "\""
+	+ " id=\"" + item.id + "\""
 	+ " style=\""
 	+ " vertical-align: top;"
 	+ " width: " + (w0+10) + "px;"
@@ -85,9 +81,9 @@ function getHostUrl(noHostUrl) {
 }
 
 function getPlacemarkKml(item) {
-    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + item.icon + '.png';
+    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + item.icon + 'Point.png';
     return ''
-	+ '<Placemark id="' + item.requestId + '">\n'
+	+ '<Placemark id="' + item.id + '">\n'
 	+ '  <Style>\n'
 	+ '    <IconStyle>\n'
 	+ '      <Icon>\n'
@@ -216,7 +212,7 @@ function showBalloonForItem(index) {
     var item = itemsG[index];
     var balloon = ge.createHtmlStringBalloon('');
     
-    var placemark = gexG.dom.getObjectById(item.requestId);
+    var placemark = gexG.dom.getObjectById(item.id);
     balloon.setFeature(placemark);
     
     var w0 = DESC_THUMB_SIZE[0];
@@ -247,7 +243,7 @@ function handleMapViewChange() {
 function setMapListeners(items) {
     for (var i=0; i < items.length; i++) {
 	var item = items[i];
-	var placemark = gexG.dom.getObjectById(item.requestId);
+	var placemark = gexG.dom.getObjectById(item.id);
 	google.earth.addEventListener(placemark, 'mouseover',
 				      function(index) {
 					  return function(event) {
@@ -289,7 +285,7 @@ function getVisibleItems(items) {
     var visibleItems = [];
     for (var i=0; i < items.length; i++) {
 	var item = items[i];
-	var placemark = gexG.dom.getObjectById(item.requestId);
+	var placemark = gexG.dom.getObjectById(item.id);
 	if (geomIsInsideBounds(placemark.getGeometry(), globeBounds)) {
 	    visibleItems.push(item);
 	}
@@ -302,10 +298,10 @@ function listsHaveDifferentRequestIds(a, b) {
 
     var adict = {};
     for (var i=0; i < a.length; i++) {
-	adict[a[i].requestId] = true;
+	adict[a[i].id] = true;
     }
     for (var i=0; i < b.length; i++) {
-	if (! adict[b[i].requestId]) {
+	if (! adict[b[i].id]) {
 	    return true;
 	}
     }
@@ -328,7 +324,7 @@ function setPage(visibleItems, pageNum, force) {
 	var i = (pageNum-1)*pageSize + j;
 	if (i < visibleItems.length) {
 	    var item = visibleItems[i];
-	    $("td#" + item.requestId).hover(
+	    $("td#" + item.id).hover(
 					    function(index) {
 						return function() {
 						    highlightItem(index, doMapHighlight=true);
@@ -340,7 +336,7 @@ function setPage(visibleItems, pageNum, force) {
 						}
 					    }(item.index)
 					    );
-	    $("td#" + item.requestId).click(
+	    $("td#" + item.id).click(
 					    function(index) {
 						return function() {
 						    showBalloonForItem(index);
@@ -377,29 +373,6 @@ function setViewIfReady() {
     }
 }
 
-function getCaptionHtml(item) {
-    return ''
-	+ '<table>\n'
-	+ '  <tr>\n'
-	+ '    <td colspan="2">' + item.requestId + '&nbsp;&nbsp;</td>\n'
-	+ '    <td colspan="2">' + item.timestamp + '</td>\n'
-	+ '  </tr>\n'
-	+ '  <tr>\n'
-  	+ '    <td style="font-style: italic">Task:</td>\n'
-	+ '    <td>' + TASK_CHOICES_DICT[item.task] + '</td>\n'
-	+ '    <td style="font-style: italic">Params:</td>\n'
-	+ '    <td>' + item.params + '</td>\n'
-	+ '  </tr>\n'
-	+ '  <tr>\n'
-  	+ '    <td style="font-style: italic">Tags:</td>\n'
-	+ '    <td colspan="3">' + 'not implemented yet' + '</td>\n'
-	+ '  </tr>\n'
-	+ '  <tr>\n'
-  	+ '    <td colspan="4">Comments not implemented yet</td>\n'
-	+ '  </tr>\n'
-	+ '</table>\n';
-}
-
 function highlightItem(index, doMapHighlight) {
     if (highlightedItemG != index) {
 	if (highlightedItemG != null) {
@@ -409,12 +382,12 @@ function highlightItem(index, doMapHighlight) {
 	var item = itemsG[index];
 
 	setPage(visibleItemsG, getItemPage(item, visibleItemsG));
-	$("td#" + item.requestId + " div").css({backgroundColor: 'red'});
+	$("td#" + item.id + " div").css({backgroundColor: 'red'});
 	
 	$("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
 
 	if (doMapHighlight) {
-	    placemark = gexG.dom.getObjectById(item.requestId);
+	    placemark = gexG.dom.getObjectById(item.id);
 	    placemark.getStyleSelector().getIconStyle().setScale(1.5);
 	}
 
@@ -426,11 +399,11 @@ function unhighlightItem(index) {
     if (highlightedItemG == index) {
 	var item = itemsG[index];
 	
-	$("td#" + item.requestId + " div").css({backgroundColor: ''});
+	$("td#" + item.id + " div").css({backgroundColor: ''});
 	
 	$("#caption").html('');
 
-	placemark = gexG.dom.getObjectById(item.requestId);
+	placemark = gexG.dom.getObjectById(item.id);
 	placemark.getStyleSelector().getIconStyle().setScale(1);
 
 	highlightedItemG = null;

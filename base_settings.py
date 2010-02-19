@@ -8,7 +8,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = '%s/data/sqlite3.db' % CHECKOUT_DIR
+DATABASE_NAME = '%s/sqlite3.db' % CHECKOUT_DIR
 #DATABASE_USER = ''             # Not used with sqlite3.
 #DATABASE_PASSWORD = ''         # Not used with sqlite3.
 #DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.

@@ -1,2 +1,3 @@
 export PYTHONPATH=$HOME/projects/geocam:$PYTHONPATH
 export DJANGO_SETTINGS_MODULE='share2.settings'
+export DJANGO_SCRIPT_NAME='/shareGeocam'

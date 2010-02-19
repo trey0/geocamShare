@@ -77,3 +77,14 @@ def mkdirP(dir):
         if err.errno != errno.EEXIST:
             raise
 
+def makeUuid():
+    try:
+        import uuid
+    except ImportError:
+        # before python 2.5
+        import random
+        return '%04x-%02x-%02x-%02x-%06x' % (random.getrandbits(32), random.getrandbits(8),
+                                             random.getrandbits(8), random.getrandbits(8),
+                                             random.getrandbits(48))
+    else:
+        return str(uuid.uuid4())
