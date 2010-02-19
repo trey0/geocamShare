@@ -10,6 +10,7 @@ var highlightedItemG = null;
 var earthLoadedG = false;
 var visibleItemsG = [];
 var mapViewChangeTimeoutG = null;
+var allFeaturesDomObjectG = null;
 
 /*
 var lineStringG;
@@ -38,6 +39,13 @@ function addItemsToMap(items) {
     var kml = getKml(items);
     var geDomObject = ge.parseKml(kml);
     addGeDomObjectToMap(geDomObject);
+
+    // cache getObjectById results to minimize walking the DOM
+    allFeaturesDomObjectG = gexG.dom.getObjectById('allFeatures');
+    for (var i=0; i < items.length; i++) {
+        item = items[i];
+        item.domObject = gexG.dom.getObjectById(item.id);
+    }
 }
 
 function getMapIconPrefix(item) {
@@ -220,7 +228,7 @@ function showBalloonForItem(index) {
     var item = itemsG[index];
     var balloon = ge.createHtmlStringBalloon('');
     
-    var placemark = gexG.dom.getObjectById(item.id);
+    var placemark = item.domObject;
     balloon.setFeature(placemark);
     
     var w0 = DESC_THUMB_SIZE[0];
@@ -251,7 +259,7 @@ function handleMapViewChange() {
 function setMapListeners(items) {
     for (var i=0; i < items.length; i++) {
 	var item = items[i];
-	var placemark = gexG.dom.getObjectById(item.id);
+	var placemark = item.domObject;
 	google.earth.addEventListener(placemark, 'mouseover',
 				      function(index) {
 					  return function(event) {
@@ -276,9 +284,9 @@ function setMapListeners(items) {
     google.earth.addEventListener(ge.getView(), 'viewchangeend', handleMapViewChange);
 }
 
-function geomIsInsideBounds(geom, bounds) {
-    var lat = geom.getLatitude();
-    var lon = geom.getLongitude();
+function itemIsInsideBounds(item, bounds) {
+    var lat = item.lat;
+    var lon = item.lon;
     return ((bounds.getSouth() <= lat) && (lat <= bounds.getNorth())
 	    && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));
 }
@@ -293,8 +301,8 @@ function getVisibleItems(items) {
     var visibleItems = [];
     for (var i=0; i < items.length; i++) {
 	var item = items[i];
-	var placemark = gexG.dom.getObjectById(item.id);
-	if (geomIsInsideBounds(placemark.getGeometry(), globeBounds)) {
+	var placemark = item.domObject;
+	if (itemIsInsideBounds(item, globeBounds)) {
 	    visibleItems.push(item);
 	}
     }
@@ -395,7 +403,7 @@ function highlightItem(index, doMapHighlight) {
 	$("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
 
 	if (doMapHighlight) {
-	    placemark = gexG.dom.getObjectById(item.id);
+	    placemark = item.domObject;
 	    placemark.getStyleSelector().getIconStyle().setScale(1.5);
 	}
 
@@ -411,7 +419,7 @@ function unhighlightItem(index) {
 	
 	$("#caption").html('');
 
-	placemark = gexG.dom.getObjectById(item.id);
+	placemark = item.domObject;
 	placemark.getStyleSelector().getIconStyle().setScale(1);
 
 	highlightedItemG = null;
@@ -459,6 +467,5 @@ function openPlan() {
 }
 
 function zoomToFit() {
-    var allFeatures = gexG.dom.getObjectById('allFeatures');
-    gexG.util.flyToObject(allFeatures);
+    gexG.util.flyToObject(allFeaturesDomObjectG);
 }
