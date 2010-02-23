@@ -4,13 +4,15 @@ var SCRIPT_NAME;
 var SERVER_ROOT_URL;
 var MEDIA_URL;
 var gexG;
-var itemsG = null;
+var itemsG = [];
+var newItemsG = [];
 var pageG = null;
 var highlightedItemG = null;
 var earthLoadedG = false;
 var visibleItemsG = [];
 var mapViewChangeTimeoutG = null;
-var allFeaturesDomObjectG = null;
+var allFeaturesFolderG = null;
+var earthListenersInitializedG = false;
 
 /*
 var lineStringG;
@@ -21,32 +23,87 @@ google.load("earth", "1");
 function init() {
     // fetch JSON items and start GE plugin loading in parallel
     google.earth.createInstance('map3d', handleCreateInstanceDone, handleCreateInstanceFailed);
-    /*
-    $.getJSON(SCRIPT_NAME + "/share/gallery.json",
-	      function(items) {
-		  itemsG = items;
-		  setViewIfReady();
-	      });
-    */
     // set up menus
     $(function() { $('#jd_menu').jdMenu(); });
 }
 
-function addGeDomObjectToMap(geDomObject) {
-    ge.getFeatures().appendChild(geDomObject);
-    gexG.util.flyToObject(geDomObject);
+function reloadItems() {
+    $.getJSON(SCRIPT_NAME + "/gallery.json",
+	      function (items) {
+                  newItemsG = items;
+                  setViewIfReady();
+              });
 }
 
-function addItemsToMap(items) {
-    var kml = getKml(items);
-    var geDomObject = ge.parseKml(kml);
-    addGeDomObjectToMap(geDomObject);
+function diffItems(oldItems, newItems) {
+    var oldItemsById = {};
+    for (var i=0; i < oldItems.length; i++) {
+        var item = oldItems[i];
+        oldItemsById[item.id] = item;
+        item.keep = false;
+    }
 
-    // cache getObjectById results to minimize walking the DOM
-    allFeaturesDomObjectG = gexG.dom.getObjectById('allFeatures');
-    for (var i=0; i < items.length; i++) {
-        item = items[i];
-        item.domObject = gexG.dom.getObjectById(item.id);
+    var diff = {};
+    diff.itemsToAdd = [];
+    for (var i=0; i < newItems.length; i++) {
+        var item = newItems[i];
+        var matchingOldItem = oldItemsById[item.id];
+        if (matchingOldItem == null || matchingOldItem.version != item.version) {
+            diff.itemsToAdd.push(item);
+        } else {
+            matchingOldItem.keep = true;
+            item.domObject = matchingOldItem.domObject;
+        }
+    }
+    
+    diff.itemsToDelete = [];
+    for (var i=0; i < oldItems.length; i++) {
+        var item = oldItems[i];
+        if (!item.keep) {
+            diff.itemsToDelete.push(item);
+        }
+    }
+
+    return diff;
+}
+
+function updateItemsInMap(diff) {
+    if (diff.itemsToDelete != []) {
+        for (var i=0; i < diff.itemsToDelete.length; i++) {
+            var item = diff.itemsToDelete[i];
+            var parent = item.domObject.getParentNode();
+            parent.deleteChild(item.domObject);
+        }
+    }
+
+    if (diff.itemsToAdd != []) {
+        var items = diff.itemsToAdd;
+
+        if (allFeaturesFolderG == null) {
+            allFeaturesFolderG = ge.createFolder("allFeatures");
+            ge.getFeatures().appendChild(allFeaturesFolderG);
+        }
+        for (var i=0; i < items.length; i++) {
+            var item = items[i];
+            var kml = wrapKml(getPlacemarkKml(item));
+            var geItem = ge.parseKml(kml);
+            allFeaturesFolderG.getFeatures().appendChild(geItem);
+            item.domObject = geItem;
+        }
+        zoomToFit();
+
+        /*
+        var kml = getKmlForItems(items);
+        var geDomObject = ge.parseKml(kml);
+        ge.getFeatures().appendChild(geDomObject);
+        gexG.util.flyToObject(geDomObject);
+
+        // cache getObjectById results to minimize walking the DOM
+        allFeaturesFolderG = gexG.dom.getObjectById('allFeatures');
+        for (var i=0; i < items.length; i++) {
+            item = items[i];
+            item.domObject = gexG.dom.getObjectById(item.id);
+            }*/
     }
 }
 
@@ -116,18 +173,22 @@ function getPlacemarkKml(item) {
 	+ '</Placemark>\n';
 }
 
-function getKml(items) {
-    var kml = ''
-	+ '<?xml version="1.0" encoding="UTF-8"?>\n'
+function wrapKml(text) {
+    return '<?xml version="1.0" encoding="UTF-8"?>\n'
 	+ '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
+        + text
+        + '</kml>';
+}
+
+function getKmlForItems(items) {
+    var kml = ''
 	+ '  <Document id="allFeatures">\n';
     for (var i=0; i < items.length; i++) {
 	kml += getPlacemarkKml(items[i]);
     }
     kml += ''
-	+ '  </Document>\n'
-	+ '</kml>\n';
-    return kml;
+	+ '  </Document>\n';
+    return wrapKml(kml);
 }
 
 function pg0(page, text) {
@@ -301,7 +362,10 @@ function setMapListeners(items) {
 				      }(item.index));
     }
 
-    google.earth.addEventListener(ge.getView(), 'viewchangeend', handleMapViewChange);
+    if (!earthListenersInitializedG) {
+        google.earth.addEventListener(ge.getView(), 'viewchangeend', handleMapViewChange);
+    }
+    earthListenersInitializedG = true;
 }
 
 function itemIsInsideBounds(item, bounds) {
@@ -329,7 +393,7 @@ function getVisibleItems(items) {
     return visibleItems;
 }
 
-function listsHaveDifferentRequestIds(a, b) {
+function listsHaveDifferentIds(a, b) {
     if (a.length != b.length) return true;
 
     var adict = {};
@@ -345,7 +409,7 @@ function listsHaveDifferentRequestIds(a, b) {
 }
 
 function setGalleryToVisibleSubsetOf(items) {
-    setGalleryItems(getVisibleItems(items));
+    setGalleryItems(getVisibleItems(items), items);
 }
 
 function setPage(visibleItems, pageNum, force) {
@@ -385,27 +449,29 @@ function setPage(visibleItems, pageNum, force) {
     pageG = pageNum;
 }
 
-function setGalleryItems(visibleItems, pageNum) {
-    if (!listsHaveDifferentRequestIds(visibleItemsG, visibleItems)) return;
+function setGalleryItems(visibleItems, allItems) {
+    if (!listsHaveDifferentIds(visibleItemsG, visibleItems)) return;
 
     fhtml = (visibleItems.length) + ' of '
-	+ (itemsG.length) + ' features in view';
+	+ (allItems.length) + ' features in view';
     $('#featuresOutOfView').html(fhtml);
 
     setPage(visibleItems, 1, force=true);
     visibleItemsG = visibleItems;
 }
 
-function setView(items) {
-    annotateItems(items);
-    addItemsToMap(items);
-    setMapListeners(items);
-    setGalleryToVisibleSubsetOf(items);
+function setView(oldItems, newItems) {
+    var diff = diffItems(oldItems, newItems);
+    annotateItems(newItems);
+    updateItemsInMap(diff);
+    setMapListeners(diff.itemsToAdd);
+    setGalleryToVisibleSubsetOf(newItems);
 }
 
 function setViewIfReady() {
-    if (earthLoadedG && itemsG != null) {
-	setView(itemsG);
+    if (earthLoadedG && newItemsG != null) {
+	setView(itemsG, newItemsG);
+        itemsG = newItemsG;
     }
 }
 
@@ -423,7 +489,7 @@ function highlightItem(index, doMapHighlight) {
 	$("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
 
 	if (doMapHighlight) {
-	    placemark = item.domObject;
+	    var placemark = item.domObject;
 	    placemark.getStyleSelector().getIconStyle().setScale(1.5);
 	}
 
@@ -487,5 +553,5 @@ function openPlan() {
 }
 
 function zoomToFit() {
-    gexG.util.flyToObject(allFeaturesDomObjectG);
+    gexG.util.flyToObject(allFeaturesFolderG);
 }
