@@ -26,10 +26,7 @@ function getCaptionHtml(item) {
 	+ '  </tr>\n'
 	+ '  <tr>\n'
   	+ '    <td style="font-style: italic">Tags:</td>\n'
-	+ '    <td colspan="3">' + 'not implemented yet' + '</td>\n'
-	+ '  </tr>\n'
-	+ '  <tr>\n'
-  	+ '    <td colspan="4">Comments not implemented yet</td>\n'
+	+ '    <td colspan="3">' + item.tags + '</td>\n'
 	+ '  </tr>\n'
 	+ '</table>\n';
 }

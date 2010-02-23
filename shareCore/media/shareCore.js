@@ -175,7 +175,7 @@ function getGalleryHtml(items, pageNum) {
     html = "<table style=\"margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px; background-color: #ddd;\">";
     html += '<tr><td colspan="3">';
     html += getPagerHtml(items, pageNum)
-    html += '<div style="float: right;">Hide</div>';
+    //html += '<div style="float: right;">Hide</div>';
     html += '</td></tr>';
     for (var r=0; r < GALLERY_PAGE_ROWS; r++) {
 	html += "<tr>";

@@ -14,25 +14,8 @@
 
   <table style="width: 100%; height: 100%;">
     <tr><td colspan="2" style="font-size: 1.2em; font-weight: bold;">{% block siteTitle %}GeoCam Share{% endblock %} - {% block siteSection %}Main{% endblock %}</td></tr>
-    <tr>
-      <td colspan="2">
-        <ul class="jd_menu">
-          <li><div>File  <img src="{{ settings.MEDIA_URL }}share/menuDownTriangle.png" width="13" height="16"/></div>
-            <ul>
-	      <li><div onclick="javascript:newPlan()">New plan</div></li>
-	      <li><div onclick="javascript:openPlan()">Open plan</div></li>
-	    </ul>
-	  </li>
-          <li><div>View  <img src="{{ settings.MEDIA_URL }}share/menuDownTriangle.png" width="13" height="16"/></div>
-            <ul>
-	      <li><div onclick="javascript:toggleViewGallery()">Gallery</div></li>
-	      <li><div onclick="javascript:toggleViewMap()">Map</div></li>
-	    </ul>
-	  </li>
-        </ul>
-      </td>
-    </tr>
     <tr style="height: 100%;">
+      <td>{% include "mapPane.html" %}</td>
       <td style="width: 520px; vertical-align: top; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;">
         <div id="gallery">
           Loading...
@@ -40,7 +23,6 @@
         <div id="caption">
         </div>
       </td>
-      <td>{% include "mapPane.html" %}</td>
     </tr>
   </table>
 {% endblock %}

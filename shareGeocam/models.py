@@ -14,7 +14,7 @@ from share2.shareCore.utils import mkdirP, makeUuid
 
 class Feature(models.Model):
     name = models.CharField(max_length=80)
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, related_name='owned_set')
     timestamp = models.DateTimeField()
     lat = models.FloatField() # WGS84 degrees
     lon = models.FloatField() # WGS84 degrees
@@ -67,6 +67,7 @@ class Feature(models.Model):
                     owner=self.owner.username,
                     dateText=self.getDateText(),
                     notes=self.notes,
+                    tags=self.tags
                     )
 
     def getDirUrl(self):

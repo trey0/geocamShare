@@ -23,9 +23,9 @@ def parseCsvTime(timeStr):
     timeStr = re.sub(r'\.\d+$', '', timeStr)
     return datetime.datetime.strptime(timeStr, '%Y-%m-%d %H:%M:%S')
 
-def importDir(opts):
+def importDir(opts, dir):
     owner = User.objects.get(username=opts.user)
-    dir = os.path.realpath(opts.importDir)
+    dir = os.path.realpath(dir)
     csvName = glob.glob('%s/*.csv' % dir)[0]
     reader = csv.reader(file(csvName, 'r'))
     firstLine = True
@@ -36,7 +36,14 @@ def importDir(opts):
             continue
         if opts.number != 0 and i >= opts.number:
             break
-        latStr, lonStr, compassStr, timeStr, name, notes = row
+        allText = ' '.join(row)
+        if opts.match and not re.search(opts.match, allText):
+            continue
+        latStr, lonStr, compassStr, timeStr, name, notes, tagsStr, creatorName = row
+        tags = [t.strip() for t in tagsStr.split(',')]
+        tags = [t for t in tags if t != 'default']
+        tags.append(creatorName)
+        tagsDb = ', '.join(tags)
         lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
         if lat == -999:
             continue
@@ -48,36 +55,44 @@ def importDir(opts):
                            defaults=dict(lat=lat,
                                          lon=lon,
                                          yaw=compass,
-                                         notes=notes)))
+                                         notes=notes,
+                                         tags=tagsDb,
+                                         )))
         if created:
             print 'processing', unicode(photo)
             photo.process(importFile=os.path.join(dir, 'photos', name))
             photo.save()
+        else:
+            print 'skipping already imported ', unicode(photo)
         i += 1
 
-def doit(opts, args):
+def doit(opts, importDirs):
     if opts.clean:
         Feature.objects.all().delete()
         Photo.objects.all().delete()
-    importDir(opts)
+    for dir in importDirs:
+        importDir(opts, dir)
 
 def main():
     import optparse
-    parser = optparse.OptionParser('usage: %prog')
+    parser = optparse.OptionParser('usage: %prog <dir1> [dir2 ...]')
     parser.add_option('-c', '--clean',
                       action='store_true', default=False,
                       help='Clean database before import')
-    parser.add_option('-d', '--importDir',
-                      default=DEFAULT_IMPORT_DIR,
-                      help='Directory containing photos and CSV file [%default]')
     parser.add_option('-u', '--user',
                       default='root',
                       help='Owner of imported photos')
+    parser.add_option('-m', '--match',
+                      default=None,
+                      help='Import only photos matching specified pattern')
     parser.add_option('-n', '--number',
                       default=0,
                       help='Number of photos to import')
     opts, args = parser.parse_args()
-    doit(opts, args)
+    if not args:
+        parser.error('expected at least one directory to import')
+    importDirs = args
+    doit(opts, importDirs)
 
 if __name__ == '__main__':
     main()
