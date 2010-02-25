@@ -45,10 +45,10 @@ class SearchCore:
 
     def filterFieldDefault(self, query, clause, field, term, negated):
         if field == None:
-            fields = self.fields
+            fields = self.flookup.keys()
         elif field not in self.flookup:
             raise BadQuery("Oops, can't understand field name '%s' of search '%s'.  Legal field names are: %s."
-                           % (field, query, ', '.join(self.fields)))
+                           % (field, query, ', '.join(self.flookup.keys())))
         else:
             fields = [field]
         if not re.search('^[\.\-\_a-zA-Z0-9]*$', term):

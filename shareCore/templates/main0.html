@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block jsSetVars %}
-  SCRIPT_NAME = "{{ request.META.SCRIPT_NAME }}";
+  SCRIPT_NAME = "{{ settings.SCRIPT_NAME }}";
   MEDIA_URL = "{{ settings.MEDIA_URL }}";
   SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
   GALLERY_PAGE_COLS = {{ settings.GALLERY_PAGE_COLS }};
