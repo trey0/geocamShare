@@ -19,7 +19,7 @@
       </td>
       <td>
         <form style="display: inline" onsubmit="return reloadItems($('#searchBox').val());">
-          <input id="searchBox" type="text" value="Search" style="color: #999; font-size: 1em; width: 470px;" onclick="if (this.value == 'Search') { this.value = ''; this.style.color = '#000'; }" onblur="if (this.value == '') { this.value = 'Search'; this.style.color = '#999'; }"/>
+          <input id="searchBox" type="text" value="Search" style="color: #999; font-size: 1em; width: 470px;" onfocus="if (this.value == 'Search') { this.value = ''; this.style.color = '#000'; }" onblur="if (this.value == '') { this.value = 'Search'; this.style.color = '#999'; }"/>
           <input type="submit"  style="float: center; vertical-align: middle;" value="Go"/>
         </form>
       </td>
