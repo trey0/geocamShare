@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
 import os
-from glob import glob
-import gds.setup
+import sys
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-GDS_DIR = gds.setup.THIS_DIR
 EXTENSIONS = ['.py', '.js', '.html']
 
 def dosys(cmd):
@@ -43,10 +41,14 @@ def doit(opts):
     os.chdir(THIS_DIR)
     links = []
 
+    if not os.path.exists(os.path.join(opts.gdsDir, 'setup.py')):
+        print >>sys.stderr, 'no setup.py found in GDS directory; try -g option'
+        sys.exit(1)
+
     # gds symlinks in top-level dir
-    for p in matchFiles(GDS_DIR, EXTENSIONS, nlevels=0):
+    for p in matchFiles(opts.gdsDir, EXTENSIONS, nlevels=0):
         stem, ext = os.path.splitext(p)
-        links.append(('%s/%s' % (GDS_DIR, p), '%s--gds%s' % (stem, ext)))
+        links.append(('%s/%s' % (opts.gdsDir, p), '%s--gds%s' % (stem, ext)))
 
     # geocam symlinks in shareCore
     for p in matchFiles('shareGeocam', EXTENSIONS):
@@ -54,9 +56,9 @@ def doit(opts):
         links.append(('shareGeocam/%s' % p, 'shareCore/%s--geocam%s' % (stem, ext)))
     
     # gds symlinks in shareCore
-    for p in matchFiles('%s/shareGds' % GDS_DIR, EXTENSIONS):
+    for p in matchFiles('%s/shareGds' % opts.gdsDir, EXTENSIONS):
         stem, ext = os.path.splitext(p)
-        links.append(('%s/shareGds/%s' % (GDS_DIR, p), 'shareCore/%s--gds%s' % (stem, ext)))
+        links.append(('%s/shareGds/%s' % (opts.gdsDir, p), 'shareCore/%s--gds%s' % (stem, ext)))
 
     for targ, src in links:
         if opts.clean:
@@ -70,6 +72,9 @@ def main():
     parser.add_option('-c', '--clean',
                       action='store_true', default=False,
                       help='Clean links instead of creating them')
+    parser.add_option('-g', '--gdsDir',
+                      default='../../gds/gds',
+                      help='Directory containing setup.py for GDS [%default]')
     opts, args = parser.parse_args()
     if args:
         parser.error('expected no arguments')

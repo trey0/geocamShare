@@ -15,7 +15,7 @@ class Pager:
     def pager(self):
         ret = []
         if self.pageNum > 1:
-            ret.append('<a href="%s/%d/">&lt;&lt;</a>' % (self.baseUrl, self.pageNum-1))
+            ret.append('<a href="%s/%d/">&laquo; previous</a>' % (self.baseUrl, self.pageNum-1))
             ret.append('<a href="%s/1/">1</a>' % (self.baseUrl))
         if self.pageNum > 2:
             if self.pageNum > 3:
@@ -29,7 +29,7 @@ class Pager:
                 ret.append('...')
         if self.pageNum < self.numPages:
             ret.append('<a href="%s/%d/">%d</a>' % (self.baseUrl, self.numPages, self.numPages))
-            ret.append('<a href="%s/%d/">&gt;&gt;</a>' % (self.baseUrl, self.pageNum+1))
+            ret.append('<a href="%s/%d/">next &raquo;</a>' % (self.baseUrl, self.pageNum+1))
         if ret:
             return mark_safe('pages:&nbsp;' + '&nbsp;'.join(ret))
         else:

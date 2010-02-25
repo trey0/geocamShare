@@ -138,13 +138,24 @@ function pg(page) {
     return pg0(page, page);
 }
 
+function disabled(text) {
+    return '<span style="color: #999999">' + text + '</span>';
+}
+
 function getPagerHtml(items, pageNum) {
     const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
     var numPages = Math.ceil(items.length / pageSize);
+    var maxDisplayPages = Math.min(numPages, 8);
+    var divWidth = maxDisplayPages * 12;
 
     ret = [];
     if (pageNum > 1) {
-	ret.push(pg0(pageNum-1, '&lt;&lt;'));
+	ret.push(pg0(pageNum-1, '&laquo; previous'));
+    } else {
+        ret.push(disabled('&laquo; previous'));
+    }
+    ret.push('<div style="width: ' + divWidth + 'px; text-align: center; display: inline-block;">');
+    if (pageNum > 1) {
 	ret.push(pg(1));
     }
     if (pageNum > 2) {
@@ -153,7 +164,9 @@ function getPagerHtml(items, pageNum) {
 	}
 	ret.push(pg(pageNum-1));
     }
-    ret.push('' + pageNum);
+    if (numPages > 1) {
+        ret.push('' + pageNum);
+    }
     if (pageNum < numPages-1) {
 	ret.push(pg(pageNum+1));
 	if (pageNum < numPages-2) {
@@ -162,19 +175,24 @@ function getPagerHtml(items, pageNum) {
     }
     if (pageNum < numPages) {
 	ret.push(pg(numPages));
-	ret.push(pg0(pageNum+1, '&gt;&gt;'));
+    }
+    ret.push('</div>');
+    if (pageNum < numPages) {
+	ret.push(pg0(pageNum+1, 'next &raquo;'));
+    } else {
+	ret.push(disabled('next &raquo;'));
     }
     if (ret.length != 0) {
-	return 'pages:&nbsp;' + ret.join('&nbsp;');
+	return ret.join(' ');
     } else {
-	return '';
+	return '&nbsp;';
     }
 }
 
 function getGalleryHtml(items, pageNum) {
     html = "<table style=\"margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px; background-color: #ddd;\">";
     html += '<tr><td colspan="3">';
-    html += getPagerHtml(items, pageNum)
+    html += getPagerHtml(items, pageNum);
     //html += '<div style="float: right;">Hide</div>';
     html += '</td></tr>';
     for (var r=0; r < GALLERY_PAGE_ROWS; r++) {

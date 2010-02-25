@@ -15,7 +15,7 @@ from share2.shareCore.Pager import Pager
 class ViewCore:
     def getGalleryData(self, request, page):
         pager = Pager(baseUrl=request.build_absolute_uri('..').rstrip('/'),
-                      items=self.getAllFeatures(),
+                      items=self.getMatchingFeatures(request),
                       pageSize=settings.GALLERY_PAGE_ROWS*settings.GALLERY_PAGE_COLS,
                       pageNum=int(page))
         pageData = pager.slice()
@@ -30,8 +30,9 @@ class ViewCore:
                                        data = pageData),
                                   context_instance=RequestContext(request))
     
-    def getGalleryJsonText(self):
-        return simplejson.dumps([p.getShortDict() for p in self.getAllFeatures()],
+    def getGalleryJsonText(self, request):
+        features = self.getMatchingFeatures(request)
+        return simplejson.dumps([p.getShortDict() for p in features],
                                 separators=(',',':') # omit spaces
                                 )
 
@@ -40,7 +41,7 @@ class ViewCore:
 
     def galleryJsonJs(self, request):
         return render_to_response('galleryJson.js',
-                                  dict(galleryJsonText = self.getGalleryJsonText()),
+                                  dict(galleryJsonText = self.getGalleryJsonText(request)),
                                   mimetype='application/json')
 
     def main(self, request):

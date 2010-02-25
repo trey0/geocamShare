@@ -13,7 +13,12 @@
 {% block contents %}
 
   <table style="width: 100%; height: 100%;">
-    <tr><td colspan="2" style="font-size: 1.2em; font-weight: bold;">{% block siteTitle %}GeoCam Share{% endblock %} - {% block siteSection %}Main{% endblock %}</td></tr>
+    <tr>
+      <td colspan="2">
+        <span style="font-size: 1.2em; font-weight: bold;">{% block siteTitle %}GeoCam Share{% endblock %} - {% block siteSection %}Main{% endblock %}</span>
+        <span style="float: right;">Search</span>
+      </td>
+    </tr>
     <tr style="height: 100%;">
       <td>{% include "mapPane.html" %}</td>
       <td style="width: 520px; vertical-align: top; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;">

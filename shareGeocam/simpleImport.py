@@ -68,6 +68,7 @@ def importDir(opts, dir):
 
 def doit(opts, importDirs):
     if opts.clean:
+        print 'cleaning'
         Feature.objects.all().delete()
         Photo.objects.all().delete()
     for dir in importDirs:
@@ -90,7 +91,7 @@ def main():
                       help='Number of photos to import')
     opts, args = parser.parse_args()
     if not args:
-        parser.error('expected at least one directory to import')
+        print >>sys.stderr, 'warning: no import dirs specified, not importing anything'
     importDirs = args
     doit(opts, importDirs)
 
