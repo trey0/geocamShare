@@ -50,9 +50,6 @@ class ViewCore:
 
     def main(self, request):
         pager, pageData = self.getGalleryData(request, '1')
-        print >>sys.stderr, request
-        import os
-        print >>sys.stderr, os.environ
         return render_to_response('main.html',
                                   dict(pager = pager,
                                        data = pageData),
