@@ -117,7 +117,7 @@ class SearchCore:
         #print >>sys.stderr, 'queryTree:', queryTreeToString(queryTree)
         return queryTree
 
-    def treeToFilter(query):
+    def treeToFilter(self, query, queryTree):
         queryFilter = Q()
         for term in queryTree:
             termFilter = Q()
@@ -129,7 +129,7 @@ class SearchCore:
     
     def searchFeatures0(self, startSet, query):
         queryTree = self.parseQuery(query)
-        queryFilter = self.treeToFilter(queryTree)
+        queryFilter = self.treeToFilter(query, queryTree)
         return startSet.filter(queryFilter)
 
     def searchFeatures(self, startSet, query):

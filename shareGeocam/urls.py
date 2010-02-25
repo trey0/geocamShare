@@ -8,7 +8,7 @@ urlpatterns = patterns(
     '',
 
     (r'^gallery/(?P<page>\d+)/$', views.gallery),
-    (r'^gallery.json$', views.galleryJson),
+    (r'^gallery.json', views.galleryJson),
     (r'^galleryJson.js', views.galleryJsonJs),
     (r'^$', views.main),
     (r'^data.kml$', views.kml),

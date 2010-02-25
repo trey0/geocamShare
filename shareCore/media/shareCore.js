@@ -27,12 +27,17 @@ function init() {
     $(function() { $('#jd_menu').jdMenu(); });
 }
 
-function reloadItems() {
-    $.getJSON(SCRIPT_NAME + "/gallery.json",
+function reloadItems(query) {
+    var url = SCRIPT_NAME + "/gallery.json";
+    if (query != null) {
+        url += '?q=' + query; // FIX: urlencode!
+    }
+    $.getJSON(url,
 	      function (items) {
                   newItemsG = items;
                   setViewIfReady();
               });
+    return false;
 }
 
 function diffItems(oldItems, newItems) {
@@ -72,7 +77,7 @@ function updateItemsInMap(diff) {
         for (var i=0; i < diff.itemsToDelete.length; i++) {
             var item = diff.itemsToDelete[i];
             var parent = item.domObject.getParentNode();
-            parent.deleteChild(item.domObject);
+            parent.getFeatures().removeChild(item.domObject);
         }
     }
 
@@ -209,6 +214,10 @@ function getPagerHtml(items, pageNum) {
     var maxDisplayPages = Math.min(numPages, 8);
     var divWidth = maxDisplayPages * 12;
 
+    if (numPages <= 1) {
+        return "&nbsp;";
+    }
+
     ret = [];
     if (pageNum > 1) {
 	ret.push(pg0(pageNum-1, '&laquo; previous'));
@@ -243,11 +252,7 @@ function getPagerHtml(items, pageNum) {
     } else {
 	ret.push(disabled('next &raquo;'));
     }
-    if (ret.length != 0) {
-	return ret.join(' ');
-    } else {
-	return '&nbsp;';
-    }
+    return ret.join(' ');
 }
 
 function getGalleryHtml(items, pageNum) {

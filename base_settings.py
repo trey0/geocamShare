@@ -71,6 +71,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'share2.shareCore.middleware.LogErrorsMiddleware',
 )
 
 ROOT_URLCONF = 'share2.urls'

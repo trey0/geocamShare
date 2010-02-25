@@ -13,6 +13,10 @@ from django.conf import settings
 from share2.shareCore.Pager import Pager
 
 class ViewCore:
+    def getMatchingFeatures(self, request):
+        query = request.REQUEST.get('q', '')
+        return self.getMatchingFeaturesForQuery(query)
+
     def getGalleryData(self, request, page):
         pager = Pager(baseUrl=request.build_absolute_uri('..').rstrip('/'),
                       items=self.getMatchingFeatures(request),
@@ -37,7 +41,7 @@ class ViewCore:
                                 )
 
     def galleryJson(self, request):
-        return HttpResponse(self.getGalleryJsonText(), mimetype='application/json')
+        return HttpResponse(self.getGalleryJsonText(request), mimetype='application/json')
 
     def galleryJsonJs(self, request):
         return render_to_response('galleryJson.js',
