@@ -212,7 +212,7 @@ function getPagerHtml(items, pageNum) {
     const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
     var numPages = Math.ceil(items.length / pageSize);
     var maxDisplayPages = Math.min(numPages, 8);
-    var divWidth = maxDisplayPages * 12;
+    var divWidth = maxDisplayPages * 15;
 
     if (numPages <= 1) {
         return "&nbsp;";
