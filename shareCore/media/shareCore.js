@@ -44,7 +44,7 @@ function diffItems(oldItems, newItems) {
     var oldItemsById = {};
     for (var i=0; i < oldItems.length; i++) {
         var item = oldItems[i];
-        oldItemsById[item.id] = item;
+        oldItemsById[item.requestId] = item;
         item.keep = false;
     }
 
@@ -52,7 +52,7 @@ function diffItems(oldItems, newItems) {
     diff.itemsToAdd = [];
     for (var i=0; i < newItems.length; i++) {
         var item = newItems[i];
-        var matchingOldItem = oldItemsById[item.id];
+        var matchingOldItem = oldItemsById[item.requestId];
         if (matchingOldItem == null || matchingOldItem.version != item.version) {
             diff.itemsToAdd.push(item);
         } else {
@@ -107,7 +107,7 @@ function updateItemsInMap(diff) {
         allFeaturesFolderG = gexG.dom.getObjectById('allFeatures');
         for (var i=0; i < items.length; i++) {
             item = items[i];
-            item.domObject = gexG.dom.getObjectById(item.id);
+            item.domObject = gexG.dom.getObjectById(item.requestId);
             }*/
     }
 }
@@ -124,7 +124,7 @@ function getGalleryThumbHtml(item) {
     var w0 = GALLERY_THUMB_SIZE[0];
     var h0 = GALLERY_THUMB_SIZE[1];
     return "<td"
-	+ " id=\"" + item.id + "\""
+	+ " id=\"" + item.requestId + "\""
 	+ " style=\""
 	+ " vertical-align: top;"
 	+ " width: " + (w0+10) + "px;"
@@ -163,7 +163,7 @@ function getHostUrl(noHostUrl) {
 function getPlacemarkKml(item) {
     var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + getMapIconPrefix(item) + '.png';
     return ''
-	+ '<Placemark id="' + item.id + '">\n'
+	+ '<Placemark id="' + item.requestId + '">\n'
 	+ '  <Style>\n'
 	+ '    <IconStyle>\n'
 	+ '      <Icon>\n'
@@ -321,11 +321,14 @@ function showBalloonForItem(index) {
     var scale = DESC_THUMB_SIZE[0] / GALLERY_THUMB_SIZE[0];
     var content = ''
 	+ '<div>'
+	+ '  <a href="/share/gigapan/' + item.requestId
+	+ '" title="View in Gigapan Viewer">'
 	+ '  <img\n'
 	+ '    src="' + getThumbnailUrl(item, w0) + '"\n'
 	+ '    width="' + item.w*scale + '"\n'
 	+ '    height="' + item.h*scale + '"\n'
 	+ '  />'
+	+ ' </a>'
 	+ '  ' + getCaptionHtml(item)
 	+ '</div>\n';
     balloon.setContentString(content);
@@ -403,10 +406,10 @@ function listsHaveDifferentIds(a, b) {
 
     var adict = {};
     for (var i=0; i < a.length; i++) {
-	adict[a[i].id] = true;
+	adict[a[i].requestId] = true;
     }
     for (var i=0; i < b.length; i++) {
-	if (! adict[b[i].id]) {
+	if (! adict[b[i].requestId]) {
 	    return true;
 	}
     }
@@ -429,7 +432,7 @@ function setPage(visibleItems, pageNum, force) {
 	var i = (pageNum-1)*pageSize + j;
 	if (i < visibleItems.length) {
 	    var item = visibleItems[i];
-	    $("td#" + item.id).hover(
+	    $("td#" + item.requestId).hover(
 					    function(index) {
 						return function() {
 						    highlightItem(index, doMapHighlight=true);
@@ -441,7 +444,7 @@ function setPage(visibleItems, pageNum, force) {
 						}
 					    }(item.index)
 					    );
-	    $("td#" + item.id).click(
+	    $("td#" + item.requestId).click(
 					    function(index) {
 						return function() {
 						    showBalloonForItem(index);
@@ -489,7 +492,7 @@ function highlightItem(index, doMapHighlight) {
 	var item = itemsG[index];
 
 	setPage(visibleItemsG, getItemPage(item, visibleItemsG));
-	$("td#" + item.id + " div").css({backgroundColor: 'red'});
+	$("td#" + item.requestId + " div").css({backgroundColor: 'red'});
 	
 	$("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
 
@@ -506,7 +509,7 @@ function unhighlightItem(index) {
     if (highlightedItemG == index) {
 	var item = itemsG[index];
 	
-	$("td#" + item.id + " div").css({backgroundColor: ''});
+	$("td#" + item.requestId + " div").css({backgroundColor: ''});
 	
 	$("#caption").html('');
 
