@@ -17,7 +17,7 @@ def collectMedia():
     dosys('cp -r shareCore/media/* build/media/share/')
     if __name__ == '__main__':
         dosys('cp -r shareGeocam/media/* build/media/share/')
-    dosys('cp -r /Library/Python/2.6/site-packages/django/contrib/admin/media build/media/admin')
+    dosys('cp -r /Library/Python/2.5/site-packages/django/contrib/admin/media build/media/admin')
 
 def makeLocalSettings():
     if not os.path.exists(LOCAL_SETTINGS):

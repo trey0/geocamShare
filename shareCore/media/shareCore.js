@@ -321,8 +321,8 @@ function showBalloonForItem(index) {
     var scale = DESC_THUMB_SIZE[0] / GALLERY_THUMB_SIZE[0];
     var content = ''
 	+ '<div>'
-	+ '  <a href="/share/gigapan/' + item.requestId
-	+ '" title="View in Gigapan Viewer">'
+	+ '  <a href="/share/' + item.task + '/' + item.id
+	+ '" title="Show high-res view">'
 	+ '  <img\n'
 	+ '    src="' + getThumbnailUrl(item, w0) + '"\n'
 	+ '    width="' + item.w*scale + '"\n'
