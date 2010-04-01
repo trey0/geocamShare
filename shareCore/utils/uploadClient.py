@@ -1,7 +1,29 @@
 
-from share2.shareCore.util import MimeMultipartFormData
+import os
+import urllib2
+import tempfile
 
-def uploadImage(self, url, imageName, attributes):
+import PIL.Image
+
+import MimeMultipartFormData
+
+def uploadImage(url, imageName, attributes, downsampleFactor=1):
+    if downsampleFactor != 1:
+        im = PIL.Image.open(imageName)
+        w, h = im.size
+        thRes = (w//downsampleFactor, h//downsampleFactor)
+        im.thumbnail(thRes, PIL.Image.ANTIALIAS)
+        if 0:
+            imageData = im.tostring()
+        else:
+            fd, tmpName = tempfile.mkstemp('uploadImageThumb.jpg')
+            os.close(fd)
+            im.save(tmpName)
+            imageData = file(tmpName, 'r').read()
+        del im
+    else:
+        imageData = file(imageName, 'r').read()
+
     #cookieProcessor = urllib2.HTTPCookieProcessor()
     opener = urllib2.build_opener() # (cookieProcessor)
     headers = {'User-Agent': 'GeoCam Mobile'}
@@ -11,8 +33,8 @@ def uploadImage(self, url, imageName, attributes):
     for k, v in attributes.iteritems():
         multipart[k] = v
     multipart.addFile(name='photo',
-                      filename=imageName,
-                      data=file(imageName, 'r').read(),
+                      filename=os.path.basename(imageName),
+                      data=imageData,
                       contentType='image/jpeg')
     
     h2 = headers.copy()

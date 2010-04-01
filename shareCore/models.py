@@ -35,6 +35,7 @@ class Feature(models.Model):
     # these fields help us handle changes to data products
     status = models.CharField(max_length=1, choices=settings.STATUS_CHOICES,
                               default=settings.STATUS_CHOICES[0][0])
+    processed = models.BooleanField(default=False)
     version = models.PositiveIntegerField(default=0)
     purgeTime = models.DateTimeField(null=True, blank=True)
 
@@ -64,11 +65,13 @@ class Feature(models.Model):
     def getDateText(self):
         return self.timestamp.strftime('%Y%m%d')
 
-    def getDirSuffix(self):
-        return (self.getDateText(), self.owner.username, self.uuid, str(self.version))
+    def getDirSuffix(self, version=None):
+        if version == None:
+            version = self.version
+        return (self.getDateText(), self.owner.username, self.uuid, str(version))
 
-    def getDir(self):
-        return os.path.join(settings.DATA_DIR, *self.getDirSuffix())
+    def getDir(self, version=None):
+        return os.path.join(settings.DATA_DIR, *self.getDirSuffix(version))
 
     def getShortDict(self):
         return dict(name=self.name,
@@ -126,8 +129,8 @@ class Image(Feature):
         else:
             return (width, width*3/4)
 
-    def getImagePath(self):
-        return os.path.join(self.getDir(), 'full.jpg')
+    def getImagePath(self, version=None):
+        return os.path.join(self.getDir(version), 'full.jpg')
 
     def getThumbnailUrl(self, width):
         return '%s/th%d.jpg' % (self.getDirUrl(), width)
@@ -158,6 +161,7 @@ class Image(Feature):
 
     def process(self, importFile=None):
         self.status = settings.STATUS_ACTIVE
+        self.processed = True
         if importFile and not os.path.exists(self.getImagePath()):
             if not os.path.exists(self.getDir()):
                 mkdirP(self.getDir())

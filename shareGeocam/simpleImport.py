@@ -9,6 +9,7 @@ import datetime
 import glob
 import csv
 import re
+import uuid
 
 import PIL
 from django.contrib.auth.models import User
@@ -20,8 +21,8 @@ from share2.shareCore.TimeUtils import parseUploadTime
 
 DEFAULT_IMPORT_DIR = os.path.join(settings.CHECKOUT_DIR, 'importData', 'guiberson')
 
-def importImageDirect(imageName, attributes):
-    im = PIL.Image.open('%s/photos/%s' % (dir, name), 'r')
+def importImageDirect(imagePath, attributes):
+    im = PIL.Image.open(imagePath, 'r')
     widthPixels, heightPixels = im.size
     del im
 
@@ -29,7 +30,7 @@ def importImageDirect(imageName, attributes):
     lon = attributes['longitude']
 
     img, created = (Image.objects.get_or_create
-                    (name=imageName,
+                    (name=os.path.basename(imagePath),
                      owner=User.objects.get(username=attributes['userName']),
                      timestamp=parseUploadTime(attributes['cameraTime']),
                      defaults=dict(minLat=lat,
@@ -38,7 +39,7 @@ def importImageDirect(imageName, attributes):
                                    maxLon=lon,
                                    roll=attributes['roll'],
                                    pitch=attributes['pitch'],
-                                   yaw=attributes['yaw']
+                                   yaw=attributes['yaw'],
                                    notes=attributes['notes'],
                                    tags=attributes['tags'],
                                    widthPixels=widthPixels,
@@ -47,13 +48,12 @@ def importImageDirect(imageName, attributes):
 
     if created:
         print 'processing', unicode(img)
-        img.process(importFile=os.path.join(dir, 'photos', name))
+        img.process(importFile=imagePath)
         img.save()
     else:
         print 'skipping already imported', unicode(img)
 
 def importDir(opts, dir):
-    owner = User.objects.get(username=opts.user)
     dir = os.path.realpath(dir)
     csvName = glob.glob('%s/*.csv' % dir)[0]
     reader = csv.reader(file(csvName, 'r'))
@@ -76,22 +76,29 @@ def importDir(opts, dir):
         lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
         if lat == -999:
             continue
-        importFile = os.path.join(dir, 'photos', name)
+        imagePath = os.path.join(dir, 'photos', name)
+
+        # make up a consistent bogus uuid field so we can test incremental upload.
+        # real clients should always make a stronger uuid to avoid collisions!
+        bogusUuid = uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, opts.user, timeStr))
         
         # map to field names in upload form
         attributes = dict(name=name,
-                          userName=userName,
-                          timestamp=timeStr,
+                          userName=opts.user,
+                          cameraTime=timeStr,
                           latitude=lat,
                           longitude=lon,
+                          roll=None,
+                          pitch=None,
                           yaw=compass,
                           notes=notes,
-                          tags=tagsDb)
+                          tags=tagsDb,
+                          uuid=bogusUuid)
         if opts.url:
-            print 'uploading', imageName
-            uploadClient.uploadImage(opts.url, importFile, attributes)
+            print 'uploading', os.path.basename(imagePath)
+            uploadClient.uploadImage(opts.url, imagePath, attributes, downsampleFactor=int(opts.downsample))
         else:
-            importImageDirect(importFile, attributes)
+            importImageDirect(imagePath, attributes)
 
         i += 1
 
@@ -120,9 +127,12 @@ def main():
     parser.add_option('-n', '--number',
                       default=0,
                       help='Number of photos to import')
-    parser.add_option('-u', '--url',
+    parser.add_option('--url',
                       default=None,
                       help='If specified, upload images to this url instead of directly connecting to db')
+    parser.add_option('-d', '--downsample',
+                      default='1',
+                      help='Downsample images by specified factor before upload')
     opts, args = parser.parse_args()
     if not args:
         print >>sys.stderr, 'warning: no import dirs specified, not importing anything'

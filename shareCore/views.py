@@ -4,6 +4,7 @@ import math
 import sys
 import datetime
 import os
+import shutil
 
 import PIL.Image
 from django.http import HttpResponse
@@ -95,30 +96,57 @@ class ViewCore:
                             tags=form.cleaned_data['tags'],
                             uuid=form.cleaned_data['uuid'] or makeUuid(),
                             status=settings.STATUS_PENDING,
-                            version=0, # FIX!
+                            version=0
                             )
 
-                # save the image data
-                storePath = img.getImagePath()
+                # if the incoming uuid matches an existing uuid, this is
+                # either (1) a duplicate upload of the same image or (2)
+                # the next higher resolution level in an incremental
+                # upload.
+                uuidMatches = Image.objects.filter(uuid=img.uuid)
+                sameUuid = (uuidMatches.count() > 0)
+                if sameUuid:
+                    print >>sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
+                    img = uuidMatches.get()
+                    newVersion = img.version + 1
+                else:
+                    newVersion = 0
+
+                # store the image data on disk
+                storePath = img.getImagePath(version=newVersion)
                 storeDir = os.path.dirname(storePath)
                 mkdirP(storeDir)
                 storeFile = file(storePath, 'wb')
                 for chunk in incoming.chunks():
                     storeFile.write(chunk)
                 storeFile.close()
-                print >>sys.stderr, 'saved image data to:', storePath
+                print >>sys.stderr, 'upload: saved image data to:', storePath
 
-                # access the image file on disk to fill in the dimensions
-                # and save
+                # check the new image file on disk to get the dimensions
                 im = PIL.Image.open(storePath, 'r')
-                img.widthPixels, img.heightPixels = im.size
+                newRes = im.size
                 del im
-                img.save()
+                    
+                if sameUuid:
+                    oldRes = (img.widthPixels, img.heightPixels)
+                    if newRes > oldRes:
+                        print >>sys.stderr, 'upload: resolution increased from %d to %d' % (oldRes[0], newRes[0])
+                        img.widthPixels, img.heightPixels = newRes
+                        img.processed = False
+                    else:
+                        print >>sys.stderr, 'upload: ignoring dupe, but telling the client it worked so it stops trying'
+                        # delete dupe data
+                        shutil.rmtree(storeDir)
+                else:
+                    img.widthPixels, img.heightPixels = newRes
 
-                # generate thumbnails and any other processing (better to
-                # do this part in the background, but not set up yet)
-                img.process()
-                img.save()
+                if not img.processed:
+                    # generate thumbnails and any other processing
+                    # (better to do this part in the background, but we
+                    # don't have that set up yet)
+                    img.version = newVersion
+                    img.process()
+                    img.save()
 
                 print >>sys.stderr, 'upload image end'
 
@@ -145,6 +173,6 @@ class ViewCore:
                                        owner=owner,
                                        ),
                                   context_instance=RequestContext(request))
-        print >>sys.stderr, 'upload photo end'
+        print >>sys.stderr, 'upload image end'
         return resp
 
