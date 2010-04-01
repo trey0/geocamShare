@@ -26,7 +26,6 @@ class Feature(models.Model):
     minLon = models.FloatField(blank=True, null=True) # WGS84 degrees
     maxLat = models.FloatField(blank=True, null=True) # WGS84 degrees
     maxLon = models.FloatField(blank=True, null=True) # WGS84 degrees
-    yaw = models.FloatField(blank=True, null=True) # compass degrees, 0 = north, increase clockwise
     notes = models.CharField(max_length=2048)
     tags = TagField()
     uuid = models.CharField(max_length=48, default=makeUuid,
@@ -79,14 +78,13 @@ class Feature(models.Model):
                     minLon=self.minLon,
                     maxLat=self.maxLat,
                     maxLon=self.maxLon,
-                    yaw=self.yaw,
                     icon=self.getIconPrefix(),
                     timestamp=self.timestamp.strftime('%Y-%m-%d %H:%M'),
                     owner=self.owner.username,
                     dateText=self.getDateText(),
                     notes=self.notes,
                     tags=self.tags,
-                    type=self.__class__.__name__.lower()
+                    type=self.__class__.__name__
                     )
 
     def getDirUrl(self):
@@ -95,28 +93,13 @@ class Feature(models.Model):
     def getIconPrefix(self):
         return 'camera'
 
-    def getPlacemark(self, request):
-        iconUrl = request.build_absolute_uri('%s/share/%s.png' % (settings.MEDIA_URL, self.getIconPrefix()))
-        return """
-<Placemark>
-  <Style>
-    <IconStyle>
-      <Icon>
-        <href>%s</href>
-      </Icon>
-      <heading>%s</heading>
-    </IconStyle>
-  </Style>
-  <Point>
-    <coordinates>%s,%s</coordinates>
-  </Point>
-</Placemark>
-""" % (iconUrl, self.yaw, self.lon, self.lat)
-
     class Meta:
         ordering = ('-timestamp',)
 
 class Image(Feature):
+    roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
+    pitch = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about y in NED frame
+    yaw = models.FloatField(blank=True, null=True) # compass degrees, 0 = north, increase clockwise
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
 
@@ -168,6 +151,7 @@ class Image(Feature):
         dct = super(Image, self).getShortDict()
         dct.update(lat=self.lat,
                    lon=self.lon,
+                   yaw=self.yaw,
                    w=w,
                    h=h)
         return dct
@@ -181,3 +165,21 @@ class Image(Feature):
         self.makeThumbnail(settings.GALLERY_THUMB_SIZE)
         self.makeThumbnail(settings.DESC_THUMB_SIZE)
         # remember to call save() after process()
+
+    def getPlacemark(self, request):
+        iconUrl = request.build_absolute_uri('%s/share/%s.png' % (settings.MEDIA_URL, self.getIconPrefix()))
+        return """
+<Placemark>
+  <Style>
+    <IconStyle>
+      <Icon>
+        <href>%s</href>
+      </Icon>
+      <heading>%s</heading>
+    </IconStyle>
+  </Style>
+  <Point>
+    <coordinates>%s,%s</coordinates>
+  </Point>
+</Placemark>
+""" % (iconUrl, self.yaw, self.lon, self.lat)

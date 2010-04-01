@@ -12,6 +12,7 @@ urlpatterns = patterns(
     (r'^galleryJson.js', views.galleryJsonJs),
     (r'^$', views.main),
     (r'^data.kml$', views.kml),
+    (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
 
     )
 

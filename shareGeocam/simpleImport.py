@@ -50,7 +50,7 @@ def importDir(opts, dir):
             continue
         timestamp = parseCsvTime(timeStr)
         im = PIL.Image.open('%s/photos/%s' % (dir, name), 'r')
-        w, h = im.size
+        widthPixels, heightPixels = im.size
         del im
         img, created = (Image.objects.get_or_create
                           (name=name,
@@ -63,8 +63,8 @@ def importDir(opts, dir):
                                          yaw=compass,
                                          notes=notes,
                                          tags=tagsDb,
-                                         w=w,
-                                         h=h,
+                                         widthPixels=widthPixels,
+                                         heightPixels=heightPixels,
                                          )))
         if created:
             print 'processing', unicode(img)

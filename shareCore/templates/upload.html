@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block siteSection %}Import{% endblock %}
+
+{% block contents %}
+
+<form action="{{ settings.SCRIPT_NAME }}/upload/{{ owner.username }}/" method="post" enctype="multipart/form-data">
+  {{ form.as_p }}
+  <p><input type="submit" value="Submit"/></p>
+</form>
+</p>
+
+{% endblock %}
