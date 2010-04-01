@@ -55,8 +55,10 @@ class Xmp:
 
     def copyToTaskData(self, td):
         td.timestamp = iso8601.parse_date(self.get('exif:DateTimeOriginal'))
-        td.lat = self.getDegMin('exif:GPSLatitude', 'NS')
-        td.lon = self.getDegMin('exif:GPSLongitude', 'EW')
+        td.minLat = self.getDegMin('exif:GPSLatitude', 'NS')
+        td.maxLat = td.minLat
+        td.minLon = self.getDegMin('exif:GPSLongitude', 'EW')
+        td.maxLon = td.minLon
         td.yaw = self.getYaw()
 
 def getMiddleXmpFile(reqPath):

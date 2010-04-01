@@ -3,9 +3,12 @@
 import sys
 import os
 from random import choice
+import django
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
 LOCAL_SETTINGS = 'local_settings.py'
+LOCAL_SOURCEME = 'sourceme'
 
 def dosys(cmd):
     print cmd
@@ -17,7 +20,26 @@ def collectMedia():
     dosys('cp -r shareCore/media/* build/media/share/')
     if __name__ == '__main__':
         dosys('cp -r shareGeocam/media/* build/media/share/')
-    dosys('cp -r /Library/Python/2.5/site-packages/django/contrib/admin/media build/media/admin')
+    dosys('cp -r %s/contrib/admin/media build/media/admin' % DJANGO_DIR)
+
+def makeLocalSourceme():
+    if not os.path.exists(LOCAL_SOURCEME):
+        print 'writing template %s' % LOCAL_SOURCEME
+        parentDir = os.path.dirname(THIS_DIR)
+        text = """
+# set DJANGO_SCRIPT_NAME to the URL prefix for Django on your web server (with leading slash
+# but no trailing slash)
+export DJANGO_SCRIPT_NAME='/share'
+
+# the auto-generated PYTHONPATH usually works, but you might need to add more directories
+# depending on how you installed everything
+export PYTHONPATH=%s:$PYTHONPATH
+
+export DJANGO_SETTINGS_MODULE='share2.settings'
+""" % parentDir
+        file(LOCAL_SOURCEME, 'w').write(text)
+        print
+        print '**** Please set DJANGO_SCRIPT_NAME in %s according to the instructions there' % LOCAL_SOURCEME
 
 def makeLocalSettings():
     if not os.path.exists(LOCAL_SETTINGS):
@@ -45,6 +67,7 @@ def install():
     dosys('mkdir -p build')
     dosys('touch build/__init__.py')
     collectMedia()
+    makeLocalSourceme()
     makeLocalSettings()
 
 def main():

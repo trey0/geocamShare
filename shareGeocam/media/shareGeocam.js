@@ -4,7 +4,7 @@
 DATA_URL = SCRIPT_NAME + "/data/";
 
 function getDirUrl(item) {
-    return DATA_URL + item.dateText + "/" + item.owner + "/" + item.id + "/" + item.version + "/";
+    return DATA_URL + item.dateText + "/" + item.owner + "/" + item.uuid + "/" + item.version + "/";
 }
 
 function getThumbnailUrl(item, width) {

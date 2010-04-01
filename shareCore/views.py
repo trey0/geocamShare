@@ -35,8 +35,8 @@ class ViewCore:
                                   context_instance=RequestContext(request))
     
     def getGalleryJsonText(self, request):
-        features = self.getMatchingFeatures(request)
-        return simplejson.dumps([p.getShortDict() for p in features],
+        features = [f.asLeafClass() for f in self.getMatchingFeatures(request)]
+        return simplejson.dumps([f.getShortDict() for f in features],
                                 separators=(',',':') # omit spaces
                                 )
 

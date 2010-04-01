@@ -10,13 +10,14 @@ import glob
 import csv
 import re
 
+import PIL
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from share2.shareGeocam.models import Feature, Photo
+from share2.shareCore.models import Feature, Image
 from share2.shareCore.utils import mkdirP
 
-DEFAULT_IMPORT_DIR = os.path.join(settings.CHECKOUT_DIR, 'data', 'importData', 'guiberson')
+DEFAULT_IMPORT_DIR = os.path.join(settings.CHECKOUT_DIR, 'importData', 'guiberson')
 
 def parseCsvTime(timeStr):
     # strip microseconds if present
@@ -48,29 +49,38 @@ def importDir(opts, dir):
         if lat == -999:
             continue
         timestamp = parseCsvTime(timeStr)
-        photo, created = (Photo.objects.get_or_create
+        im = PIL.Image.open('%s/photos/%s' % (dir, name), 'r')
+        w, h = im.size
+        del im
+        img, created = (Image.objects.get_or_create
                           (name=name,
                            owner=owner,
                            timestamp=timestamp,
-                           defaults=dict(lat=lat,
-                                         lon=lon,
+                           defaults=dict(minLat=lat,
+                                         minLon=lon,
+                                         maxLat=lat,
+                                         maxLon=lon,
                                          yaw=compass,
                                          notes=notes,
                                          tags=tagsDb,
+                                         w=w,
+                                         h=h,
                                          )))
         if created:
-            print 'processing', unicode(photo)
-            photo.process(importFile=os.path.join(dir, 'photos', name))
-            photo.save()
+            print 'processing', unicode(img)
+            img.process(importFile=os.path.join(dir, 'photos', name))
+            img.save()
         else:
-            print 'skipping already imported ', unicode(photo)
+            print 'skipping already imported ', unicode(img)
         i += 1
 
 def doit(opts, importDirs):
     if opts.clean:
         print 'cleaning'
-        Feature.objects.all().delete()
-        Photo.objects.all().delete()
+        features = Feature.objects.all()
+        for f in features:
+            f.deleteFiles()
+            f.delete()
     for dir in importDirs:
         importDir(opts, dir)
 
