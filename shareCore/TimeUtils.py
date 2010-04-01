@@ -1,5 +1,7 @@
 
 import time, datetime, calendar, sys
+import re
+import iso8601
 
 def localDateTimeToPosix(localDT):
     return time.mktime(localDT.timetuple()) + 1e-6*localDT.microsecond
@@ -111,6 +113,37 @@ def stringToUtcDT(s, intervalStart=True, now=None):
 def equalUpToSeconds(a, b):
     return (a.replace(second=0, microsecond=0)
             == b.replace(second=0, microsecond=0))
+
+def parseCsvTime(timeStr):
+    '''Parse times GeoCam Share 2009 placed in export CSV files.  The
+    same format was used in the upload form by GeoCam Mobile 2009'''
+    # strip microseconds if present
+    timeStr = re.sub(r'\.\d+$', '', timeStr)
+    return datetime.datetime.strptime(timeStr, '%Y-%m-%d %H:%M:%S')
+
+def parseUploadTime(timeStr):
+    try:
+        # format used by GeoCam Mobile 2009
+        return parseCsvTime(timeStr)
+    except ValueError:
+        pass
+
+    try:
+        # ISO 8601 format we should probably use in the future
+        return iso8601.parse_date(timeStr)
+    except iso8601.ParseError:
+        pass
+
+    try:
+        # POSIX time stamp may be easier to produce for some clients
+        posixTimeStamp = float(timeStr)
+    except ValueError:
+        pass
+    else:
+        return datetime.datetime.fromtimestamp(posixTimeStamp)
+
+    # hm, nothing worked
+    raise ValueError('could not parse datetime from %s' % timeStr)
 
 def testCase(input, now, intervalStart, correct):
     nowDT = datetime.datetime.strptime(now, '%Y-%m-%d-%H:%M')

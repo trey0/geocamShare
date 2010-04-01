@@ -90,3 +90,7 @@ def makeUuid():
                                              random.getrandbits(48))
     else:
         return str(uuid.uuid4())
+
+# pull in other modules in this dir so they're exported
+import MimeMultipartFormData
+import uploadClient
