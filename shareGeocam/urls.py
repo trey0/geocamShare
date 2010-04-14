@@ -14,6 +14,9 @@ urlpatterns = patterns(
     (r'^data.kml$', views.kml),
     (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
 
+    (r'^track/upload/?$', views.uploadTrack),
+    (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack),
+
     )
 
 if settings.USE_STATIC_SERVE:

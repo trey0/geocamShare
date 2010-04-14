@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block siteSection %}Track Upload{% endblock %}
+
+{% block contents %}
+
+<form action="{{ settings.SCRIPT_NAME }}/track/upload/" method="post" enctype="multipart/form-data">
+  {{ form.as_p }}
+  <p><input type="submit" value="Submit"/></p>
+</form>
+</p>
+
+{% endblock %}

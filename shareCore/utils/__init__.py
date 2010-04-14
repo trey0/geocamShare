@@ -94,3 +94,5 @@ def makeUuid():
 # pull in other modules in this dir so they're exported
 import MimeMultipartFormData
 import uploadClient
+import gpx
+import Printable

@@ -11,14 +11,17 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.safestring import mark_safe
 from django.template import RequestContext
-from django.utils import simplejson
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 from django.conf import settings
 from django.contrib.auth.models import User
 
 from share2.shareCore.utils import makeUuid, mkdirP
 from share2.shareCore.Pager import Pager
-from share2.shareCore.models import Image
-from share2.shareCore.forms import UploadFileForm
+from share2.shareCore.models import Image, Track
+from share2.shareCore.forms import UploadImageForm, UploadTrackForm
 
 class ViewCore:
     def getMatchingFeatures(self, request):
@@ -44,9 +47,9 @@ class ViewCore:
     
     def getGalleryJsonText(self, request):
         features = [f.asLeafClass() for f in self.getMatchingFeatures(request)]
-        return simplejson.dumps([f.getShortDict() for f in features],
-                                separators=(',',':') # omit spaces
-                                )
+        return json.dumps([f.getShortDict() for f in features],
+                          separators=(',',':') # omit spaces
+                          )
 
     def galleryJson(self, request):
         return HttpResponse(self.getGalleryJsonText(request), mimetype='application/json')
@@ -77,39 +80,41 @@ class ViewCore:
         owner = User.objects.get(username=userName)
         if request.method == 'POST':
             print >>sys.stderr, 'upload image start'
-            form = UploadFileForm(request.POST, request.FILES)
+            form = UploadImageForm(request.POST, request.FILES)
             print >>sys.stderr, 'FILES:', request.FILES.keys()
             if form.is_valid():
-                # create Image db record and fill in most fields
-                incoming = request.FILES['photo']
-                lat = self.checkMissing(form.cleaned_data['latitude'])
-                lon = self.checkMissing(form.cleaned_data['longitude'])
-                img = Image(name=incoming.name,
-                            owner=owner,
-                            timestamp=form.cleaned_data['cameraTime'] or datetime.datetime.now(),
-                            minLat=lat,
-                            minLon=lon,
-                            maxLat=lat,
-                            maxLon=lon,
-                            yaw=self.checkMissing(form.cleaned_data['yaw']),
-                            notes=form.cleaned_data['notes'],
-                            tags=form.cleaned_data['tags'],
-                            uuid=form.cleaned_data['uuid'] or makeUuid(),
-                            status=settings.STATUS_PENDING,
-                            version=0
-                            )
-
-                # if the incoming uuid matches an existing uuid, this is
-                # either (1) a duplicate upload of the same image or (2)
-                # the next higher resolution level in an incremental
-                # upload.
+                uuid = form.cleaned_data['uuid'] or makeUuid()
                 uuidMatches = Image.objects.filter(uuid=img.uuid)
                 sameUuid = (uuidMatches.count() > 0)
                 if sameUuid:
+                    # if the incoming uuid matches an existing uuid, this is
+                    # either (1) a duplicate upload of the same image or (2)
+                    # the next higher resolution level in an incremental
+                    # upload.
                     print >>sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
                     img = uuidMatches.get()
                     newVersion = img.version + 1
                 else:
+                    # create Image db record and fill in most fields
+                    incoming = request.FILES['photo']
+                    lat = self.checkMissing(form.cleaned_data['latitude'])
+                    lon = self.checkMissing(form.cleaned_data['longitude'])
+                    timestamp = form.cleaned_data['cameraTime'] or datetime.datetime.now()
+                    img = Image(name=incoming.name,
+                                owner=owner,
+                                minTime=timestamp,
+                                maxTime=timestamp,
+                                minLat=lat,
+                                minLon=lon,
+                                maxLat=lat,
+                                maxLon=lon,
+                                yaw=self.checkMissing(form.cleaned_data['yaw']),
+                                notes=form.cleaned_data['notes'],
+                                tags=form.cleaned_data['tags'],
+                                uuid=uuid,
+                                status=settings.STATUS_PENDING,
+                                version=0
+                                )
                     newVersion = 0
 
                 # store the image data on disk
@@ -166,7 +171,7 @@ class ViewCore:
                 if 'Flash' in userAgent:
                     return http.HttpResponseBadRequest('<h1>400 Bad Request</h1>')
         else:
-            form = UploadFileForm()
+            form = UploadImageForm()
             #print 'form:', form
         resp = render_to_response('upload.html',
                                   dict(form=form,
@@ -175,4 +180,54 @@ class ViewCore:
                                   context_instance=RequestContext(request))
         print >>sys.stderr, 'upload image end'
         return resp
+
+    def uploadTrack(self, request):
+        if request.method == 'POST':
+            print >>sys.stderr, 'upload track start'
+            form = UploadTrackForm(request.POST, request.FILES)
+            print >>sys.stderr, 'FILES:', request.FILES.keys()
+            if form.is_valid():
+                uuid = form.cleaned_data['uuid'] or makeUuid()
+                if Track.objects.filter(uuid=uuid).count():
+                    print >>sys.stderr, 'upload: track with same uuid %s posted' % img.uuid
+                    print >>sys.stderr, 'upload: ignoring dupe, but telling the client it worked so it stops trying'
+                else:
+                    track = form.save(commit=False)
+                    track.uuid = uuid
+                    track.gpx = request.FILES['gpxFile'].read()
+                    track.process()
+                    track.save()
+
+                # return a pattern for clients to check for to ensure
+                # the data was actually posted.  in bad network conditions
+                # we've seen clients get back bogus empty '200 ok' responses
+                # so this check is important to make sure they keep trying.
+                posted = 'GEOCAM_SHARE_POSTED %s' % track.uuid
+                print >>sys.stderr, posted
+                continueUrl = form.cleaned_data['referrer'] or settings.SCRIPT_NAME
+                result = render_to_response('trackUploadDone.html',
+                                            dict(posted=posted,
+                                                 continueUrl=continueUrl),
+                                            context_instance=RequestContext(request))
+                print >>sys.stderr, 'upload track end'
+                return result
+            else:
+                print >>sys.stderr, "form errors: ", form._errors
+                userAgent = request.META.get('HTTP_USER_AGENT', '')
+                # swfupload user can't see errors in form response, best return an error code
+                if 'Flash' in userAgent:
+                    return http.HttpResponseBadRequest('<h1>400 Bad Request</h1>')
+        else:
+            form = UploadTrackForm(initial=dict(referrer=request.META.get('HTTP_REFERER'),
+                                                uuid=''))
+            #print 'form:', form
+        resp = render_to_response('trackUpload.html',
+                                  dict(form=form),
+                                  context_instance=RequestContext(request))
+        print >>sys.stderr, 'upload image end'
+        return resp
+
+    def viewTrack(self, request, uuid):
+        track = Track.objects.get(uuid=uuid)
+        return HttpResponse(track.json, mimetype='application/json')
 

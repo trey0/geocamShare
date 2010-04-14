@@ -8,8 +8,15 @@ SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = '%s/sqlite3.db' % CHECKOUT_DIR
+DATABASES = {
+    'default': {
+        'ENGINE': 'sqlite3',
+        'NAME': '%s/sqlite3.db' % CHECKOUT_DIR,
+    }
+}
+
+#DATABASE_ENGINE = 'sqlite3'
+#DATABASE_NAME = '%s/sqlite3.db' % CHECKOUT_DIR
 #DATABASE_USER = ''             # Not used with sqlite3.
 #DATABASE_PASSWORD = ''         # Not used with sqlite3.
 #DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -105,5 +112,14 @@ INSTALLED_APPS = (
 ######################################################################
 
 USE_STATIC_SERVE = False
+
+DATA_DIR = os.path.join(CHECKOUT_DIR, 'data')
+DATA_URL = os.path.join(os.environ['DJANGO_SCRIPT_NAME'], 'data')
+
+BASE_ICONS = ('camera', 'track',)
+ICONS = BASE_ICONS
+
+BASE_LINE_STYLES = ('solid',)
+LINE_STYLES = BASE_LINE_STYLES
 
 from local_settings import *
