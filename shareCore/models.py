@@ -359,7 +359,7 @@ class Track(Feature):
     gpx = models.TextField(help_text='If this track was imported as a GPX log, we keep the original GPX here in case there are important fields that are not currently captured in our GeoJSON format.')
 
     def getShortDict(self):
-        dct = super(Image, self).getShortDict()
+        dct = super(Track, self).getShortDict()
         dct.update(geometry=self.json)
         return dct
 
