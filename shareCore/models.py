@@ -44,6 +44,11 @@ PERMISSION_CHOICES = ((PERM_VIEW, 'view'),
                       (PERM_ADMIN, 'admin'),
                       )
 
+YAW_REF_CHOICES = (('T', 'true'),
+                   ('M', 'magnetic'),
+                   )
+DEFAULT_YAW_REF = YAW_REF_CHOICES[0][0]
+
 class Folder(models.Model):
     """Every piece of data in Share belongs to a folder which records both the
     operation the data is associated with and who should be able to access it."""
@@ -164,7 +169,6 @@ class Feature(models.Model):
     maxLat = models.FloatField(blank=True, null=True, verbose_name='maximum latitude') # WGS84 degrees
     maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
     sensor = models.ForeignKey(Sensor, null=True)
-    
     isAerial = models.BooleanField(default=False, verbose_name='aerial data', help_text="True for aerial data. Generally for non-aerial data we snap to terrain in 3D visualizations so that GPS errors can't cause features to be rendered underground.")
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)
@@ -176,20 +180,21 @@ class Feature(models.Model):
     processed = models.BooleanField(default=False)
     version = models.PositiveIntegerField(default=0)
     purgeTime = models.DateTimeField(null=True, blank=True)
+    validated = models.BooleanField(default=False)
 
     uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
                             help_text="Universally unique id used to identify this db record across servers.")
     contentType = models.ForeignKey(ContentType, editable=False, null=True)
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
-    def save(self, force_insert=False, force_update=False):
+    def save(self, **kwargs):
         if self.minTime == None:
             timestamp = datetime.datetime.now()
             self.minTime = timestamp
             self.maxTime = timestamp
         if self.contentType == None:
             self.contentType = ContentType.objects.get_for_model(self.__class__)
-        super(Feature, self).save(force_insert, force_update)
+        super(Feature, self).save(**kwargs)
 
     def deleteFiles(self):
         shutil.rmtree(self.getDir(), ignore_errors=True)
@@ -207,7 +212,7 @@ class Feature(models.Model):
         return self.minLat != None
 
     def __unicode__(self):
-        return '%s %d %s %s %s %s' % (self.__class__.__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.owner.username, self.uuid)
+        return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.owner.username, self.uuid)
 
     def getDateText(self):
         return self.timestamp.strftime('%Y%m%d')
@@ -262,13 +267,15 @@ class Placemark(Feature):
         dct = super(Placemark, self).getShortDict()
         dct.update(lat=self.lat,
                    lon=self.lon,
-                   timestamp=self.timestamp)
+                   timestamp=self.timestamp.isoformat(),
+                   dateText=self.timestamp.strftime('%Y%m%d'))
         return dct
 
 class Image(Placemark):
     roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
     pitch = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about y in NED frame
     yaw = models.FloatField(blank=True, null=True) # compass degrees, 0 = north, increase clockwise as viewed from above
+    yawRef = models.CharField(max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF)
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
 

@@ -28,11 +28,13 @@ def importImageDirect(imagePath, attributes):
 
     lat = attributes['latitude']
     lon = attributes['longitude']
+    timestamp = parseUploadTime(attributes['cameraTime'])
 
     img, created = (Image.objects.get_or_create
                     (name=os.path.basename(imagePath),
                      owner=User.objects.get(username=attributes['userName']),
-                     timestamp=parseUploadTime(attributes['cameraTime']),
+                     minTime=timestamp,
+                     maxTime=timestamp,
                      defaults=dict(minLat=lat,
                                    minLon=lon,
                                    maxLat=lat,
