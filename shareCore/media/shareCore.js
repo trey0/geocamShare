@@ -91,7 +91,6 @@ function updateItemsInMap(diff) {
         for (var i=0; i < items.length; i++) {
             var item = items[i];
             var kml = wrapKml(getItemKml(item));
-            console.log(kml);
             var geItem = ge.parseKml(kml);
             allFeaturesFolderG.getFeatures().appendChild(geItem);
             item.domObject = geItem;
