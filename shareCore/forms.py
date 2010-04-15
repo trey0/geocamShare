@@ -24,23 +24,10 @@ class UploadImageForm(forms.Form):
     uuid = UuidField(required=False)
 
 class UploadTrackForm(forms.ModelForm):
-    ownerName = forms.CharField(max_length=40, required=True)
-    trackUploadProtocolVersion = forms.CharField(initial='1.0', label='Track upload protocol version')
+    trackUploadProtocolVersion = forms.CharField(required=False, initial='1.0', label='Track upload protocol version')
     gpxFile = forms.FileField(label='GPX file')
     referrer = forms.CharField(required=False, widget=forms.HiddenInput)
 
     class Meta:
         model = Track
-        fields = ('name', 'ownerName', 'isAerial', 'icon', 'lineColor', 'lineStyle', 'tags', 'notes', 'uuid')
-
-    def clean(self):
-        super(UploadTrackForm, self).clean()
-        # better to define a new field type and do validation there
-        if self.cleaned_data.has_key('ownerName'):
-            try:
-                owner = User.objects.get(username=self.cleaned_data['ownerName'])
-            except:
-                raise ValidationError('Invalid ownerName %s' % self.cleaned_data['ownerName'])
-            else:
-                self.cleaned_data['owner'] = owner
-        return self.cleaned_data
+        fields = ('name', 'isAerial', 'icon', 'lineColor', 'lineStyle', 'tags', 'notes', 'uuid')

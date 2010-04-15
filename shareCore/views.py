@@ -181,7 +181,8 @@ class ViewCore:
         print >>sys.stderr, 'upload image end'
         return resp
 
-    def uploadTrack(self, request):
+    def uploadTrack(self, request, authorName):
+        owner = User.objects.get(username=authorName)
         if request.method == 'POST':
             print >>sys.stderr, 'upload track start'
             form = UploadTrackForm(request.POST, request.FILES)
@@ -195,6 +196,7 @@ class ViewCore:
                     track = form.save(commit=False)
                     track.uuid = uuid
                     track.gpx = request.FILES['gpxFile'].read()
+                    track.owner = owner
                     track.process()
                     track.save()
 
@@ -222,7 +224,8 @@ class ViewCore:
                                                 uuid=''))
             #print 'form:', form
         resp = render_to_response('trackUpload.html',
-                                  dict(form=form),
+                                  dict(form=form,
+                                       authorName=authorName),
                                   context_instance=RequestContext(request))
         print >>sys.stderr, 'upload image end'
         return resp
