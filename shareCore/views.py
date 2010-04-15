@@ -83,20 +83,20 @@ class ViewCore:
             form = UploadImageForm(request.POST, request.FILES)
             print >>sys.stderr, 'FILES:', request.FILES.keys()
             if form.is_valid():
+                incoming = request.FILES['photo']
                 uuid = form.cleaned_data['uuid'] or makeUuid()
-                uuidMatches = Image.objects.filter(uuid=img.uuid)
+                uuidMatches = Image.objects.filter(uuid=uuid)
                 sameUuid = (uuidMatches.count() > 0)
                 if sameUuid:
                     # if the incoming uuid matches an existing uuid, this is
                     # either (1) a duplicate upload of the same image or (2)
                     # the next higher resolution level in an incremental
                     # upload.
-                    print >>sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
                     img = uuidMatches.get()
+                    print >>sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
                     newVersion = img.version + 1
                 else:
                     # create Image db record and fill in most fields
-                    incoming = request.FILES['photo']
                     lat = self.checkMissing(form.cleaned_data['latitude'])
                     lon = self.checkMissing(form.cleaned_data['longitude'])
                     timestamp = form.cleaned_data['cameraTime'] or datetime.datetime.now()
