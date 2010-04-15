@@ -64,6 +64,7 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
 
 def install():
     os.chdir(THIS_DIR)
+    dosys('touch django.wsgi')
     dosys('mkdir -p build')
     dosys('touch build/__init__.py')
     collectMedia()

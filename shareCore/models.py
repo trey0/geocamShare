@@ -3,6 +3,10 @@ import sys
 import glob
 import shutil
 import datetime
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 
 import PIL.Image
 from django.db import models
@@ -361,7 +365,7 @@ class Track(Feature):
 
     def getShortDict(self):
         dct = super(Track, self).getShortDict()
-        dct.update(geometry=self.json)
+        dct.update(geometry=json.loads(self.json))
         return dct
 
     def process(self):

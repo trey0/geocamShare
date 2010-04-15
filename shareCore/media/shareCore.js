@@ -90,7 +90,8 @@ function updateItemsInMap(diff) {
         }
         for (var i=0; i < items.length; i++) {
             var item = items[i];
-            var kml = wrapKml(getPlacemarkKml(item));
+            var kml = wrapKml(getItemKml(item));
+            console.log(kml);
             var geItem = ge.parseKml(kml);
             allFeaturesFolderG.getFeatures().appendChild(geItem);
             item.domObject = geItem;
@@ -160,7 +161,7 @@ function getHostUrl(noHostUrl) {
     return window.location.protocol + '//' + window.location.host;
 }
 
-function getPlacemarkKml(item) {
+function getImageKml(item) {
     var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + getMapIconPrefix(item) + '.png';
     return ''
 	+ '<Placemark id="' + item.uuid + '">\n'
@@ -178,6 +179,56 @@ function getPlacemarkKml(item) {
 	+ '</Placemark>\n';
 }
 
+function getTrackLine(track) {
+    result = ''
+        + '    <LineString>\n'
+        + '      <coordinates>\n';
+    for (var i=0; i < track.length; i++) {
+        var pt = track[i];
+        result += '        ' + pt[0] + ',' + pt[1] + ',' + pt[2] + '\n'
+    }
+    result += ''
+        + '      </coordinates>\n'
+        + '    </LineString>\n';
+    return result;
+}
+
+function getTrackKml(item) {
+    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + getMapIconPrefix(item) + '.png';
+    result = ''
+	+ '<Placemark id="' + item.uuid + '">\n'
+	+ '  <Style>\n'
+	+ '    <IconStyle>\n'
+	+ '      <Icon>\n'
+	+ '        <href>' + iconUrl + '</href>'
+	+ '      </Icon>\n'
+	+ '    </IconStyle>\n'
+	+ '    <LineStyle>\n'
+	+ '      <color>ff0000ff</color>\n'
+	+ '      <width>4</width>\n'
+	+ '    </LineStyle>\n'
+	+ '  </Style>\n'
+	+ '  <MultiGeometry>\n';
+    var coords = item.geometry.geometry;
+    for (var i=0; i < coords.length; i++) {
+        result += getTrackLine(coords[i]);
+    }
+    result += ''
+        + '  </MultiGeometry>\n'
+	+ '</Placemark>\n';
+    return result;
+}
+
+function getItemKml(item) {
+    if (item.type == "Image") {
+        return getImageKml(item);
+    } else if (item.type == "Track") {
+        return getTrackKml(item);
+    } else {
+        return "";
+    }
+}
+
 function wrapKml(text) {
     return '<?xml version="1.0" encoding="UTF-8"?>\n'
 	+ '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
@@ -189,7 +240,7 @@ function getKmlForItems(items) {
     var kml = ''
 	+ '  <Document id="allFeatures">\n';
     for (var i=0; i < items.length; i++) {
-	kml += getPlacemarkKml(items[i]);
+	kml += getItemKml(items[i]);
     }
     kml += ''
 	+ '  </Document>\n';
