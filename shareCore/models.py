@@ -53,6 +53,17 @@ YAW_REF_CHOICES = (('T', 'true'),
                    )
 DEFAULT_YAW_REF = YAW_REF_CHOICES[0][0]
 
+WF_NEEDS_AUTHOR_CHANGES = 0
+WF_SUBMITTED_FOR_VALIDATION = 1
+WF_VALID = 2
+WF_REJECTED = 3
+WORKFLOW_STATUS_CHOICES = ((WF_NEEDS_AUTHOR_CHANGES, 'Needs author changes'),
+                         (WF_SUBMITTED_FOR_VALIDATION, 'Submitted for validation'),
+                         (WF_VALID, 'Valid'),
+                         (WF_REJECTED, 'Rejected'),
+                         )
+DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
+
 class Folder(models.Model):
     """Every piece of data in Share belongs to a folder which records both the
     operation the data is associated with and who should be able to access it."""
@@ -155,13 +166,8 @@ class Sensor(models.Model):
 class Feature(models.Model):
     folder = models.ForeignKey(Folder, default=1)
     name = models.CharField(max_length=80, blank=True, default='')
-    uploader = models.ForeignKey(User, null=True, related_name='uploadedSet',
-                                 help_text='The user who uploaded the data to Share')
-    # the person who uploads a feature initially owns it and can edit it.
-    # when a person with 'validate' privileges marks it as validated, that
-    # person becomes the owner and the initial owner can no longer edit
-    # it (unless they also have 'validate' privileges).
-    owner = models.ForeignKey(User, null=True, related_name='ownedSet')
+    author = models.ForeignKey(User, null=True, related_name='authoredSet',
+                               help_text='The user who collected the data (when you upload data, Share tags you as the author)')
     minTime = models.DateTimeField(blank=True, verbose_name='start time')
     maxTime = models.DateTimeField(blank=True, verbose_name='end time')
     # a word about how we encode geometry:
@@ -185,7 +191,8 @@ class Feature(models.Model):
     processed = models.BooleanField(default=False)
     version = models.PositiveIntegerField(default=0)
     purgeTime = models.DateTimeField(null=True, blank=True)
-    validated = models.BooleanField(default=False)
+    workflowStatus = models.PositiveIntegerField(choices=WORKFLOW_STATUS_CHOICES,
+                                                 default=DEFAULT_WORKFLOW_STATUS)
 
     uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
                             help_text="Universally unique id used to identify this db record across servers.")
@@ -217,7 +224,7 @@ class Feature(models.Model):
         return self.minLat != None
 
     def __unicode__(self):
-        return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.owner.username, self.uuid)
+        return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
 
     def getDateText(self):
         return self.timestamp.strftime('%Y%m%d')
@@ -225,7 +232,7 @@ class Feature(models.Model):
     def getDirSuffix(self, version=None):
         if version == None:
             version = self.version
-        return (self.getDateText(), self.owner.username, self.uuid, str(version))
+        return (self.getDateText(), self.author.username, self.uuid, str(version))
 
     def getDir(self, version=None):
         return os.path.join(settings.DATA_DIR, *self.getDirSuffix(version))
@@ -239,7 +246,7 @@ class Feature(models.Model):
                     maxLat=self.maxLat,
                     maxLon=self.maxLon,
                     isAerial=self.isAerial,
-                    owner=self.owner.username,
+                    author=self.author.username,
                     notes=self.notes,
                     tags=self.tags,
                     icon=self.icon,
@@ -251,6 +258,32 @@ class Feature(models.Model):
 
     class Meta:
         ordering = ('-minTime',)
+
+class Change(models.Model):
+    """The concept workflow is like this: there are two roles involved,
+    the author (the person who collected the data and who knows it best)
+    and validators (who are responsible for signing off on it before it
+    is considered 'valid' by the rest of the team).  When the author
+    uploads new data, it is marked 'submitted for validation', so it
+    appears in the queue of things to be validated.  Any validator
+    examining the queue has three choices with each piece of data: she
+    can mark it 'valid' (publishing it to the team), 'needs author
+    changes' (putting it on the author's queue to be fixed), or
+    'rejected' (indicating it's not worth fixing, and hiding it to avoid
+    confusion).  If the author fixes something on his queue to be fixed,
+    he can then submit it to be validated again.  if the author notices
+    a problem with the data after it is marked 'valid', he can change
+    its status back to 'needs author fixes', edit, and then resubmit.
+    Each status change in the workflow is recorded as a Change object."""
+    timestamp = models.DateTimeField()
+    feature = models.ForeignKey(Feature)
+    user = models.ForeignKey(User)
+    action = models.CharField(max_length=40, blank=True,
+                              help_text='Brief human-readable description like "upload" or "validation check"')
+    workflowStatus = models.PositiveIntegerField(choices=WORKFLOW_STATUS_CHOICES,
+                                                 default=DEFAULT_WORKFLOW_STATUS)
+    uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
+                            help_text="Universally unique id used to identify this db record across servers.")
 
 class Placemark(Feature):
     # with point geometry, the bounding box has zero size and the

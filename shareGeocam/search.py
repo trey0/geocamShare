@@ -5,4 +5,4 @@ class SearchGeocam(SearchCore):
     fields = ('name', 'user', 'notes', 'tags', 'uuid')
     timeField = 'maxTime' # FIX: handle features with non-zero time extent
     # pairs (user-facing-field-name, django-field-name)
-    fieldAliases = (('user', 'owner__username'),)
+    fieldAliases = (('user', 'author__username'),)

@@ -4,7 +4,7 @@
 DATA_URL = SCRIPT_NAME + "/data/";
 
 function getDirUrl(item) {
-    return DATA_URL + item.dateText + "/" + item.owner + "/" + item.uuid + "/" + item.version + "/";
+    return DATA_URL + item.dateText + "/" + item.author + "/" + item.uuid + "/" + item.version + "/";
 }
 
 function getThumbnailUrl(item, width) {
@@ -20,7 +20,7 @@ function getCaptionHtml(item) {
 	+ '  </tr>\n'
 	+ '  <tr>\n'
   	+ '    <td style="font-style: italic">User:</td>\n'
-	+ '    <td>' + item.owner + '</td>\n'
+	+ '    <td>' + item.author + '</td>\n'
 	+ '    <td style="font-style: italic">Notes:</td>\n'
 	+ '    <td>' + item.notes + '</td>\n'
 	+ '  </tr>\n'

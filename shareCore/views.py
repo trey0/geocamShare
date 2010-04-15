@@ -77,7 +77,7 @@ class ViewCore:
             return num
 
     def uploadImage(self, request, userName):
-        owner = User.objects.get(username=userName)
+        author = User.objects.get(username=userName)
         if request.method == 'POST':
             print >>sys.stderr, 'upload image start'
             form = UploadImageForm(request.POST, request.FILES)
@@ -101,7 +101,7 @@ class ViewCore:
                     lon = self.checkMissing(form.cleaned_data['longitude'])
                     timestamp = form.cleaned_data['cameraTime'] or datetime.datetime.now()
                     img = Image(name=incoming.name,
-                                owner=owner,
+                                author=author,
                                 minTime=timestamp,
                                 maxTime=timestamp,
                                 minLat=lat,
@@ -175,14 +175,14 @@ class ViewCore:
             #print 'form:', form
         resp = render_to_response('upload.html',
                                   dict(form=form,
-                                       owner=owner,
+                                       author=author,
                                        ),
                                   context_instance=RequestContext(request))
         print >>sys.stderr, 'upload image end'
         return resp
 
     def uploadTrack(self, request, authorName):
-        owner = User.objects.get(username=authorName)
+        author = User.objects.get(username=authorName)
         if request.method == 'POST':
             print >>sys.stderr, 'upload track start'
             form = UploadTrackForm(request.POST, request.FILES)
@@ -196,7 +196,7 @@ class ViewCore:
                     track = form.save(commit=False)
                     track.uuid = uuid
                     track.gpx = request.FILES['gpxFile'].read()
-                    track.owner = owner
+                    track.author = author
                     track.process()
                     track.save()
 

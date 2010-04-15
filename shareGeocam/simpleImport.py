@@ -32,7 +32,7 @@ def importImageDirect(imagePath, attributes):
 
     img, created = (Image.objects.get_or_create
                     (name=os.path.basename(imagePath),
-                     owner=User.objects.get(username=attributes['userName']),
+                     author=User.objects.get(username=attributes['userName']),
                      minTime=timestamp,
                      maxTime=timestamp,
                      defaults=dict(minLat=lat,
@@ -122,7 +122,7 @@ def main():
                       help='Clean database before import')
     parser.add_option('-u', '--user',
                       default='root',
-                      help='Owner of imported photos')
+                      help='Author of imported photos')
     parser.add_option('-m', '--match',
                       default=None,
                       help='Import only photos matching specified pattern')
