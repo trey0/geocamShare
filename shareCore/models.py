@@ -61,6 +61,7 @@ class Folder(models.Model):
                                 help_text="Time zone used to display timestamps on data in this folder.")
     isArchive = models.BooleanField(default=False,
                                     help_text='If true, disable editing data in this folder.')
+    notes = models.TextField(blank=True)
     uuid = models.CharField(max_length=48, default=makeUuid,
                             help_text='Universally unique id used to identify this db record across servers.')
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
@@ -97,10 +98,10 @@ class Operation(models.Model):
                             help_text="Universally unique id used to identify this db record across servers.")
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
-class Posting(models.Model):
+class Assignment(models.Model):
     folder = models.ForeignKey(Folder)
     unit = models.ForeignKey(Unit,
-                             help_text='The unit you are a part of during this posting.')
+                             help_text='The unit you are assigned to.')
     title = models.CharField(max_length=64, blank=True, help_text="Your title within unit.  Example: 'Sit Unit Leader'")
     uuid = models.CharField(max_length=48, default=makeUuid,
                             help_text='Universally unique id used to identify this db record across servers.')
@@ -116,7 +117,7 @@ class UserProfile(models.Model):
     # the permissions granted to units the user is posted to.  if user has 'admin'
     # privileges to any folder, they can also create new folders.
     userPermissions = models.ManyToManyField(Permission)
-    postings = models.ManyToManyField(Posting)
+    assignments = models.ManyToManyField(Assignment)
     homeOrganization = models.CharField(max_length=64, blank=True, help_text="The organization you normally work for.")
     homeTitle = models.CharField(max_length=64, blank=True, help_text="Your normal job title.")
     uuid = models.CharField(max_length=48, default=makeUuid,
