@@ -4,6 +4,8 @@ import os
 
 CHECKOUT_DIR = os.environ['CHECKOUT_DIR']
 SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
+if not SCRIPT_NAME.endswith('/'):
+    SCRIPT_NAME += '/'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

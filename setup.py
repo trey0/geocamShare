@@ -48,8 +48,8 @@ def makeLocalSourceme():
         parentDir = os.path.dirname(THIS_DIR)
         text = """
 # set DJANGO_SCRIPT_NAME to the URL prefix for Django on your web server (with leading slash
-# but no trailing slash)
-export DJANGO_SCRIPT_NAME='/share'
+# and trailing slash)
+export DJANGO_SCRIPT_NAME='/share/'
 
 # the auto-generated PYTHONPATH usually works, but you might need to add more directories
 # depending on how you installed everything
