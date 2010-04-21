@@ -54,7 +54,10 @@ class Xmp:
         return yaw
 
     def copyToTaskData(self, td):
-        td.timestamp = iso8601.parse_date(self.get('exif:DateTimeOriginal'))
+        t = iso8601.parse_date(self.get('exif:DateTimeOriginal'))
+        timestamp = t.replace(tzinfo=None) - t.utcoffset() # normalize to utc
+        td.minTime = timestamp
+        td.maxTime = timestamp
         td.minLat = self.getDegMin('exif:GPSLatitude', 'NS')
         td.maxLat = td.minLat
         td.minLon = self.getDegMin('exif:GPSLongitude', 'EW')

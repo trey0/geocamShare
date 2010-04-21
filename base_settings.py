@@ -113,8 +113,8 @@ INSTALLED_APPS = (
 
 USE_STATIC_SERVE = False
 
-DATA_DIR = os.path.join(CHECKOUT_DIR, 'data')
-DATA_URL = os.path.join(os.environ['DJANGO_SCRIPT_NAME'], 'data')
+DATA_DIR = '%s/data/' % CHECKOUT_DIR
+DATA_URL = '%s/data/' % SCRIPT_NAME
 
 BASE_ICONS = ('camera', 'track',)
 ICONS = BASE_ICONS

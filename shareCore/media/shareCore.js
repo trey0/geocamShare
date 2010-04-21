@@ -218,8 +218,12 @@ function getTrackKml(item) {
     return result;
 }
 
+function isImage(item) {
+    return item.type == "Image";
+}
+
 function getItemKml(item) {
-    if (item.type == "Image") {
+    if (isImage(item)) {
         return getImageKml(item);
     } else if (item.type == "Track") {
         return getTrackKml(item);
@@ -371,12 +375,13 @@ function showBalloonForItem(index) {
     var scale = DESC_THUMB_SIZE[0] / GALLERY_THUMB_SIZE[0];
     var content = ''
 	+ '<div>'
-	+ '  <a href="' + SCRIPT_NAME + '/' + item.task + '/' + item.uuid
-	+ '" title="Show high-res view">'
+	+ '  <a href="' + getViewerUrl(item) + '"'
+        + '     title="Show high-res view">'
 	+ '  <img\n'
 	+ '    src="' + getThumbnailUrl(item, w0) + '"\n'
 	+ '    width="' + item.w*scale + '"\n'
 	+ '    height="' + item.h*scale + '"\n'
+        + '    border="0"'
 	+ '  />'
 	+ ' </a>'
 	+ '  ' + getCaptionHtml(item)

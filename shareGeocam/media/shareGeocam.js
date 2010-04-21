@@ -11,6 +11,10 @@ function getThumbnailUrl(item, width) {
     return getDirUrl(item) + "th" + width + ".jpg";
 }
 
+function getViewerUrl(item) {
+    return SCRIPT_NAME + "/" + item.type + "/" + item.uuid + "/" + item.version + "/";
+}
+
 function getCaptionHtml(item) {
     return ''
 	+ '<table>\n'

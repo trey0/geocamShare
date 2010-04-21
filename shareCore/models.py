@@ -39,8 +39,9 @@ DEFAULT_TIME_ZONE = TIME_ZONES[0]
 
 PERM_VIEW = 0
 PERM_POST = 1
-PERM_VALIDATE = 2
-PERM_ADMIN = 3
+PERM_EDIT = 2
+PERM_VALIDATE = 3
+PERM_ADMIN = 4
 
 PERMISSION_CHOICES = ((PERM_VIEW, 'view'),
                       (PERM_POST, 'post'),
@@ -53,20 +54,21 @@ YAW_REF_CHOICES = (('T', 'true'),
                    )
 DEFAULT_YAW_REF = YAW_REF_CHOICES[0][0]
 
-WF_NEEDS_AUTHOR_CHANGES = 0
+WF_NEEDS_EDITS = 0
 WF_SUBMITTED_FOR_VALIDATION = 1
 WF_VALID = 2
 WF_REJECTED = 3
-WORKFLOW_STATUS_CHOICES = ((WF_NEEDS_AUTHOR_CHANGES, 'Needs author changes'),
-                         (WF_SUBMITTED_FOR_VALIDATION, 'Submitted for validation'),
-                         (WF_VALID, 'Valid'),
-                         (WF_REJECTED, 'Rejected'),
-                         )
+WORKFLOW_STATUS_CHOICES = ((WF_NEEDS_EDITS, 'Needs edits'),
+                           (WF_SUBMITTED_FOR_VALIDATION, 'Submitted for validation'),
+                           (WF_VALID, 'Valid'),
+                           (WF_REJECTED, 'Rejected'),
+                           )
 DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
 
 class Folder(models.Model):
     """Every piece of data in Share belongs to a folder which records both the
     operation the data is associated with and who should be able to access it."""
+    name = models.CharField(max_length=32)
     operation = models.ForeignKey("Operation", blank=True, null=True,
                                   related_name='activeOperation',
                                   help_text='Operation that gathered the data in this folder, if applicable.  (Once a folder has an operation and contains data, it should not be switched to a new operation; create a new folder instead.)')
@@ -109,9 +111,19 @@ class Operation(models.Model):
     maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)
+    contentType = models.ForeignKey(ContentType, editable=False, null=True)
     uuid = models.CharField(max_length=48, default=makeUuid,
                             help_text="Universally unique id used to identify this db record across servers.")
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
+
+    def asLeafClass(self):
+        '''If self is the parent-class portion of a derived class instance, this returns the
+        full derived class instance. See http://www.djangosnippets.org/snippets/1031/'''
+        leafModel = self.contentType.model_class()
+        if leafModel == Feature:
+            return self
+        else:
+            return leafModel.objects.get(id=self.id)
 
 class Assignment(models.Model):
     folder = models.ForeignKey(Folder)
@@ -267,8 +279,8 @@ class Change(models.Model):
     uploads new data, it is marked 'submitted for validation', so it
     appears in the queue of things to be validated.  Any validator
     examining the queue has three choices with each piece of data: she
-    can mark it 'valid' (publishing it to the team), 'needs author
-    changes' (putting it on the author's queue to be fixed), or
+    can mark it 'valid' (publishing it to the team), 'needs edits'
+    (putting it on the author's queue to be fixed), or
     'rejected' (indicating it's not worth fixing, and hiding it to avoid
     confusion).  If the author fixes something on his queue to be fixed,
     he can then submit it to be validated again.  if the author notices
@@ -413,3 +425,17 @@ class Track(Feature):
             self.minTime, self.maxTime = timestamp, timestamp
         self.minLon, self.minLat, self.maxLon, self.maxLat = data.getBbox().asList()
         self.json = data.geoJsonString()
+
+
+class Snapshot(models.Model):
+    img = models.ForeignKey(Image)
+    xmin = models.FloatField()
+    ymin = models.FloatField()
+    xmax = models.FloatField()
+    ymax = models.FloatField()
+    title = models.CharField(max_length=64)
+    comment = models.TextField()
+    dateCreated = models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return self.title
