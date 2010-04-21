@@ -9,10 +9,26 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
 LOCAL_SETTINGS = 'local_settings.py'
 LOCAL_SOURCEME = 'sourceme'
+GIGAPAN_MEDIA_SEARCH_DIRS = ('%s/gigapan' % THIS_DIR,
+                             '/Library/WebServer/Documents/gigapan')
 
 def dosys(cmd):
     print cmd
     os.system(cmd)
+
+def findDirContaining(f, dirs, envVar):
+    envDir = os.environ.get(envVar, None)
+    if envDir:
+        if os.path.exists(os.path.join(envDir, f)):
+            return envDir
+        else:
+            raise Exception('no file %s in dir $%s=%s' % (f, envVar, envDir))
+    else:
+        for dir in dirs:
+            if os.path.exists(os.path.join(dir, f)):
+                return dir
+        raise Exception('no file %s in default search path, try setting $%s to the directory that contains it'
+                        % (f, envVar))
 
 def collectMedia():
     dosys('rm -rf build/media')
@@ -21,6 +37,10 @@ def collectMedia():
     if __name__ == '__main__':
         dosys('cp -r shareGeocam/media/* build/media/share/')
     dosys('cp -r %s/contrib/admin/media build/media/admin' % DJANGO_DIR)
+    gigapanMediaDir = findDirContaining('PanoramaViewer.swf',
+                                        GIGAPAN_MEDIA_SEARCH_DIRS,
+                                        'GIGAPAN_MEDIA_DIR')
+    dosys('cp -r %s build/media/gigapan' % gigapanMediaDir)
 
 def makeLocalSourceme():
     if not os.path.exists(LOCAL_SOURCEME):
