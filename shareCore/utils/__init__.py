@@ -64,10 +64,15 @@ class Xmp:
         td.maxLon = td.minLon
         td.yaw = self.getYaw()
 
+class NoDataError(Exception):
+    pass
+
 def getMiddleXmpFile(reqPath):
     allXmps = glob.glob('%s/*.xmp' % reqPath.path)
     allXmps = [x for x in allXmps
                if not x.startswith('thumbnail')]
+    if not allXmps:
+        raise NoDataError('no xmp files in %s' % reqPath.path)
     allXmps.sort()
     assert len(allXmps) > 0
     return allXmps[len(allXmps)//2]

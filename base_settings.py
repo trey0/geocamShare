@@ -51,12 +51,12 @@ SCRIPT_NAME = os.environ.get('DJANGO_SCRIPT_NAME', '')
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = SCRIPT_NAME + '/media/'
+MEDIA_URL = SCRIPT_NAME + 'media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.  Must not be the same as MEDIA_URL!
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = SCRIPT_NAME + '/media/admin/'
+ADMIN_MEDIA_PREFIX = SCRIPT_NAME + 'media/admin/'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
