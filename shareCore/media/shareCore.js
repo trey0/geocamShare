@@ -167,7 +167,7 @@ function getImageKml(item) {
 	+ '  <Style>\n'
 	+ '    <IconStyle>\n'
 	+ '      <Icon>\n'
-	+ '        <href>' + iconUrl + '</href>'
+	+ '        <href>' + iconUrl + '</href>\n'
 	+ '      </Icon>\n'
 	+ '      <heading>' + item.yaw + '</heading>\n'
 	+ '    </IconStyle>\n'
