@@ -345,14 +345,30 @@ class Image(Placemark):
     def getThumbnailUrl(self, width):
         return '%s/th%d.jpg' % (self.getDirUrl(), width)
 
+    def makeThumbnail0(self, previewOriginalPath, thumbSize):
+        thumbWidth0, thumbHeight0 = thumbSize
+        if previewOriginalPath is not None and not os.path.exists(self.getThumbnailPath(thumbWidth0)):
+            im = PIL.Image.open(previewOriginalPath)
+            fullWidth, fullHeight = im.size
+            # when we request a thumbnail of size (W,H) we want the result
+            # to (1) have the same aspect ratio as the original image, which
+            # might be different from the aspect ratio W:H, and (2) produce
+            # the largest image that fits into a box of size WxH subject to (1).
+            # PIL thumbnail() guarantees (1) but not (2), so here's our own
+            # logic for achieving both.
+            if float(thumbWidth0) / fullWidth < float(thumbHeight0) / fullHeight:
+                thumbWidth = thumbWidth0
+                thumbHeight = int(float(thumbWidth0)/fullWidth * fullHeight)
+            else:
+                thumbWidth = int(float(thumbHeight0)/fullHeight * fullWidth)
+                thumbHeight = thumbHeight0
+            im.thumbnail((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
+            mkdirP(self.getDir())
+            im.save(self.getThumbnailPath(thumbWidth0))
+
     def makeThumbnail(self, thumbSize):
         previewOriginalPath = self.getImagePath()
-        thumbWidth = thumbSize[0]
-        if previewOriginalPath is not None and not os.path.exists(self.getThumbnailPath(thumbWidth)):
-            im = PIL.Image.open(previewOriginalPath)
-            im.thumbnail(thumbSize, PIL.Image.ANTIALIAS)
-            mkdirP(self.getDir())
-            im.save(self.getThumbnailPath(thumbWidth))
+        self.makeThumbnail0(previewOriginalPath, thumbSize)
 
     def galleryThumb(self):
         w0, h0 = settings.GALLERY_THUMB_SIZE
