@@ -73,7 +73,7 @@ def main():
                       action='store_true', default=False,
                       help='Clean links instead of creating them')
     parser.add_option('-g', '--gdsDir',
-                      default='../../gds/gds',
+                      default='../gds',
                       help='Directory containing setup.py for GDS [%default]')
     opts, args = parser.parse_args()
     if args:
