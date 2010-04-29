@@ -130,10 +130,10 @@
 	<ele>0.000000</ele>
       </trkpt>
     </trkseg>
+    <extensions>
+      <geocam:icon>track</geocam:icon>
+      <geocam:lineColor>#ffff0000</geocam:lineColor>
+      <geocam:lineStyle>solid</geocam:lineStyle>
+    </extensions>
   </trk>
-  <extensions>
-    <geocam:icon>track</geocam:icon>
-    <geocam:lineColor>#ffff0000</geocam:lineColor>
-    <geocam:lineStyle>solid</geocam:lineStyle>
-  </extensions>
 </gpx>

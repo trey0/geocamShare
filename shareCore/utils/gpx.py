@@ -116,10 +116,7 @@ class TimeRange:
             return None
 
 class TrackLog:
-    def __init__(self, icon=None, lineColor=None, lineStyle=None, tracks=None):
-        self.icon = icon
-        self.lineColor = lineColor
-        self.lineStyle = lineStyle
+    def __init__(self, tracks=None):
         self.tracks = tracks
 
     def geoJson(self):
@@ -153,17 +150,13 @@ class TrackLog:
     def parseGpxString(gpxString):
         doc = minidom.parseString(gpxString)
         gpx = doc.documentElement
-        extensions = getChild(gpx, 'extensions', None)
         log = TrackLog()
         geocamNS = 'http://geocam.arc.nasa.gov/schema/gpxExtensions/1'
-        log.icon = getChildText(extensions, 'icon', '', ns=geocamNS)
-        log.lineStyle = getChildText(extensions, 'lineStyle', '', ns=geocamNS)
-        log.lineColor = getChildText(extensions, 'lineColor', '', ns=geocamNS)
         trackNodes = gpx.getElementsByTagName('trk')
         log.tracks = []
-        for track in trackNodes:
+        for trackNode in trackNodes:
             pts = []
-            for ptNode in track.getElementsByTagName('trkpt'):
+            for ptNode in trackNode.getElementsByTagName('trkpt'):
                 ele = floatOrNone(getChildText(ptNode, 'ele', None))
                 timestampStr = getChildText(ptNode, 'time', None)
                 if timestampStr:
@@ -176,7 +169,12 @@ class TrackLog:
                                       lon=getFloatFromAttr(ptNode, 'lon'),
                                       ele=ele,
                                       timestamp=timestamp))
-            log.tracks.append(Track(pts=pts))
+            extensions = getChild(trackNode, 'extensions', None)
+            track = Track(icon=getChildText(extensions, 'icon', '', ns=geocamNS),
+                          lineStyle=getChildText(extensions, 'lineStyle', '', ns=geocamNS),
+                          lineColor=getChildText(extensions, 'lineColor', '', ns=geocamNS),
+                          pts=pts)
+            log.tracks.append(track)
         return log
 
     @staticmethod
@@ -184,7 +182,10 @@ class TrackLog:
         return TrackLog.parseGpxString(file(gpxPath, 'r').read())        
 
 class Track:
-    def __init__(self, pts=None):
+    def __init__(self, icon=None, lineColor=None, lineStyle=None, pts=None):
+        self.icon = icon
+        self.lineColor = lineColor
+        self.lineStyle = lineStyle
         self.pts = pts
 
     def geoJson(self):
