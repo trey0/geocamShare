@@ -399,6 +399,8 @@ class Image(Placemark):
         else:
             rot = self.yaw
         rotRounded = 10 * int(0.1 * rot + 0.5)
+        if rotRounded == 360:
+            rotRounded = 0
         name = self.icon
         rotName = '%s%03d' % (name, rotRounded)
         ret.update(dict(rotName=rotName,
