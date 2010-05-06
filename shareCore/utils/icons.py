@@ -7,21 +7,24 @@ from glob import glob
 
 ICON_SIZE = {}
 
-def rotateAntialias(im, angle, outSize=(32, 32)):
+def rotateAntialias(im, angle, reqSize=(32, 32)):
     '''x = rotateAntialias(im, angle) is like x = im.rotate(angle) but
-    rotates at twice the resolution of the output image, then rescales
-    to get the best quality.  note that the output image will generally
-    not have exactly the requested outSize; instead, all the rotations
-    of the same image will be at the same scale.'''
-    s = outSize
-    if im.size[0] > s[0]*2:
+    gets best quality by rotating at twice the resolution of the output
+    image, then downsampling with anti-aliasing.  note that the output
+    image will generally not have exactly the requested reqSize;
+    instead, all the rotations of the same image will be at the same
+    scale.'''
+    if float(reqSize[0]) / im.size[0] < float(reqSize[1]) / im.size[1]:
+        outSize = (reqSize[0], int(float(reqSize[0])/im.size[0] * im.size[1]))
+    else:
+        outSize = (int(float(reqSize[1])/im.size[1] * im.size[0]), reqSize[1])
+    if im.size[0] > outSize[0]*2:
         filter = Image.ANTIALIAS
     else:
         filter = Image.BICUBIC
-    r = im.resize((s[0]*2, s[1]*2), filter)
+    r = im.resize((outSize[0]*2, outSize[1]*2), filter)
     r = r.rotate(angle, Image.BICUBIC, expand=1)
-    s = r.size
-    r = r.resize((s[0]//2, s[1]//2), Image.ANTIALIAS)
+    r = r.resize((r.size[0]//2, r.size[1]//2), Image.ANTIALIAS)
     return r
 
 def copyThumbnails(inDir, outDir, nameTransform=None):
@@ -42,7 +45,8 @@ def generateAllDirections(imPath, outputDir):
         os.makedirs(outputDir)
     for angle in xrange(0, 360, 10):
         outPath = os.path.join(outputDir, '%s%03d%s' % (base, angle, ext))
-        rotateAntialias(im, angle).save(outPath)
+        # PIL rotates counter-clockwise, angle is clockwise compass direction
+        rotateAntialias(im, -angle).save(outPath)
 
 def cacheIconSize(dir):
     paths = glob('%s/*' % dir)
