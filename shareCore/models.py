@@ -232,6 +232,12 @@ class Feature(models.Model):
         else:
             return leafModel.objects.get(id=self.id)
 
+    def utcToLocalTime(self, dtUtc0):
+        dtUtc = pytz.utc.localize(dtUtc0)
+        localTz = pytz.timezone(self.folder.timeZone)
+        dtLocal = dtUtc.astimezone(localTz)
+        return dtLocal
+
     def hasPosition(self):
         return self.minLat != None
 
@@ -239,7 +245,7 @@ class Feature(models.Model):
         return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
 
     def getDateText(self):
-        return self.timestamp.strftime('%Y%m%d')
+        return self.utcToLocalTime(self.timestamp).strftime('%Y%m%d')
 
     def getDirSuffix(self, version=None):
         if version == None:
@@ -311,6 +317,10 @@ class Placemark(Feature):
     def getTimestamp(self):
         return self.minTime
     timestamp = property(getTimestamp)
+
+    def getLocalTime(self):
+        return self.utcToLocalTime(self.minTime)
+    localTime = property(getLocalTime)
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
