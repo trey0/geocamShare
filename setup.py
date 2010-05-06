@@ -4,6 +4,8 @@ import sys
 import os
 from random import choice
 import django
+from share2.shareCore.utils.icons import generateAllDirections
+from glob import glob
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
@@ -41,6 +43,10 @@ def collectMedia():
                                         GIGAPAN_MEDIA_SEARCH_DIRS,
                                         'GIGAPAN_MEDIA_DIR')
     dosys('cp -r %s build/media/gigapan' % gigapanMediaDir)
+
+def rotateIconsCore():
+    for imPath in glob('shareCore/media/map/*Point*'):
+        generateAllDirections(imPath, outputDir='build/media/share/mapr')
 
 def makeLocalSourceme():
     if not os.path.exists(LOCAL_SOURCEME):
@@ -84,12 +90,13 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
 
 def install():
     os.chdir(THIS_DIR)
-    dosys('touch django.wsgi')
     dosys('mkdir -p build')
     dosys('touch build/__init__.py')
     collectMedia()
+    rotateIconsCore()
     makeLocalSourceme()
     makeLocalSettings()
+    dosys('touch django.wsgi')
 
 def main():
     import optparse

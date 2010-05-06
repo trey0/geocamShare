@@ -43,7 +43,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '%s/media/' % CHECKOUT_DIR
+MEDIA_ROOT = '%s/build/media/' % CHECKOUT_DIR
 
 # (not used by django)
 SCRIPT_NAME = os.environ.get('DJANGO_SCRIPT_NAME', '')

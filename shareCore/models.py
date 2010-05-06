@@ -19,6 +19,7 @@ from django.contrib.contenttypes.models import ContentType
 from share2.shareCore.utils import mkdirP, makeUuid
 from share2.shareCore.utils.gpx import TrackLog
 from share2.shareCore.ExtrasField import ExtrasField
+from share2.shareCore.utils.icons import getIconSize
 
 ICON_CHOICES = [(i,i) for i in settings.ICONS]
 DEFAULT_ICON = settings.ICONS[0]
@@ -232,6 +233,12 @@ class Feature(models.Model):
         else:
             return leafModel.objects.get(id=self.id)
 
+    def utcToLocalTime(self, dtUtc0):
+        dtUtc = pytz.utc.localize(dtUtc0)
+        localTz = pytz.timezone(self.folder.timeZone)
+        dtLocal = dtUtc.astimezone(localTz)
+        return dtLocal
+
     def hasPosition(self):
         return self.minLat != None
 
@@ -239,7 +246,7 @@ class Feature(models.Model):
         return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
 
     def getDateText(self):
-        return self.timestamp.strftime('%Y%m%d')
+        return self.utcToLocalTime(self.timestamp).strftime('%Y%m%d')
 
     def getDirSuffix(self, version=None):
         if version == None:
@@ -248,6 +255,11 @@ class Feature(models.Model):
 
     def getDir(self, version=None):
         return os.path.join(settings.DATA_DIR, *self.getDirSuffix(version))
+
+    def getIconDict(self):
+        name = self.icon
+        return dict(name=name,
+                    size=getIconSize(name))
 
     def getShortDict(self):
         return dict(name=self.name,
@@ -261,7 +273,7 @@ class Feature(models.Model):
                     author=self.author.username,
                     notes=self.notes,
                     tags=self.tags,
-                    icon=self.icon,
+                    icon=self.getIconDict(),
                     type=self.__class__.__name__
                     )
 
@@ -311,6 +323,10 @@ class Placemark(Feature):
     def getTimestamp(self):
         return self.minTime
     timestamp = property(getTimestamp)
+
+    def getLocalTime(self):
+        return self.utcToLocalTime(self.minTime)
+    localTime = property(getLocalTime)
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
@@ -374,6 +390,20 @@ class Image(Placemark):
         w0, h0 = settings.GALLERY_THUMB_SIZE
         w, h = self.getThumbSize(w0)
         return mark_safe('<td style="vertical-align: top; width: %dpx; height: %dpx;"><img src="%s" width="%d" height="%d"/></td>' % (w0, h0, self.getThumbnailUrl(w0), w, h))
+
+    def getIconDict(self):
+        ret = super(Image, self).getIconDict()
+
+        if self.yaw == None:
+            rot = 0
+        else:
+            rot = self.yaw
+        rotRounded = 10 * int(0.1 * rot + 0.5)
+        name = self.icon
+        rotName = '%s%03d' % (name, rotRounded)
+        ret.update(dict(rotName=rotName,
+                        rotSize=getIconSize(rotName)))
+        return ret
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])

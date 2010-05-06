@@ -12,3 +12,6 @@ GALLERY_PAGE_ROWS = 4
 
 GALLERY_THUMB_SIZE = [160, 120]
 DESC_THUMB_SIZE = [480, 360]
+
+# use 0 or 1 for JavaScript compatibility
+USE_EARTH_API = 0

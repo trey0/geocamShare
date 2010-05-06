@@ -22,6 +22,10 @@ from share2.shareCore.utils import makeUuid, mkdirP
 from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm
+from share2.shareCore.utils.icons import cacheIconSize
+
+cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
+cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
 
 class ViewCore:
     def getMatchingFeatures(self, request):
@@ -47,9 +51,11 @@ class ViewCore:
     
     def getGalleryJsonText(self, request):
         features = [f.asLeafClass() for f in self.getMatchingFeatures(request)]
-        return json.dumps([f.getShortDict() for f in features],
-                          separators=(',',':') # omit spaces
-                          )
+        obj = [f.getShortDict() for f in features]
+        if 1:
+            return json.dumps(obj, indent=4, sort_keys=True) # pretty print for debugging
+        else:
+            return json.dumps(obj, separators=(',',':')) # compact
 
     def galleryJson(self, request):
         return HttpResponse(self.getGalleryJsonText(request), mimetype='application/json')
@@ -57,7 +63,7 @@ class ViewCore:
     def galleryJsonJs(self, request):
         return render_to_response('galleryJson.js',
                                   dict(galleryJsonText = self.getGalleryJsonText(request)),
-                                  mimetype='application/json')
+                                  mimetype='text/javascript')
 
     def main(self, request):
         pager, pageData = self.getGalleryData(request, '1')

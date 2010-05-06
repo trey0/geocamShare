@@ -1,34 +1,402 @@
-var ge; // conventional name for Google Earth plugin instance
 
+var USE_EARTH_API;
 var SCRIPT_NAME;
 var SERVER_ROOT_URL;
 var MEDIA_URL;
-var gexG;
 var itemsG = [];
-var newItemsG = [];
+var newItemsG = null;
 var pageG = null;
 var highlightedItemG = null;
-var earthLoadedG = false;
 var visibleItemsG = [];
 var mapViewChangeTimeoutG = null;
-var allFeaturesFolderG = null;
-var earthListenersInitializedG = false;
+var mapG = null;
+var debugObjectG = null;
 
-/*
-var lineStringG;
-*/
+var MapViewer = new Class({});
 
-google.load("earth", "1");
+if (USE_EARTH_API) {
+    google.load("earth", "1");
+}
+
+var EarthApiMapViewer = new Class({
+        Extends: MapViewer,
+
+        /**********************************************************************
+         * variables
+         **********************************************************************/
+
+        isReady: false,
+
+        ge: null, // Google Earth Plugin instance
+
+        gex: null, // Google Earth Extensions instance
+
+        listenersInitialized: false,
+
+        allFeaturesFolder: null,
+
+        /**********************************************************************
+         * implement MapViewer interface
+         **********************************************************************/
+
+        initialize: function () {
+
+            var self = this;
+            google.earth.createInstance('map3d',
+                                        function(instance) {
+                                            return self.handleCreateInstanceDone(instance);
+                                        },
+                                        function(instance) {
+                                            // ignore error
+                                        });
+        },
+
+        updateItems: function (diff) {
+            var self = this;
+
+            $.each(diff.itemsToDelete,
+                   function (i, item) {
+                       var parent = item.mapObject.getParentNode();
+                       parent.getFeatures().removeChild(item.mapObject);
+                   });
+            
+            if (diff.itemsToAdd.length > 0) {
+                if (self.allFeaturesFolder == null) {
+                    self.allFeaturesFolder = self.ge.createFolder("allFeatures");
+                    self.ge.getFeatures().appendChild(self.allFeaturesFolder);
+                }
+
+                $.each(diff.itemsToAdd,
+                       function (i, item) {
+                           var kml = wrapKml(getItemKml(item));
+                           var geItem = self.ge.parseKml(kml);
+                           self.allFeaturesFolder.getFeatures().appendChild(geItem);
+                           item.mapObject = geItem;
+                       });
+
+                this.setListeners(diff.itemsToAdd);
+            }
+
+            if (diff.itemsToDelete.length > 0 || diff.itemsToAdd.length > 0) {
+                self.zoomToFit();
+                setGalleryToVisibleSubsetOf(itemsG);
+            }
+        },
+
+        getVisibleItems: function (items) {
+            var self = this;
+            var globeBounds = self.getViewBounds();
+            
+            var visibleItems = [];
+            $.each(items,
+                   function (i, item) {
+                       var placemark = item.mapObject;
+                       if (self.itemIsInsideBounds(item, globeBounds)) {
+                           visibleItems.push(item);
+                       }
+                   });
+
+            debugObjectG = {bounds: self.getViewBounds(), items: items, visibleItems: visibleItems};
+
+            return visibleItems;
+        },
+
+        zoomToFit: function () {
+            this.gex.util.flyToObject(this.allFeaturesFolder);
+        },
+
+        highlightItem: function(item) {
+            item.mapObject.getStyleSelector().getIconStyle().setScale(1.5);
+        },
+
+        unhighlightItem: function(item) {
+            item.mapObject.getStyleSelector().getIconStyle().setScale(1);
+        },
+
+        /**********************************************************************
+         * helper functions
+         **********************************************************************/
+
+        handleCreateInstanceDone: function (instance) {
+            this.ge = instance;
+            this.ge.getWindow().setVisibility(true);
+
+            // add a navigation control
+            this.ge.getNavigationControl().setVisibility(this.ge.VISIBILITY_AUTO);
+            
+            // add some layers
+            this.ge.getLayerRoot().enableLayerById(this.ge.LAYER_BORDERS, true);
+            this.ge.getLayerRoot().enableLayerById(this.ge.LAYER_ROADS, true);
+            
+            this.gex = new GEarthExtensions(this.ge);
+            
+            this.isReady = true;
+            setViewIfReady();
+        },
+
+        itemIsInsideBounds: function (item, bounds) {
+            var lat = item.lat;
+            var lon = item.lon;
+            return ((bounds.getSouth() <= lat) && (lat <= bounds.getNorth())
+                    && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));
+        },
+
+        showBalloonForItem: function(uuid) {
+            var item = itemsByUuidG[uuid];
+            var balloon = this.ge.createHtmlStringBalloon('');
+            
+            var placemark = item.mapObject;
+            balloon.setFeature(placemark);
+            
+            balloon.setContentString(getItemBalloonHtml(item));
+            this.ge.setBalloon(balloon);
+        },
+
+        setListeners: function(items) {
+            var self = this;
+            $.each(items,
+                   function (i, item) {
+                       var placemark = item.mapObject;
+                       google.earth.addEventListener(placemark, 'mouseover',
+                                                     function (uuid) {
+                                                         return function(event) {
+                                                             highlightItem(uuid, doMapHighlight=false);
+                                                         }
+                                                     }(item.uuid));
+                       google.earth.addEventListener(placemark, 'mouseout',
+                                                     function (uuid) {
+                                                         return function(event) {
+                                                             unhighlightItem(uuid, doMapUnhighlight=false);
+                                                         }
+                                                     }(item.uuid));
+                       google.earth.addEventListener(placemark, 'click',
+                                                     function (uuid) {
+                                                         return function(event) {
+                                                             event.preventDefault();
+                                                             self.showBalloonForItem(uuid);
+                                                         }
+                                                     }(item.uuid));
+                   });
+            
+            if (!this.listenersInitialized) {
+                google.earth.addEventListener(this.ge.getView(), 'viewchangeend', handleMapViewChange);
+            }
+            this.listenersInitialized = true;
+        },
+
+        getViewBounds: function() {
+            return this.ge.getView().getViewportGlobeBounds();
+        }
+
+    });
+
+var MapsApiMapViewer = new Class({
+        Extends: MapViewer,
+
+        /**********************************************************************
+         * variables
+         **********************************************************************/
+
+        isReady: false,
+
+        gmap: null,
+
+        mainListenerInitialized: false,
+
+        balloon: null,
+
+        /**********************************************************************
+         * implement MapViewer interface
+         **********************************************************************/
+
+        initialize: function() {
+            var latlng = new google.maps.LatLng(37, -120);
+            var myOptions = {
+                zoom: 4,
+                center: latlng,
+                mapTypeId: google.maps.MapTypeId.HYBRID
+            };
+            this.gmap = new google.maps.Map(document.getElementById("map3d_container"), myOptions);
+            this.isReady = true;
+
+            setViewIfReady();
+        },
+
+        updateItems: function (diff) {
+            var self = this;
+
+            $.each(diff.itemsToDelete,
+                   function (i, item) {
+                       self.removeFromMap(item.mapObject.normal);
+                       self.removeFromMap(item.mapObject.highlight);
+                   });
+            
+            if (diff.itemsToAdd.length > 0) {
+                $.each(diff.itemsToAdd,
+                       function (i, item) {
+                           var iconUrl = getIconMapUrl(item);
+                           item.mapObject = {normal: self.getMarker(item, 0.7),
+                                             highlight: self.getMarker(item, 1.0)};
+                           self.unhighlightItem(item); // add to map in 'normal' state
+                       });
+            }
+            this.setListeners(diff.itemsToAdd);
+
+            // future versions may zoom less often
+            if (diff.itemsToDelete.length > 0 || diff.itemsToAdd.length > 0) {
+                this.zoomToFit();
+            }
+        },
+
+        zoomToFit: function () {
+            this.gmap.fitBounds(this.getMarkerBounds());
+        },
+
+        getVisibleItems: function (items) {
+            var bounds = this.gmap.getBounds();
+            
+            var visibleItems = [];
+            $.each(items,
+                   function (i, item) {
+                       if (bounds.contains(item.mapObject.normal.position)) {
+                           visibleItems.push(item);
+                       }
+                   });
+            return visibleItems;
+        },
+
+        highlightItem: function(item) {
+            if (item.mapObject.current != item.mapObject.highlight) {
+                this.addToMap(item.mapObject.highlight);
+                this.removeFromMap(item.mapObject.normal);
+                item.mapObject.current = item.mapObject.highlight;
+            }
+        },
+
+        unhighlightItem: function(item) {
+            if (item.mapObject.current != item.mapObject.normal) {
+                this.addToMap(item.mapObject.normal);
+                this.removeFromMap(item.mapObject.highlight);
+                item.mapObject.current = item.mapObject.normal;
+            }
+        },
+
+        /**********************************************************************
+         * helper functions
+         **********************************************************************/
+
+        getMarker: function (item, scale) {
+            var position = new google.maps.LatLng(item.lat, item.lon);
+            if (item.type == "Track") {
+                return new google.maps.Marker({position: position});
+            } else {
+                var iconUrl = getIconMapRotUrl(item);
+                var iconSize = new google.maps.Size(item.icon.rotSize[0], item.icon.rotSize[1]);
+                var origin = new google.maps.Point(0, 0);
+                var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
+                var anchor = new google.maps.Point(0.5*scaledSize.width, 0.5*scaledSize.height);
+                
+                var markerImage = new google.maps.MarkerImage(iconUrl, iconSize, origin, anchor, scaledSize);
+                
+                return new google.maps.Marker({position: position,
+                        icon: markerImage
+                        });
+            }
+        },
+
+        addToMap: function (marker) {
+            marker.setMap(this.gmap);
+        },
+
+        removeFromMap: function (marker) {
+            marker.setMap(null);
+        },
+
+        getMarkerBounds: function () {
+            var bounds = new google.maps.LatLngBounds();
+            $.each(itemsG,
+                   function (i, item) {
+                       var itemBounds = new google.maps.LatLngBounds
+                           (new google.maps.LatLng(item.minLat, item.minLon),
+                            new google.maps.LatLng(item.maxLat, item.maxLon));
+                       bounds.union(itemBounds);
+                   });
+            return bounds;
+        },
+
+        getViewBounds: function() {
+            return this.gmap.getBounds();
+        },
+
+        showBalloonForItem: function(uuid) {
+            var item = itemsByUuidG[uuid];
+
+            if (this.balloon != null) {
+                this.balloon.close();
+            }
+            this.balloon = new google.maps.InfoWindow({content: getItemBalloonHtml(item)});
+            this.balloon.open(this.gmap, item.mapObject.current);
+        },
+
+        setListeners: function(items) {
+            var self = this;
+            $.each
+            (items,
+             function (i, item) {
+                var markers = [item.mapObject.normal, item.mapObject.highlight];
+                $.each
+                (markers,
+                 function (j, marker) {
+                    google.maps.event.addListener
+                        (marker, 'mouseover',
+                         function (uuid) {
+                            return function () {
+                                highlightItem(uuid, doMapHighlight=false);
+                            }
+                        }(item.uuid));
+                    google.maps.event.addListener
+                        (marker, 'mouseout',
+                         function (uuid) {
+                            return function () {
+                                unhighlightItem(uuid, doMapUnhighlight=false);
+                            }
+                        }(item.uuid));
+                    google.maps.event.addListener
+                        (marker, 'click',
+                         function (uuid) {
+                            return function () {
+                                self.showBalloonForItem(uuid);
+                            }
+                        }(item.uuid));
+                });
+            });
+
+            if (!this.mainListenerInitialized) {
+                google.maps.event.addListener(this.gmap, 'bounds_changed', handleMapViewChange);
+                this.mainListenerInitialized = true;
+            }
+        },
+
+        getViewBounds: function() {
+            return null; // ...
+        }
+
+    });
 
 function init() {
-    // fetch JSON items and start GE plugin loading in parallel
-    google.earth.createInstance('map3d', handleCreateInstanceDone, handleCreateInstanceFailed);
+    // fetch JSON items and start map loading in parallel
+    if (USE_EARTH_API) {
+        mapG = new EarthApiMapViewer();
+    } else {
+        mapG = new MapsApiMapViewer();
+    }
+    setViewIfReady();
     // set up menus
     $(function() { $('#jd_menu').jdMenu(); });
 }
 
 function reloadItems(query) {
-    var url = SCRIPT_NAME + "/gallery.json";
+    var url = SCRIPT_NAME + "gallery.json";
     if (query != null) {
         url += '?q=' + query; // FIX: urlencode!
     }
@@ -40,84 +408,77 @@ function reloadItems(query) {
     return false;
 }
 
+function uuidMap(items) {
+    var result = {};
+    $.each(items,
+           function (i, item) {
+               result[item.uuid] = item;
+           });
+    return result;
+}
+
 function diffItems(oldItems, newItems) {
-    var oldItemsById = {};
-    for (var i=0; i < oldItems.length; i++) {
-        var item = oldItems[i];
-        oldItemsById[item.uuid] = item;
-        item.keep = false;
-    }
+    $.each(oldItems,
+           function (i, item) {
+               item.keep = false;
+           });
+
+    var oldItemsByUuid = uuidMap(oldItems);
 
     var diff = {};
     diff.itemsToAdd = [];
-    for (var i=0; i < newItems.length; i++) {
-        var item = newItems[i];
-        var matchingOldItem = oldItemsById[item.uuid];
-        if (matchingOldItem == null || matchingOldItem.version != item.version) {
-            diff.itemsToAdd.push(item);
-        } else {
-            matchingOldItem.keep = true;
-            item.domObject = matchingOldItem.domObject;
-        }
-    }
+    $.each(newItems,
+           function (i, item) {
+               var matchingOldItem = oldItemsByUuid[item.uuid];
+               if (matchingOldItem == null || matchingOldItem.version != item.version) {
+                   diff.itemsToAdd.push(item);
+               } else {
+                   matchingOldItem.keep = true;
+                   if (matchingOldItem.mapObject != undefined) {
+                       item.mapObject = matchingOldItem.mapObject;
+                   }
+               }
+           });
     
     diff.itemsToDelete = [];
-    for (var i=0; i < oldItems.length; i++) {
-        var item = oldItems[i];
-        if (!item.keep) {
-            diff.itemsToDelete.push(item);
-        }
-    }
+    $.each(oldItems,
+           function (i, item) {
+               if (!item.keep) {
+                   diff.itemsToDelete.push(item);
+               }
+           });
 
     return diff;
 }
 
-function updateItemsInMap(diff) {
-    if (diff.itemsToDelete != []) {
-        for (var i=0; i < diff.itemsToDelete.length; i++) {
-            var item = diff.itemsToDelete[i];
-            var parent = item.domObject.getParentNode();
-            parent.getFeatures().removeChild(item.domObject);
-        }
-    }
-
-    if (diff.itemsToAdd != []) {
-        var items = diff.itemsToAdd;
-
-        if (allFeaturesFolderG == null) {
-            allFeaturesFolderG = ge.createFolder("allFeatures");
-            ge.getFeatures().appendChild(allFeaturesFolderG);
-        }
-        for (var i=0; i < items.length; i++) {
-            var item = items[i];
-            var kml = wrapKml(getItemKml(item));
-            var geItem = ge.parseKml(kml);
-            allFeaturesFolderG.getFeatures().appendChild(geItem);
-            item.domObject = geItem;
-        }
-        zoomToFit();
-
-        /*
-        var kml = getKmlForItems(items);
-        var geDomObject = ge.parseKml(kml);
-        ge.getFeatures().appendChild(geDomObject);
-        gexG.util.flyToObject(geDomObject);
-
-        // cache getObjectById results to minimize walking the DOM
-        allFeaturesFolderG = gexG.dom.getObjectById('allFeatures');
-        for (var i=0; i < items.length; i++) {
-            item = items[i];
-            item.domObject = gexG.dom.getObjectById(item.uuid);
-            }*/
-    }
+function getItemBalloonHtml(item) {
+    var w0 = DESC_THUMB_SIZE[0];
+    var scale = DESC_THUMB_SIZE[0] / GALLERY_THUMB_SIZE[0];
+    return ''
+        + '<div>'
+        + '  <a href="' + getViewerUrl(item) + '"'
+        + '     title="Show high-res view">'
+        + '  <img\n'
+        + '    src="' + getThumbnailUrl(item, w0) + '"\n'
+        + '    width="' + item.w*scale + '"\n'
+        + '    height="' + item.h*scale + '"\n'
+        + '    border="0"'
+        + '  />\n'
+        + ' </a>\n'
+        + '  ' + getCaptionHtml(item)
+        + '</div>\n';
 }
 
-function getMapIconPrefix(item) {
-    return item.icon + 'Point';
+function getIconGalleryUrl(item) {
+    return MEDIA_URL + 'share/map/' + item.icon.name + '.png';
 }
 
-function getGalleryIconPrefix(item) {
-    return item.icon;
+function getIconMapUrl(item) {
+    return MEDIA_URL + 'share/map/' + item.icon.name + 'Point.png';
+}
+
+function getIconMapRotUrl(item) {
+    return MEDIA_URL + 'share/mapr/' + item.icon.rotName + '.png';
 }
 
 function getGalleryThumbHtml(item) {
@@ -142,7 +503,7 @@ function getGalleryThumbHtml(item) {
 	+ " padding: 5px 5px 5px 5px;"
 	+ "\">"
 	+ "<img"
-	+ " src=\"" + MEDIA_URL + "share/" + getGalleryIconPrefix(item)  + ".png\""
+	+ " src=\"" + getIconGalleryUrl(item)  + "\""
 	+ " width=\"16\""
 	+ " height=\"16\""
 	+ " style=\"position: absolute; z-index: 100;\""
@@ -161,7 +522,7 @@ function getHostUrl(noHostUrl) {
 }
 
 function getImageKml(item) {
-    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + getMapIconPrefix(item) + '.png';
+    var iconUrl = getHostUrl() + getIconMapUrl(item);
     return ''
 	+ '<Placemark id="' + item.uuid + '">\n'
 	+ '  <Style>\n'
@@ -193,7 +554,7 @@ function getTrackLine(track) {
 }
 
 function getTrackKml(item) {
-    var iconUrl = getHostUrl() + MEDIA_URL + 'share/' + getMapIconPrefix(item) + '.png';
+    var iconUrl = getHostUrl() + getIconMapUrl(item);
     result = ''
 	+ '<Placemark id="' + item.uuid + '">\n'
 	+ '  <Style>\n'
@@ -242,9 +603,10 @@ function wrapKml(text) {
 function getKmlForItems(items) {
     var kml = ''
 	+ '  <Document id="allFeatures">\n';
-    for (var i=0; i < items.length; i++) {
-	kml += getItemKml(items[i]);
-    }
+    $.each(items,
+           function (uuid, item) {
+               kml += getItemKml(item);
+           })
     kml += ''
 	+ '  </Document>\n';
     return wrapKml(kml);
@@ -336,58 +698,17 @@ function getItemPage(item, visibleItems) {
     // we try to highlight the item in the gallery
     var index = item.index;
     var visibleIndex = 0;
-    for (var i=0; i < visibleItems.length; i++) {
-	if (visibleItems[i].index >= index) {
-	    visibleIndex = i;
-	    break;
-	}
-    }
-    //console.log('visibleIndex ' + visibleIndex);
+    var i = 0;
+    $.each(visibleItems,
+           function (uuid, item) {
+               if (item.index >= index) {
+                   visibleIndex = i;
+                   return false; // (breaks .each)
+               }
+               i++;
+           });
     const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
     return Math.floor(visibleIndex / pageSize) + 1;
-}
-
-function annotateItems(items) {
-    for (var i=0; i < items.length; i++) {
-	items[i].index = i;
-    }
-
-    /*
-    const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
-    for (var p=1; p <= Math.ceil(items.length / pageSize); p++) {
-	for (var j=0; j < pageSize; j++) {
-	    var i = (p-1)*pageSize + j;
-	    if (i < items.length) {
-		items[i].page = p;
-	    }
-	}
-	}*/
-}
-
-function showBalloonForItem(index) {
-    var item = itemsG[index];
-    var balloon = ge.createHtmlStringBalloon('');
-    
-    var placemark = item.domObject;
-    balloon.setFeature(placemark);
-    
-    var w0 = DESC_THUMB_SIZE[0];
-    var scale = DESC_THUMB_SIZE[0] / GALLERY_THUMB_SIZE[0];
-    var content = ''
-	+ '<div>'
-	+ '  <a href="' + getViewerUrl(item) + '"'
-        + '     title="Show high-res view">'
-	+ '  <img\n'
-	+ '    src="' + getThumbnailUrl(item, w0) + '"\n'
-	+ '    width="' + item.w*scale + '"\n'
-	+ '    height="' + item.h*scale + '"\n'
-        + '    border="0"'
-	+ '  />'
-	+ ' </a>'
-	+ '  ' + getCaptionHtml(item)
-	+ '</div>\n';
-    balloon.setContentString(content);
-    ge.setBalloon(balloon);
 }
 
 function handleMapViewChange() {
@@ -400,79 +721,25 @@ function handleMapViewChange() {
 	}, 250);
 }
 
-function setMapListeners(items) {
-    for (var i=0; i < items.length; i++) {
-	var item = items[i];
-	var placemark = item.domObject;
-	google.earth.addEventListener(placemark, 'mouseover',
-				      function(index) {
-					  return function(event) {
-					      highlightItem(index, doMapHighlight=false);
-					  }
-				      }(item.index));
-	google.earth.addEventListener(placemark, 'mouseout',
-				      function(index) {
-					  return function(event) {
-					      unhighlightItem(index);
-					  }
-				      }(item.index));
-	google.earth.addEventListener(placemark, 'click',
-				      function(index) {
-					  return function(event) {
-					      event.preventDefault();
-					      showBalloonForItem(index);
-					  }
-				      }(item.index));
-    }
+function itemListsEqual(a, b) {
+    // itemLists are defined to be equal if their items have the same uuids.
+    // this must be true if they have the same length and the uuids of b
+    // are a subset of the uuids of a.
 
-    if (!earthListenersInitializedG) {
-        google.earth.addEventListener(ge.getView(), 'viewchangeend', handleMapViewChange);
-    }
-    earthListenersInitializedG = true;
-}
+    if (a.length != b.length) return false;
 
-function itemIsInsideBounds(item, bounds) {
-    var lat = item.lat;
-    var lon = item.lon;
-    return ((bounds.getSouth() <= lat) && (lat <= bounds.getNorth())
-	    && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));
-}
-
-function getVisibleItems(items) {
-    var globeBounds = ge.getView().getViewportGlobeBounds();
-    /*
-    console.log('globeBounds [' + globeBounds.getSouth() + ' .. ' + globeBounds.getNorth() + ']'
-		+ ' [' + globeBounds.getWest() + ' .. ' + globeBounds.getEast() + ']');
-    */
-
-    var visibleItems = [];
-    for (var i=0; i < items.length; i++) {
-	var item = items[i];
-	var placemark = item.domObject;
-	if (itemIsInsideBounds(item, globeBounds)) {
-	    visibleItems.push(item);
-	}
-    }
-    return visibleItems;
-}
-
-function listsHaveDifferentIds(a, b) {
-    if (a.length != b.length) return true;
-
-    var adict = {};
-    for (var i=0; i < a.length; i++) {
-	adict[a[i].uuid] = true;
-    }
+    var amap = uuidMap(a);
     for (var i=0; i < b.length; i++) {
-	if (! adict[b[i].uuid]) {
-	    return true;
-	}
+        if (amap[b[i].uuid] == undefined) {
+            return false;
+        }
     }
-    return false;
+
+    return true;
 }
 
 function setGalleryToVisibleSubsetOf(items) {
-    setGalleryItems(getVisibleItems(items), items);
+    setGalleryItems(mapG.getVisibleItems(items), items);
 }
 
 function setPage(visibleItems, pageNum, force) {
@@ -488,24 +755,24 @@ function setPage(visibleItems, pageNum, force) {
 	if (i < visibleItems.length) {
 	    var item = visibleItems[i];
 	    $("td#" + item.uuid).hover(
-					    function(index) {
-						return function() {
-						    highlightItem(index, doMapHighlight=true);
-						}
-					    }(item.index),
-					    function(index) {
-						return function() {
-						    unhighlightItem(index);
-						}
-					    }(item.index)
-					    );
+                                       function(uuid) {
+                                           return function() {
+                                               highlightItem(uuid, doMapHighlight=true);
+                                           }
+                                       }(item.uuid),
+                                       function(uuid) {
+                                           return function() {
+                                               unhighlightItem(uuid, doMapUnhighlight=true);
+                                           }
+                                       }(item.uuid)
+                                       );
 	    $("td#" + item.uuid).click(
-					    function(index) {
-						return function() {
-						    showBalloonForItem(index);
-						}
-					    }(item.index)
-					    );
+                                       function(uuid) {
+                                           return function() {
+                                               mapG.showBalloonForItem(uuid);
+                                           }
+                                       }(item.uuid)
+                                       );
 	}
     }
 
@@ -513,7 +780,7 @@ function setPage(visibleItems, pageNum, force) {
 }
 
 function setGalleryItems(visibleItems, allItems) {
-    if (!listsHaveDifferentIds(visibleItemsG, visibleItems)) return;
+    if (itemListsEqual(visibleItemsG, visibleItems)) return;
 
     fhtml = (visibleItems.length) + ' of '
 	+ (allItems.length) + ' features in view';
@@ -525,26 +792,30 @@ function setGalleryItems(visibleItems, allItems) {
 
 function setView(oldItems, newItems) {
     var diff = diffItems(oldItems, newItems);
-    annotateItems(newItems);
-    updateItemsInMap(diff);
-    setMapListeners(diff.itemsToAdd);
-    setGalleryToVisibleSubsetOf(newItems);
+    mapG.updateItems(diff);
 }
 
 function setViewIfReady() {
-    if (earthLoadedG && newItemsG != null) {
-	setView(itemsG, newItemsG);
+    if (mapG != null && mapG.isReady && newItemsG != null) {
+        $.each(newItemsG,
+               function (i, item) {
+                   item.index = i;
+               });
+        var oldItems = itemsG;
         itemsG = newItemsG;
+        itemsByUuidG = uuidMap(itemsG);
+        newItemsG = null;
+	setView(oldItems, itemsG);
     }
 }
 
-function highlightItem(index, doMapHighlight) {
-    if (highlightedItemG != index) {
+function highlightItem(uuid, doMapHighlight) {
+    if (highlightedItemG != uuid) {
 	if (highlightedItemG != null) {
-	    unhighlightItem(highlightedItemG);
+	    unhighlightItem(highlightedItemG, doMapHighlight);
 	}
 
-	var item = itemsG[index];
+	var item = itemsByUuidG[uuid];
 
 	setPage(visibleItemsG, getItemPage(item, visibleItemsG));
 	$("td#" + item.uuid + " div").css({backgroundColor: 'red'});
@@ -552,59 +823,27 @@ function highlightItem(index, doMapHighlight) {
 	$("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
 
 	if (doMapHighlight) {
-	    var placemark = item.domObject;
-	    placemark.getStyleSelector().getIconStyle().setScale(1.5);
+            mapG.highlightItem(item);
 	}
 
-	highlightedItemG = index;
+	highlightedItemG = uuid;
     }
 }
 
-function unhighlightItem(index) {
-    if (highlightedItemG == index) {
-	var item = itemsG[index];
+function unhighlightItem(uuid, doMapUnhighlight) {
+    if (highlightedItemG == uuid) {
+	var item = itemsByUuidG[uuid];
 	
 	$("td#" + item.uuid + " div").css({backgroundColor: ''});
 	
 	$("#caption").html('');
 
-	placemark = item.domObject;
-	placemark.getStyleSelector().getIconStyle().setScale(1);
+        if (doMapUnhighlight) {
+            mapG.unhighlightItem(item);
+        }
 
 	highlightedItemG = null;
     }
-}
-
-function handleCreateInstanceDone(instance) {
-    ge = instance;
-    ge.getWindow().setVisibility(true);
-
-    // add a navigation control
-    ge.getNavigationControl().setVisibility(ge.VISIBILITY_AUTO);
-
-    // add some layers
-    ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, true);
-    ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
-
-    gexG = new GEarthExtensions(ge);
-
-    earthLoadedG = true;
-
-    setViewIfReady();
-
-    /*
-    var url = SERVER_ROOT_URL + "share/data.kml";
-    //google.earth.fetchKml(ge, url, addKmlToMap);
-    gexG.util.displayKml(url, {flyToView: true});
-
-    setTimeout(
-	       function () {
-		   $.getJSON(SERVER_ROOT_URL + "share/gallery.json", setView);
-	       }, 1000); // hack, wait for placemarks to load
-    */
-}
-
-function handleCreateInstanceFailed(errorCode) {
 }
 
 function newPlan() {
@@ -613,8 +852,4 @@ function newPlan() {
 
 function openPlan() {
     setTimeout(function() { alert('openPlan'); }, 0);
-}
-
-function zoomToFit() {
-    gexG.util.flyToObject(allFeaturesFolderG);
 }
