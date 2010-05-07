@@ -612,23 +612,24 @@ function getKmlForItems(items) {
     return wrapKml(kml);
 }
 
-function pg0(page, text) {
-    return '<a href="javascript:setPage(visibleItemsG,' + page + ')">' + text + '</a>';
-}
+function getPagerHtml(numItems, pageNum, pageNumToUrl) {
+    function pg0(pageNum, text) {
+        return '<a href="' + pageNumToUrl(pageNum) + '">' + text + '</a>';
+    }
+    
+    function pg(pageNum) {
+        return pg0(pageNum, pageNum);
+    }
+    
+    function disabled(text) {
+        return '<span style="color: #999999">' + text + '</span>';
+    }
 
-function pg(page) {
-    return pg0(page, page);
-}
-
-function disabled(text) {
-    return '<span style="color: #999999">' + text + '</span>';
-}
-
-function getPagerHtml(items, pageNum) {
     const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
-    var numPages = Math.ceil(items.length / pageSize);
-    var maxDisplayPages = Math.min(numPages, 8);
-    var divWidth = maxDisplayPages * 20;
+    var numPages = Math.ceil(numItems / pageSize);
+    var dotsWidth = 19;
+    var numWidth = 12 * Math.ceil(Math.log(numPages)/Math.log(10));
+    var divWidth = 2*dotsWidth + 3*numWidth;
 
     if (numPages <= 1) {
         return "&nbsp;";
@@ -645,19 +646,22 @@ function getPagerHtml(items, pageNum) {
 	ret.push(pg(1));
     }
     if (pageNum > 2) {
-	if (pageNum > 3) {
+        ret.push('...');
+	/*if (pageNum > 3) {
 	    ret.push('...');
 	}
-	ret.push(pg(pageNum-1));
+	ret.push(pg(pageNum-1));*/
     }
     if (numPages > 1) {
         ret.push('' + pageNum);
     }
     if (pageNum < numPages-1) {
+        ret.push('...');
+        /*
 	ret.push(pg(pageNum+1));
 	if (pageNum < numPages-2) {
 	    ret.push('...');
-	}
+            }*/
     }
     if (pageNum < numPages) {
 	ret.push(pg(numPages));
@@ -674,7 +678,10 @@ function getPagerHtml(items, pageNum) {
 function getGalleryHtml(items, pageNum) {
     html = "<table style=\"margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px; background-color: #ddd;\">";
     html += '<tr><td colspan="3">';
-    html += getPagerHtml(items, pageNum);
+    html += getPagerHtml(items.length, pageNum,
+                         function (pageNum) {
+                             return 'javascript:setPage(visibleItemsG,' + pageNum + ')';
+                         });
     //html += '<div style="float: right;">Hide</div>';
     html += '</td></tr>';
     for (var r=0; r < GALLERY_PAGE_ROWS; r++) {
