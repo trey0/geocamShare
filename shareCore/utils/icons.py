@@ -5,9 +5,10 @@ import os
 import re
 from glob import glob
 
-ICON_SIZE = {}
+REQ_SIZE = (48, 48)
+ICON_SIZE_CACHE = {}
 
-def rotateAntialias(im, angle, reqSize=(32, 32)):
+def rotateAntialias(im, angle, reqSize=REQ_SIZE):
     '''x = rotateAntialias(im, angle) is like x = im.rotate(angle) but
     gets best quality by rotating at twice the resolution of the output
     image, then downsampling with anti-aliasing.  note that the output
@@ -27,11 +28,11 @@ def rotateAntialias(im, angle, reqSize=(32, 32)):
     r = r.resize((r.size[0]//2, r.size[1]//2), Image.ANTIALIAS)
     return r
 
-def copyThumbnails(inDir, outDir, nameTransform=None):
+def copyThumbnails(inDir, outDir, nameTransform=None, reqSize=REQ_SIZE):
     icons = glob('%s/*.png' % inDir) + glob('%s/*.jpg' % inDir)
     for p in icons:
         im = Image.open(p)
-        im.thumbnail((32, 32), Image.ANTIALIAS)
+        im.thumbnail(REQ_SIZE, Image.ANTIALIAS)
         base, ext = os.path.splitext(os.path.basename(p))
         if nameTransform != None:
             base = nameTransform(base)
@@ -53,7 +54,7 @@ def cacheIconSize(dir):
     for p in paths:
         iconPrefix = os.path.splitext(os.path.basename(p))[0]
         im = Image.open(p)
-        ICON_SIZE[iconPrefix] = list(im.size)
+        ICON_SIZE_CACHE[iconPrefix] = list(im.size)
 
 def getIconSize(iconPrefix):
-    return ICON_SIZE[iconPrefix]
+    return ICON_SIZE_CACHE[iconPrefix]
