@@ -84,6 +84,9 @@ class Folder(models.Model):
                             help_text='Universally unique id used to identify this db record across servers.')
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
+    def __unicode__(self):
+        return self.name
+
 class Permission(models.Model):
     folder = models.ForeignKey(Folder, default=1)
     accessType = models.PositiveIntegerField(choices=PERMISSION_CHOICES)
@@ -246,7 +249,7 @@ class Feature(models.Model):
         return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
 
     def getDateText(self):
-        return self.utcToLocalTime(self.timestamp).strftime('%Y%m%d')
+        return self.utcToLocalTime(self.minTime).strftime('%Y%m%d')
 
     def getDirSuffix(self, version=None):
         if version == None:
@@ -333,8 +336,8 @@ class Placemark(Feature):
         dct = super(Placemark, self).getShortDict()
         dct.update(lat=self.lat,
                    lon=self.lon,
-                   timestamp=self.timestamp.isoformat(),
-                   dateText=self.timestamp.strftime('%Y%m%d'))
+                   timestamp=self.localTime.isoformat(),
+                   dateText=self.localTime.strftime('%Y%m%d'))
         return dct
 
 class Image(Placemark):
@@ -469,7 +472,7 @@ class Track(Feature):
         if rng.hasData:
             self.minTime, self.maxTime = rng.minTime, rng.maxTime
         else:
-            timestamp = datetime.datetime.now()
+            timestamp = datetime.datetime.utcnow()
             self.minTime, self.maxTime = timestamp, timestamp
         self.minLon, self.minLat, self.maxLon, self.maxLat = data.getBbox().asList()
         self.json = data.geoJsonString()

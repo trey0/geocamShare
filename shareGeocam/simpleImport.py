@@ -12,10 +12,11 @@ import re
 import uuid
 
 import PIL
+import pytz
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from share2.shareCore.models import Feature, Image
+from share2.shareCore.models import Feature, Image, Folder
 from share2.shareCore.utils import mkdirP, uploadClient
 from share2.shareCore.TimeUtils import parseUploadTime
 
@@ -28,13 +29,16 @@ def importImageDirect(imagePath, attributes):
 
     lat = attributes['latitude']
     lon = attributes['longitude']
-    timestamp = parseUploadTime(attributes['cameraTime'])
+    folder = Folder.objects.get(name=attributes['folder'])
+    tz = pytz.timezone(folder.timeZone)
+    timestampLocal = parseUploadTime(attributes['cameraTime']).replace(tzinfo=tz)
+    timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
     img, created = (Image.objects.get_or_create
                     (name=os.path.basename(imagePath),
                      author=User.objects.get(username=attributes['userName']),
-                     minTime=timestamp,
-                     maxTime=timestamp,
+                     minTime=timestampUtc,
+                     maxTime=timestampUtc,
                      defaults=dict(minLat=lat,
                                    minLon=lon,
                                    maxLat=lat,
@@ -46,6 +50,7 @@ def importImageDirect(imagePath, attributes):
                                    tags=attributes['tags'],
                                    widthPixels=widthPixels,
                                    heightPixels=heightPixels,
+                                   folder=folder,
                                    )))
 
     if created:
@@ -57,6 +62,18 @@ def importImageDirect(imagePath, attributes):
 
 def importDir(opts, dir):
     dir = os.path.realpath(dir)
+
+    tzFile = '%s/timezone.txt' % dir
+    if os.path.exists(tzFile):
+        timeZone = file(tzFile, 'r').read().strip()
+    else:
+        timeZone = 'US/Pacific' # default
+
+    folderName = os.path.basename(dir)
+    if not opts.url:
+        folder, created = Folder.objects.get_or_create(name=folderName,
+                                                       defaults=dict(timeZone=timeZone))
+
     csvName = glob.glob('%s/*.csv' % dir)[0]
     reader = csv.reader(file(csvName, 'r'))
     firstLine = True
@@ -95,7 +112,8 @@ def importDir(opts, dir):
                           yaw=compass,
                           notes=notes,
                           tags=tagsDb,
-                          uuid=bogusUuid)
+                          uuid=bogusUuid,
+                          folder=folderName)
         if opts.url:
             print 'uploading', os.path.basename(imagePath)
             uploadClient.uploadImage(opts.url, imagePath, attributes, downsampleFactor=int(opts.downsample))

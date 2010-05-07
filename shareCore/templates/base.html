@@ -25,6 +25,7 @@
       {% endif %}
 
       <link href="{{ MEDIA_URL }}share/share.css" rel="stylesheet" type="text/css"/>
+      <script src="{{ MEDIA_URL }}share/timeUtils.js" type="text/javascript"></script>
       <script src="{{ MEDIA_URL }}share/shareCore.js" type="text/javascript"></script>
       <script src="{{ settings.SCRIPT_NAME }}galleryJson.js&forceReload={% now "ymdHis" %}" type="text/javascript"></script>
     {% endblock %}

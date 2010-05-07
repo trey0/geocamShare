@@ -12,11 +12,11 @@ var mapViewChangeTimeoutG = null;
 var mapG = null;
 var debugObjectG = null;
 
-var MapViewer = new Class({});
-
 if (USE_EARTH_API) {
     google.load("earth", "1");
 }
+
+var MapViewer = new Class({});
 
 var EarthApiMapViewer = new Class({
         Extends: MapViewer,
@@ -628,7 +628,7 @@ function getPagerHtml(items, pageNum) {
     const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
     var numPages = Math.ceil(items.length / pageSize);
     var maxDisplayPages = Math.min(numPages, 8);
-    var divWidth = maxDisplayPages * 15;
+    var divWidth = maxDisplayPages * 20;
 
     if (numPages <= 1) {
         return "&nbsp;";
@@ -846,10 +846,3 @@ function unhighlightItem(uuid, doMapUnhighlight) {
     }
 }
 
-function newPlan() {
-    setTimeout(function() { alert('newPlan'); }, 0);
-}
-
-function openPlan() {
-    setTimeout(function() { alert('openPlan'); }, 0);
-}
