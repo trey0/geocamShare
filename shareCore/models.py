@@ -198,7 +198,7 @@ class Feature(models.Model):
     minLon = models.FloatField(blank=True, null=True, verbose_name='minimum longitude') # WGS84 degrees
     maxLat = models.FloatField(blank=True, null=True, verbose_name='maximum latitude') # WGS84 degrees
     maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
-    sensor = models.ForeignKey(Sensor, null=True)
+    sensor = models.ForeignKey(Sensor, blank=True, null=True)
     isAerial = models.BooleanField(default=False, verbose_name='aerial data', help_text="True for aerial data. Generally for non-aerial data we snap to terrain in 3D visualizations so that GPS errors can't cause features to be rendered underground.")
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)

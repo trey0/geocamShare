@@ -21,17 +21,22 @@ class Xmp:
         prefix, attr = field.split(':',1)
         return rdflib.URIRef(self.graph.namespace_manager.store.namespace(prefix) + attr)
 
-    def get(self, field):
+    def get(self, field, dflt='ERROR'):
         subject = rdflib.URIRef('')
         predicate = self._getPredicate(field)
         value = self.graph.value(subject, predicate, None)
         if value == None:
-            raise KeyError(field)
+            if dflt == 'ERROR':
+                raise KeyError(field)
+            else:
+                return dflt
         else:
             return value
 
     def getDegMin(self, field, dirValues):
-        val = self.get(field)
+        val = self.get(field, None)
+        if val == None:
+            return None
         degMin = val[:-1]
         degS, minS = degMin.split(',')
         deg = float(degS)
@@ -46,7 +51,10 @@ class Xmp:
         return sign * (deg + min/60.)
 
     def getYaw(self):
-        yaw = float(self.get('exif:GPSImgDirection'))
+        yawStr = self.get('exif:GPSImgDirection', None)
+        if yawStr == None:
+            return None
+        yaw = float(yawStr)
         if yaw < 0:
             yaw = yaw + 360
         elif yaw > 360:
