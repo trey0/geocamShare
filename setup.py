@@ -33,7 +33,7 @@ def findDirContaining(f, dirs, envVar):
                         % (f, envVar))
 
 def collectMedia():
-    dosys('rm -rf build/media')
+    #dosys('rm -rf build/media') # FIX!
     dosys('mkdir -p build/media/share')
     dosys('cp -r shareCore/media/* build/media/share/')
     if __name__ == '__main__':

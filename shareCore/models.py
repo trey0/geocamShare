@@ -129,6 +129,9 @@ class Operation(models.Model):
         else:
             return leafModel.objects.get(id=self.id)
 
+    def __unicode__(self):
+        return '%s %s %s' % (self.__class__.__name__, self.name, self.operationId)
+
 class Assignment(models.Model):
     folder = models.ForeignKey(Folder)
     unit = models.ForeignKey(Unit,

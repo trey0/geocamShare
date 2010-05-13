@@ -628,7 +628,7 @@ function getPagerHtml(numItems, pageNum, pageNumToUrl) {
     const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
     var numPages = Math.ceil(numItems / pageSize);
     var dotsWidth = 19;
-    var numWidth = 12 * Math.ceil(Math.log(numPages)/Math.log(10));
+    var numWidth = 15 * Math.ceil(Math.log(numPages)/Math.log(10));
     var divWidth = 2*dotsWidth + 3*numWidth;
 
     if (numPages <= 1) {
