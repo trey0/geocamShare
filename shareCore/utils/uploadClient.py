@@ -26,7 +26,7 @@ def uploadImage(url, imageName, attributes, downsampleFactor=1):
 
     #cookieProcessor = urllib2.HTTPCookieProcessor()
     opener = urllib2.build_opener() # (cookieProcessor)
-    headers = {'User-Agent': 'GeoCam Mobile'}
+    headers = {'User-Agent': 'GeoCam Upload Tester'}
     url = '%s/upload/%s/' % (url, attributes['userName'])
     
     multipart = MimeMultipartFormData.MimeMultipartFormData()
@@ -35,6 +35,34 @@ def uploadImage(url, imageName, attributes, downsampleFactor=1):
     multipart.addFile(name='photo',
                       filename=os.path.basename(imageName),
                       data=imageData,
+                      contentType='image/jpeg')
+    
+    h2 = headers.copy()
+    h2.update(multipart.getHeaders())
+    req = urllib2.Request(url=url,
+                          data=multipart.getPostData(),
+                          headers=h2)
+    resp = opener.open(req)
+    return resp
+
+def uploadTrack(url, trackName, attributes=None):
+    trackData = file(trackName, 'r').read()
+
+    if attributes == None:
+        attributes = dict(userName='root',
+                          trackUploadProtocolVersion='1.0')
+
+    #cookieProcessor = urllib2.HTTPCookieProcessor()
+    opener = urllib2.build_opener() # (cookieProcessor)
+    headers = {'User-Agent': 'GeoCam Upload Tester'}
+    url = '%s/track/upload/%s/' % (url, attributes['userName'])
+    
+    multipart = MimeMultipartFormData.MimeMultipartFormData()
+    for k, v in attributes.iteritems():
+        multipart[k] = v
+    multipart.addFile(name='gpxFile',
+                      filename=os.path.basename(trackName),
+                      data=trackData,
                       contentType='image/jpeg')
     
     h2 = headers.copy()

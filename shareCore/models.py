@@ -199,10 +199,10 @@ class Feature(models.Model):
     maxLat = models.FloatField(blank=True, null=True, verbose_name='maximum latitude') # WGS84 degrees
     maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
     sensor = models.ForeignKey(Sensor, blank=True, null=True)
-    isAerial = models.BooleanField(default=False, verbose_name='aerial data', help_text="True for aerial data. Generally for non-aerial data we snap to terrain in 3D visualizations so that GPS errors can't cause features to be rendered underground.")
+    isAerial = models.BooleanField(default=False, blank=True, verbose_name='aerial data', help_text="True for aerial data. Generally for non-aerial data we snap to terrain in 3D visualizations so that GPS errors can't cause features to be rendered underground.")
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)
-    icon = models.CharField(max_length=16, choices=ICON_CHOICES, default=DEFAULT_ICON)
+    icon = models.CharField(max_length=16, choices=ICON_CHOICES, default=DEFAULT_ICON, blank=True)
 
     # these fields help us handle changes to data products
     status = models.CharField(max_length=1, choices=settings.STATUS_CHOICES,
