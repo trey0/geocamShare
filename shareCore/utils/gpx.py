@@ -119,6 +119,12 @@ class TrackLog:
     def __init__(self, tracks=None):
         self.tracks = tracks
 
+    def getNumPoints(self):
+        n = 0
+        for track in self.tracks:
+            n += len(track.pts)
+        return n
+
     def geoJson(self):
         return dict(type='MultiLineString',
                     crs=dict(type='name',

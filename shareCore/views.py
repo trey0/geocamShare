@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 
 from share2.shareCore.utils import makeUuid, mkdirP
 from share2.shareCore.Pager import Pager
-from share2.shareCore.models import Image, Track
+from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm
 from share2.shareCore.utils.icons import cacheIconSize
 
@@ -145,7 +145,7 @@ class ViewCore:
                         img.widthPixels, img.heightPixels = newRes
                         img.processed = False
                     else:
-                        print >>sys.stderr, 'upload: ignoring dupe, but telling the client it worked so it stops trying'
+                        print >>sys.stderr, 'upload: ignoring dupe, but telling the client it was received so it stops trying'
                         # delete dupe data
                         shutil.rmtree(storeDir)
                 else:
@@ -197,7 +197,7 @@ class ViewCore:
                 uuid = form.cleaned_data['uuid'] or makeUuid()
                 if Track.objects.filter(uuid=uuid).count():
                     print >>sys.stderr, 'upload: track with same uuid %s posted' % img.uuid
-                    print >>sys.stderr, 'upload: ignoring dupe, but telling the client it worked so it stops trying'
+                    print >>sys.stderr, 'upload: ignoring dupe, but telling the client it was received so it stops trying'
                 else:
                     track = form.save(commit=False)
                     track.uuid = uuid
@@ -205,8 +205,12 @@ class ViewCore:
                     track.author = author
                     if track.icon == '':
                         track.icon = Track._meta.get_field('icon').default
-                    track.process()
-                    track.save()
+                    try:
+                        track.process()
+                    except EmptyTrackError:
+                        print >>sys.stderr, 'upload: ignoring empty track, but telling the client it was received so it stops trying'
+                    else:
+                        track.save()
 
                 # return a pattern for clients to check for to ensure
                 # the data was actually posted.  in bad network conditions

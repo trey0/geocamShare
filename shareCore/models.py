@@ -66,6 +66,9 @@ WORKFLOW_STATUS_CHOICES = ((WF_NEEDS_EDITS, 'Needs edits'),
                            )
 DEFAULT_WORKFLOW_STATUS = WF_SUBMITTED_FOR_VALIDATION
 
+class EmptyTrackError(Exception):
+    pass
+
 class Folder(models.Model):
     """Every piece of data in Share belongs to a folder which records both the
     operation the data is associated with and who should be able to access it."""
@@ -471,15 +474,11 @@ class Track(Feature):
         self.status = settings.STATUS_ACTIVE
         self.processed = True
         data = TrackLog.parseGpxString(self.gpx)
-        rng = data.getTimeRange()
-        if rng.hasData:
-            self.minTime, self.maxTime = rng.minTime, rng.maxTime
-        else:
-            timestamp = datetime.datetime.utcnow()
-            self.minTime, self.maxTime = timestamp, timestamp
+        if not data.getNumPoints():
+            raise EmptyTrackError()
+        self.minTime, self.maxTime = rng.minTime, rng.maxTime
         self.minLon, self.minLat, self.maxLon, self.maxLat = data.getBbox().asList()
         self.json = data.geoJsonString()
-
 
 class Snapshot(models.Model):
     img = models.ForeignKey(Image)
