@@ -203,6 +203,8 @@ class ViewCore:
                     track.uuid = uuid
                     track.gpx = request.FILES['gpxFile'].read()
                     track.author = author
+                    if track.icon == '':
+                        track.icon = Track._meta.get_field('icon').default
                     track.process()
                     track.save()
 

@@ -61,15 +61,23 @@ class Xmp:
             yaw = yaw - 360
         return yaw
 
+    def checkMissing(self, val):
+        if val in (0, -999):
+            return None
+        else:
+            return val
+
     def copyToTaskData(self, td):
         t = iso8601.parse_date(self.get('exif:DateTimeOriginal'))
         timestamp = t.replace(tzinfo=None) - t.utcoffset() # normalize to utc
         td.minTime = timestamp
         td.maxTime = timestamp
-        td.minLat = self.getDegMin('exif:GPSLatitude', 'NS')
-        td.maxLat = td.minLat
-        td.minLon = self.getDegMin('exif:GPSLongitude', 'EW')
-        td.maxLon = td.minLon
+        lat = self.checkMissing(self.getDegMin('exif:GPSLatitude', 'NS'))
+        lon = self.checkMissing(self.getDegMin('exif:GPSLongitude', 'EW'))
+        td.minLat = lat
+        td.maxLat = lat
+        td.minLon = lon
+        td.maxLon = lon
         td.yaw = self.getYaw()
 
 class NoDataError(Exception):

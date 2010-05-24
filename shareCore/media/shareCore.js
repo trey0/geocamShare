@@ -220,71 +220,6 @@ var MapsApiMapViewer = new Class({
             setViewIfReady();
         },
 
-        addMarker: function (item) {
-            var self = this;
-
-            var iconUrl = getIconMapUrl(item);
-            item.mapObject = {normal: self.getMarker(item, 0.7),
-                              highlight: self.getMarker(item, 1.0)};
-
-            var markers = [item.mapObject.normal, item.mapObject.highlight];
-            $.each
-            (markers,
-             function (j, marker) {
-                google.maps.event.addListener
-                    (marker, 'mouseover',
-                     function (uuid) {
-                        return function () {
-                            highlightItem(uuid, doMapHighlight=false);
-                        }
-                    }(item.uuid));
-                google.maps.event.addListener
-                    (marker, 'mouseout',
-                     function (uuid) {
-                        return function () {
-                            unhighlightItem(uuid, doMapUnhighlight=false);
-                        }
-                    }(item.uuid));
-                google.maps.event.addListener
-                    (marker, 'click',
-                     function (uuid) {
-                        return function () {
-                            self.showBalloonForItem(uuid);
-                        }
-                    }(item.uuid));
-            });
-
-            self.unhighlightItem(item); // add to map in 'normal' state
-        },
-
-        addTrack: function (item) {
-            var self = this;
-            var trackLines = item.geometry.geometry;
-            var path = [];
-            $.each(trackLines,
-                   function (i, trackLine) {
-                       var path = [];
-                       $.each(trackLine,
-                              function (j, pt) {
-                                  path.push(new google.maps.LatLng(pt[1], pt[0]));
-                              });
-                       var polyline = new google.maps.Polyline({map: self.gmap,
-                                                                path: path,
-                                                                strokeColor: '#FF0000',
-                                                                strokeOpacity: 1.0,
-                                                                strokeWidth: 4,
-                                                                zIndex: 50});
-                   });
-        },
-
-        addItem: function (item) {
-            if (isImage(item)) {
-                this.addMarker(item);
-            } else if (item.type == 'Track') {
-                this.addTrack(item);
-            }
-        },
-
         updateItems: function (diff) {
             var self = this;
 
@@ -345,23 +280,88 @@ var MapsApiMapViewer = new Class({
          * helper functions
          **********************************************************************/
 
+        addMarker: function (item) {
+            var self = this;
+
+            var iconUrl = getIconMapUrl(item);
+            item.mapObject = {normal: self.getMarker(item, 0.7),
+                              highlight: self.getMarker(item, 1.0)};
+
+            var markers = [item.mapObject.normal, item.mapObject.highlight];
+            $.each
+            (markers,
+             function (j, marker) {
+                google.maps.event.addListener
+                    (marker, 'mouseover',
+                     function (uuid) {
+                        return function () {
+                            highlightItem(uuid, doMapHighlight=false);
+                        }
+                    }(item.uuid));
+                google.maps.event.addListener
+                    (marker, 'mouseout',
+                     function (uuid) {
+                        return function () {
+                            unhighlightItem(uuid, doMapUnhighlight=false);
+                        }
+                    }(item.uuid));
+                google.maps.event.addListener
+                    (marker, 'click',
+                     function (uuid) {
+                        return function () {
+                            self.showBalloonForItem(uuid);
+                        }
+                    }(item.uuid));
+            });
+
+            self.unhighlightItem(item); // add to map in 'normal' state
+        },
+
+        addTrack: function (item) {
+            var self = this;
+            var trackLines = item.geometry.geometry;
+            var path = [];
+            $.each(trackLines,
+                   function (i, trackLine) {
+                       var path = [];
+                       $.each(trackLine,
+                              function (j, pt) {
+                                  path.push(new google.maps.LatLng(pt[1], pt[0]));
+                              });
+                       var polyline = new google.maps.Polyline({map: self.gmap,
+                                                                path: path,
+                                                                strokeColor: '#FF0000',
+                                                                strokeOpacity: 1.0,
+                                                                strokeWidth: 4,
+                                                                zIndex: 50});
+                   });
+        },
+
+        addItem: function (item) {
+            if (item.minLat == null) {
+                return; // skip non-geotagged items
+            }
+
+            if (isImage(item)) {
+                this.addMarker(item);
+            } else if (item.type == 'Track') {
+                this.addTrack(item);
+            }
+        },
+
         getMarker: function (item, scale) {
             var position = new google.maps.LatLng(item.lat, item.lon);
-            if (item.type == "Track") {
-                return new google.maps.Marker({position: position});
-            } else {
-                var iconUrl = getIconMapRotUrl(item);
-                var iconSize = new google.maps.Size(item.icon.rotSize[0], item.icon.rotSize[1]);
-                var origin = new google.maps.Point(0, 0);
-                var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
-                var anchor = new google.maps.Point(0.5*scaledSize.width, 0.5*scaledSize.height);
-                
-                var markerImage = new google.maps.MarkerImage(iconUrl, iconSize, origin, anchor, scaledSize);
-                
-                return new google.maps.Marker({position: position,
+            var iconUrl = getIconMapRotUrl(item);
+            var iconSize = new google.maps.Size(item.icon.rotSize[0], item.icon.rotSize[1]);
+            var origin = new google.maps.Point(0, 0);
+            var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
+            var anchor = new google.maps.Point(0.5*scaledSize.width, 0.5*scaledSize.height);
+            
+            var markerImage = new google.maps.MarkerImage(iconUrl, iconSize, origin, anchor, scaledSize);
+            
+            return new google.maps.Marker({position: position,
                         icon: markerImage
                         });
-            }
         },
 
         addToMap: function (marker) {
