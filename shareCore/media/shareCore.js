@@ -376,10 +376,12 @@ var MapsApiMapViewer = new Class({
             var bounds = new google.maps.LatLngBounds();
             $.each(itemsG,
                    function (i, item) {
-                       var itemBounds = new google.maps.LatLngBounds
-                           (new google.maps.LatLng(item.minLat, item.minLon),
-                            new google.maps.LatLng(item.maxLat, item.maxLon));
-                       bounds.union(itemBounds);
+                       if (item.minLat != null) {
+                           var itemBounds = new google.maps.LatLngBounds
+                               (new google.maps.LatLng(item.minLat, item.minLon),
+                                new google.maps.LatLng(item.maxLat, item.maxLon));
+                           bounds.union(itemBounds);
+                       }
                    });
             return bounds;
         },

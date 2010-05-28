@@ -94,7 +94,7 @@ def importDir(opts, dir):
         tagsDb = ', '.join(tags)
         lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
         if lat == -999:
-            continue
+            lat, lon = None, None
         imagePath = os.path.join(dir, 'photos', name)
 
         # make up a consistent bogus uuid field so we can test incremental upload.
