@@ -476,6 +476,7 @@ class Track(Feature):
         data = TrackLog.parseGpxString(self.gpx)
         if not data.getNumPoints():
             raise EmptyTrackError()
+        rng = data.getTimeRange()
         self.minTime, self.maxTime = rng.minTime, rng.maxTime
         self.minLon, self.minLat, self.maxLon, self.maxLat = data.getBbox().asList()
         self.json = data.geoJsonString()
