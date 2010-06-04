@@ -134,6 +134,9 @@ var EarthApiMapViewer = new Class({
 
         itemIsInsideBounds: function (item, bounds) {
             var lat = item.lat;
+	    if (lat == null) {
+		return true; // non-geotagged items are always "inside bounds"
+	    }
             var lon = item.lon;
             return ((bounds.getSouth() <= lat) && (lat <= bounds.getNorth())
                     && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));
@@ -253,7 +256,7 @@ var MapsApiMapViewer = new Class({
             var visibleItems = [];
             $.each(items,
                    function (i, item) {
-                       if (item.mapObject != null && bounds.contains(item.mapObject.normal.position)) {
+                       if (item.mapObject == null || bounds.contains(item.mapObject.normal.position)) {
                            visibleItems.push(item);
                        }
                    });
@@ -261,7 +264,7 @@ var MapsApiMapViewer = new Class({
         },
 
         highlightItem: function(item) {
-            if (item.mapObject.current != item.mapObject.highlight) {
+            if (item.mapObject != null && item.mapObject.current != item.mapObject.highlight) {
                 this.addToMap(item.mapObject.highlight);
                 this.removeFromMap(item.mapObject.normal);
                 item.mapObject.current = item.mapObject.highlight;
@@ -269,7 +272,7 @@ var MapsApiMapViewer = new Class({
         },
 
         unhighlightItem: function(item) {
-            if (item.mapObject.current != item.mapObject.normal) {
+            if (item.mapObject != null && item.mapObject.current != item.mapObject.normal) {
                 this.addToMap(item.mapObject.normal);
                 this.removeFromMap(item.mapObject.highlight);
                 item.mapObject.current = item.mapObject.normal;
