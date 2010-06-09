@@ -18,6 +18,7 @@ class UploadImageForm(forms.Form):
     roll = forms.FloatField(required=False)
     pitch = forms.FloatField(required=False)
     yaw = forms.FloatField(required=False)
+    yawRef = forms.CharField(max_length=1, required=False)
     tags = forms.CharField(max_length=256, required=False)
     notes = forms.CharField(max_length=2048, required=False)
     importFileMtimeUtc = forms.DateTimeField(required=False, initial=datetime.datetime.utcfromtimestamp(0))

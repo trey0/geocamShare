@@ -106,6 +106,17 @@ class ViewCore:
                     lat = self.checkMissing(form.cleaned_data['latitude'])
                     lon = self.checkMissing(form.cleaned_data['longitude'])
                     timestamp = form.cleaned_data['cameraTime'] or datetime.datetime.now()
+                    yaw = self.checkMissing(form.cleaned_data['yaw']),
+                    yawRef = form.cleaned_data['yawRef'] or 'M'
+                    if yawRef == 'M' and lat != None and lon != None:
+                        # FIX
+                        # yaw = correctForMagneticDeclination(yaw, lat, lon)
+                        # yawRef = 'T'
+                        pass
+                    if yaw < 0:
+                        yaw += 360
+                    if yaw > 360:
+                        yaw -= 360
                     img = Image(name=incoming.name,
                                 author=author,
                                 minTime=timestamp,
@@ -114,7 +125,8 @@ class ViewCore:
                                 minLon=lon,
                                 maxLat=lat,
                                 maxLon=lon,
-                                yaw=self.checkMissing(form.cleaned_data['yaw']),
+                                yaw=yaw,
+                                yawRef=yawRef,
                                 notes=form.cleaned_data['notes'],
                                 tags=form.cleaned_data['tags'],
                                 uuid=uuid,

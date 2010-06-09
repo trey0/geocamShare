@@ -169,11 +169,38 @@ Date.prototype.strftime =
  * Our code
  **********************************************************************/
 
+Date.prototype.isoformat = function () {
+    var tzStr;
+    if (this.utcoffset == 0) {
+        tzStr = 'Z';
+    } else {
+        var posOffset, sign;
+        if (this.utcoffset < 0) {
+            sign = '-';
+            posOffset = -this.utcoffset;
+        } else {
+            sign = '+';
+            posOffset = this.utcoffset;
+        }
+        var mins = '' + posOffset % 60;
+        if (mins.length == 1) {
+            mins = '0' + mins;
+        }
+        var hours = '' + Math.floor(posOffset / 60);
+        if (hours.length == 1) {
+            hours = '0' + hours;
+        }
+        tzStr = sign + hours + mins;
+    }
+    return this.strftime("%Y-%m-%dT%H:%M:%S") + tzStr;
+}
+
 function getNowInTimestampLocalTime(timestamp) {
     var now = new Date();
     // convert now from browser local time to timestamp local time
     // (using '- -' because '+' gives string concatenation, ugh.)
     now.setTime(now - -60000 * (now.getTimezoneOffset() + timestamp.utcoffset));
+    now.utcoffset = timestamp.utcoffset;
     return now;
 }
 
