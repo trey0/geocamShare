@@ -4,10 +4,14 @@ import glob
 import re
 from cStringIO import StringIO
 import errno
+import datetime
 
 import rdflib
 from rdflib.Graph import Graph
 import iso8601
+import pytz
+
+from django.conf import settings
 
 class Xmp:
     def __init__(self, xmpFile):
@@ -83,16 +87,34 @@ class Xmp:
 class NoDataError(Exception):
     pass
 
-def getMiddleXmpFile(reqPath):
-    allXmps = glob.glob('%s/*.xmp' % reqPath.path)
+def getMiddleFileWithExtension(ext, reqPath):
+    allXmps = glob.glob('%s/*.%s' % (reqPath.path, ext))
     allXmps = [x for x in allXmps
                if not x.startswith('thumbnail')]
     if not allXmps:
-        raise NoDataError('no xmp files in %s' % reqPath.path)
+        raise NoDataError('no %s files in %s' % (ext, reqPath.path))
     allXmps.sort()
     assert len(allXmps) > 0
     return allXmps[len(allXmps)//2]
     
+def getMiddleXmpFile(reqPath):
+    return getMiddleFileWithExtension('xmp', reqPath)
+
+def getUtcTimeFromDpName(reqPath, dpname):
+    dptime = os.path.basename(dpname)[:13] # extract time part of dpname
+    timeNoTz = datetime.datetime.strptime(dptime, '%Y%m%d_%H%M')
+    deploymentPrefix = reqPath.requestId[:3]
+    matchingTimeZones = [tz
+                         for (dep, tz) in settings.DEPLOYMENT_TIME_ZONES
+                         if deploymentPrefix.startswith(dep)]
+    if len(matchingTimeZones) != 1:
+        raise Exception("can't infer time zone for deployment %s; please fix gds/settings.py DEPLOYMENT_TIME_ZONES to have exactly 1 matching time zone entry" % deploymentPrefix)
+    tzName = matchingTimeZones[0]
+    tz = pytz.timezone(tzName)
+    timeWithTz = tz.localize(timeNoTz)
+    timeUtc = timeWithTz.replace(tzinfo=None) - timeWithTz.utcoffset()
+    return timeUtc
+
 def getIdSuffix(requestId):
     return requestId.split('_')[-1]
 

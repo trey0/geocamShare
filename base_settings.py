@@ -121,4 +121,12 @@ ICONS = BASE_ICONS
 BASE_LINE_STYLES = ('solid',)
 LINE_STYLES = BASE_LINE_STYLES
 
+STATIC_DIR = '%s/build/s/' % CHECKOUT_DIR
+TMP_DIR = '%stmp/' % STATIC_DIR
+
+STATIC_URL = '%ss/' % SCRIPT_NAME
+TMP_URL = '%stmp/' % STATIC_URL
+
+DELETE_TMP_FILE_WAIT_SECONDS = 60*60
+
 from local_settings import *
