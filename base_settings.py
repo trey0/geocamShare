@@ -45,9 +45,6 @@ USE_I18N = True
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = '%s/build/media/' % CHECKOUT_DIR
 
-# (not used by django)
-SCRIPT_NAME = os.environ.get('DJANGO_SCRIPT_NAME', '')
-
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
@@ -123,5 +120,13 @@ ICONS = BASE_ICONS
 
 BASE_LINE_STYLES = ('solid',)
 LINE_STYLES = BASE_LINE_STYLES
+
+STATIC_DIR = '%s/build/s/' % CHECKOUT_DIR
+TMP_DIR = '%stmp/' % STATIC_DIR
+
+STATIC_URL = '%ss/' % SCRIPT_NAME
+TMP_URL = '%stmp/' % STATIC_URL
+
+DELETE_TMP_FILE_WAIT_SECONDS = 60*60
 
 from local_settings import *

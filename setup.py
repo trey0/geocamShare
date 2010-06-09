@@ -16,7 +16,9 @@ GIGAPAN_MEDIA_SEARCH_DIRS = ('%s/gigapan' % THIS_DIR,
 
 def dosys(cmd):
     print cmd
-    os.system(cmd)
+    ret = os.system(cmd)
+    if ret != 0:
+        print '[command exited with non-zero return value %d]' % ret
 
 def findDirContaining(f, dirs, envVar):
     envDir = os.environ.get(envVar, None)
@@ -34,6 +36,9 @@ def findDirContaining(f, dirs, envVar):
 
 def collectMedia():
     dosys('rm -rf build/media')
+    dosys('mkdir -p build/s/tmp')
+    dosys('cp configTemplates/tmp/README.txt build/s/tmp')
+    dosys('chmod go+rw build/s/tmp')
     dosys('mkdir -p build/media/share')
     dosys('cp -r shareCore/media/* build/media/share/')
     if __name__ == '__main__':
