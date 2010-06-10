@@ -16,11 +16,19 @@ function getViewerUrl(item) {
 }
 
 function getCaptionHtml(item) {
+    var timeSummary;
+    if (item.type == "Track") {
+        timeSummary = (getTimeShort(item.minTime)
+                       + " .. " + getTimeShort(item.maxTime));
+    } else {
+        timeSummary = getTimeShort(item.timestamp);
+    }
+
     return ''
         + '<table>\n'
         + '  <tr>\n'
         + '    <td colspan="2">' + item.name + '&nbsp;&nbsp;</td>\n'
-        + '    <td colspan="2">' + getTimeShort(item.timestamp) + '</td>\n'
+        + '    <td colspan="2">' + timeSummary + '</td>\n'
         + '  </tr>\n'
         + '  <tr>\n'
         + '    <td style="font-style: italic">User:</td>\n'

@@ -274,6 +274,8 @@ class Feature(models.Model):
         return dict(name=self.name,
                     uuid=self.uuid,
                     version=self.version,
+                    minTime=self.utcToLocalTime(self.minTime).isoformat(),
+                    maxTime=self.utcToLocalTime(self.maxTime).isoformat(),
                     minLat=self.minLat,
                     minLon=self.minLon,
                     maxLat=self.maxLat,

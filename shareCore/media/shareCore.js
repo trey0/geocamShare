@@ -91,7 +91,7 @@ var EarthApiMapViewer = new Class({
             $.each(items,
                    function (i, item) {
                        var placemark = item.mapObject;
-                       if (self.itemIsInsideBounds(item, globeBounds)) {
+                       if (self.itemIntersectsBounds(item, globeBounds)) {
                            visibleItems.push(item);
                        }
                    });
@@ -132,7 +132,7 @@ var EarthApiMapViewer = new Class({
             setViewIfReady();
         },
 
-        itemIsInsideBounds: function (item, bounds) {
+        itemIntersectsBounds: function (item, bounds) {
             var lat = item.lat;
 	    if (lat == null) {
 		return true; // non-geotagged items are always "inside bounds"
@@ -228,8 +228,7 @@ var MapsApiMapViewer = new Class({
 
             $.each(diff.itemsToDelete,
                    function (i, item) {
-                       self.removeFromMap(item.mapObject.normal);
-                       self.removeFromMap(item.mapObject.highlight);
+                       self.removeItemFromMap(item);
                    });
             
             if (diff.itemsToAdd.length > 0) {
@@ -254,9 +253,10 @@ var MapsApiMapViewer = new Class({
             var bounds = this.gmap.getBounds();
             
             var visibleItems = [];
+            var self = this;
             $.each(items,
                    function (i, item) {
-                       if (item.mapObject == null || bounds.contains(item.mapObject.normal.position)) {
+                       if (self.itemIntersectsBounds(item, bounds)) {
                            visibleItems.push(item);
                        }
                    });
@@ -282,6 +282,32 @@ var MapsApiMapViewer = new Class({
         /**********************************************************************
          * helper functions
          **********************************************************************/
+
+        removeItemFromMap: function (item) {
+            var self = this;
+            if (item.mapObject == null) {
+                // nothing to remove
+            } else if (item.type == "Track") {
+                for (var i=0; i < item.mapObject.polylines.length; i++) {
+                    var polyline = item.mapObject.polylines[i];
+                    self.removeFromMap(polyline);
+                }
+            } else {
+                self.removeFromMap(item.mapObject.normal);
+                self.removeFromMap(item.mapObject.highlight);
+            }
+        },
+
+        itemIntersectsBounds: function (item, bounds) {
+            if (item.minLat == null) {
+                return true;
+            } else {
+                var ibounds = new google.maps.LatLngBounds();
+                ibounds.extend(new google.maps.LatLng(item.minLat, item.minLon));
+                ibounds.extend(new google.maps.LatLng(item.maxLat, item.maxLon));
+                return ibounds.intersects(bounds);
+            }
+        },
 
         addMarker: function (item) {
             var self = this;
@@ -324,6 +350,7 @@ var MapsApiMapViewer = new Class({
             var self = this;
             var trackLines = item.geometry.geometry;
             var path = [];
+            item.mapObject = {polylines: []};
             $.each(trackLines,
                    function (i, trackLine) {
                        var path = [];
@@ -337,6 +364,7 @@ var MapsApiMapViewer = new Class({
                                                                 strokeOpacity: 1.0,
                                                                 strokeWidth: 4,
                                                                 zIndex: 50});
+                       item.mapObject.polylines.push(polyline);
                    });
         },
 
@@ -517,17 +545,38 @@ function diffItems(oldItems, newItems) {
     return diff;
 }
 
+function getObjectThumbnailUrl(item, width) {
+    if (item.type == "Track") {
+        // FIX: should have thumbnails generated so we can respect width argument
+        return MEDIA_URL + "share/gpsTrack.png";
+    } else {
+        // for images
+        return getThumbnailUrl(item, width);
+    }
+}
+
+function getObjectThumbSize(item) {
+    if (item.type == "Track") {
+        return [160, 120];
+    } else {
+        return [item.w, item.h];
+    }
+}
+
 function getItemBalloonHtml(item) {
     var w0 = DESC_THUMB_SIZE[0];
     var scale = DESC_THUMB_SIZE[0] / GALLERY_THUMB_SIZE[0];
+    var galThumbSize = getObjectThumbSize(item);
+    var tw = galThumbSize[0];
+    var th = galThumbSize[1];
     return ''
         + '<div>'
         + '  <a href="' + getViewerUrl(item) + '"'
         + '     title="Show high-res view">'
         + '  <img\n'
-        + '    src="' + getThumbnailUrl(item, w0) + '"\n'
-        + '    width="' + item.w*scale + '"\n'
-        + '    height="' + item.h*scale + '"\n'
+        + '    src="' + getObjectThumbnailUrl(item, w0) + '"\n'
+        + '    width="' + tw*scale + '"\n'
+        + '    height="' + th*scale + '"\n'
         + '    border="0"'
         + '  />\n'
         + ' </a>\n'
@@ -550,6 +599,9 @@ function getIconMapRotUrl(item) {
 function getGalleryThumbHtml(item) {
     var w0 = GALLERY_THUMB_SIZE[0];
     var h0 = GALLERY_THUMB_SIZE[1];
+    var galThumbSize = getObjectThumbSize(item);
+    var tw = galThumbSize[0];
+    var th = galThumbSize[1];
     return "<td"
 	+ " id=\"" + item.uuid + "\""
 	+ " style=\""
@@ -562,8 +614,8 @@ function getGalleryThumbHtml(item) {
 	+ "\">"
 	+ "<div"
 	+ " style=\""
-	+ " width: " + item.w + "px;"
-	+ " height: " + item.h + "px;"
+	+ " width: " + tw + "px;"
+	+ " height: " + th + "px;"
 	+ " margin: 0px 0px 0px 0px;"
 	+ " border: 0px 0px 0px 0px;"
 	+ " padding: 5px 5px 5px 5px;"
@@ -575,9 +627,9 @@ function getGalleryThumbHtml(item) {
 	+ " style=\"position: absolute; z-index: 100;\""
 	+ "/>"
 	+ "<img"
-	+ " src=\"" + getThumbnailUrl(item, w0) + "\""
-	+ " width=\"" + item.w + "\""
-	+ " height=\"" + item.h + "\""
+	+ " src=\"" + getObjectThumbnailUrl(item, w0) + "\""
+	+ " width=\"" + tw + "\""
+	+ " height=\"" + th + "\""
 	+ "/>"
 	+ "</div>"
 	+ "</td>";
