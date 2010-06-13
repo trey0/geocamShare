@@ -30,7 +30,6 @@ cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
 class ViewCore:
     def getMatchingFeatures(self, request):
         query = request.REQUEST.get('q', '')
-        print >>sys.stderr, 'getMatchingFeatures: query:', query
         return self.getMatchingFeaturesForQuery(query)
 
     def getGalleryData(self, request, page):
@@ -259,7 +258,6 @@ class ViewCore:
         return HttpResponse(track.json, mimetype='application/json')
 
     def setVars(self, request):
-        print >>sys.stderr, 'setVars:', request.GET.items()
         for var in ('v', 'q'):
             if var in request.GET:
                 request.session[var] = request.GET[var]
