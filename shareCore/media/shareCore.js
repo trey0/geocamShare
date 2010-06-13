@@ -78,7 +78,7 @@ var EarthApiMapViewer = new Class({
             }
 
             if (diff.itemsToDelete.length > 0 || diff.itemsToAdd.length > 0) {
-                self.zoomToFit();
+                //self.zoomToFit();
                 setGalleryToVisibleSubsetOf(itemsG);
             }
         },
@@ -206,18 +206,24 @@ var MapsApiMapViewer = new Class({
 
         balloon: null,
 
+        boundsAreSet: false,
+
         /**********************************************************************
          * implement MapViewer interface
          **********************************************************************/
 
         initialize: function() {
-            var latlng = new google.maps.LatLng(37, -120);
+            //var latlng = new google.maps.LatLng(37, -120);
             var myOptions = {
-                zoom: 4,
-                center: latlng,
+                /*zoom: 4,
+                  center: latlng,*/
                 mapTypeId: google.maps.MapTypeId.HYBRID
             };
             this.gmap = new google.maps.Map(document.getElementById("map3d_container"), myOptions);
+            if (viewportG != "") {
+                this.setViewport(viewportG);
+                this.boundsAreSet = true;
+            }
             this.isReady = true;
 
             setViewIfReady();
@@ -239,14 +245,27 @@ var MapsApiMapViewer = new Class({
             }
             this.setListeners(diff.itemsToAdd);
 
-            // future versions may zoom less often
             if (diff.itemsToDelete.length > 0 || diff.itemsToAdd.length > 0) {
-                this.zoomToFit();
+                if (!this.boundsAreSet) {
+                    this.zoomToFit();
+                }
             }
         },
 
         zoomToFit: function () {
             this.gmap.fitBounds(this.getMarkerBounds());
+            this.boundsAreSet = true;
+        },
+
+        getViewport: function () {
+            var c = this.gmap.getCenter();
+            return c.lat() + ',' + c.lng() + ',' + this.gmap.getZoom();
+        },
+
+        setViewport: function (view) {
+            var v = view.split(',');
+            this.gmap.setCenter(new google.maps.LatLng(v[0], v[1]));
+            this.gmap.setZoom(parseInt(v[2]));
         },
 
         getVisibleItems: function (items) {
@@ -417,10 +436,6 @@ var MapsApiMapViewer = new Class({
             return bounds;
         },
 
-        getViewBounds: function() {
-            return this.gmap.getBounds();
-        },
-
         showBalloonForItem: function(uuid) {
             var item = itemsByUuidG[uuid];
 
@@ -469,10 +484,6 @@ var MapsApiMapViewer = new Class({
                 google.maps.event.addListener(this.gmap, 'bounds_changed', handleMapViewChange);
                 this.mainListenerInitialized = true;
             }
-        },
-
-        getViewBounds: function() {
-            return null; // ...
         }
 
     });
@@ -484,21 +495,27 @@ function init() {
     } else {
         mapG = new MapsApiMapViewer();
     }
+    if (queryG != "") {
+        var searchBox = $('#searchBox');
+        searchBox.val(queryG);
+        searchBox.css('color', '#000');
+    }
     setViewIfReady();
     // set up menus
-    $(function() { $('#jd_menu').jdMenu(); });
+    //$(function() { $('#jd_menu').jdMenu(); });
 }
 
 function reloadItems(query) {
     var url = SCRIPT_NAME + "gallery.json";
     if (query != null) {
-        url += '?q=' + query; // FIX: urlencode!
+        url += '?q=' + escape(query); // FIX: urlencode!
     }
     $.getJSON(url,
 	      function (items) {
                   newItemsG = items;
                   setViewIfReady();
               });
+    setSessionVars({'q': query});
     return false;
 }
 
@@ -864,7 +881,21 @@ function itemListsEqual(a, b) {
     return true;
 }
 
+function setSessionVars(varMap) {
+    var url = SCRIPT_NAME + 'setVars';
+    var sep = '?';
+    $.each(varMap,
+           function (key, val) {
+               url += sep + key + '=' + escape(val);
+               sep = '&';
+           });
+    $.get(url);
+}
+
 function setGalleryToVisibleSubsetOf(items) {
+    if (mapG.boundsAreSet) {
+        setSessionVars({'v': mapG.getViewport()});
+    }
     setGalleryItems(mapG.getVisibleItems(items), items);
 }
 

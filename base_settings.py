@@ -113,7 +113,7 @@ INSTALLED_APPS = (
 USE_STATIC_SERVE = False
 
 DATA_DIR = '%s/data/' % CHECKOUT_DIR
-DATA_URL = '%s/data/' % SCRIPT_NAME
+DATA_URL = '%sdata/' % SCRIPT_NAME
 
 BASE_ICONS = ('camera', 'track',)
 ICONS = BASE_ICONS

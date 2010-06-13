@@ -10,8 +10,12 @@ for code, label in STATUS_CHOICES:
 GALLERY_PAGE_COLS = 3
 GALLERY_PAGE_ROWS = 3
 
+# for multiple thumbnails in sidebar gallery
 GALLERY_THUMB_SIZE = [160, 120]
+# for single thumbnail in sidebar gallery
 DESC_THUMB_SIZE = [480, 360]
+
+THUMB_SIZES = [GALLERY_THUMB_SIZE, DESC_THUMB_SIZE]
 
 # use 0 or 1 for JavaScript compatibility
 USE_EARTH_API = 0

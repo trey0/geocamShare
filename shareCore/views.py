@@ -30,6 +30,7 @@ cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
 class ViewCore:
     def getMatchingFeatures(self, request):
         query = request.REQUEST.get('q', '')
+        print >>sys.stderr, 'getMatchingFeatures: query:', query
         return self.getMatchingFeaturesForQuery(query)
 
     def getGalleryData(self, request, page):
@@ -62,14 +63,13 @@ class ViewCore:
 
     def galleryJsonJs(self, request):
         return render_to_response('galleryJson.js',
-                                  dict(galleryJsonText = self.getGalleryJsonText(request)),
+                                  dict(galleryJsonText=self.getGalleryJsonText(request)),
                                   mimetype='text/javascript')
 
     def main(self, request):
-        pager, pageData = self.getGalleryData(request, '1')
         return render_to_response('main.html',
-                                  dict(pager = pager,
-                                       data = pageData),
+                                  dict(query=request.session.get('q', ''),
+                                       viewport=request.session.get('v', '')),
                                   context_instance=RequestContext(request))
 
     def kml(request):
@@ -258,3 +258,9 @@ class ViewCore:
         track = Track.objects.get(uuid=uuid)
         return HttpResponse(track.json, mimetype='application/json')
 
+    def setVars(self, request):
+        print >>sys.stderr, 'setVars:', request.GET.items()
+        for var in ('v', 'q'):
+            if var in request.GET:
+                request.session[var] = request.GET[var]
+        return HttpResponse('ok')

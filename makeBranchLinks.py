@@ -16,7 +16,8 @@ def makeLink(targ, src):
     if os.path.exists(src):
         print 'makeLink: %s already exists, skipping' % src
     else:
-        dosys('ln %s %s' % (targ, src))
+        #dosys('ln %s %s' % (targ, src))
+        dosys('ln -s %s %s' % (targ, src))
 
 def matchFiles(root, extensions, stem='', nlevels=999):
     matches = []
