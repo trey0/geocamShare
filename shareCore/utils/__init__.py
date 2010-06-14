@@ -87,18 +87,18 @@ class Xmp:
 class NoDataError(Exception):
     pass
 
-def getMiddleFileWithExtension(ext, reqPath):
-    allXmps = glob.glob('%s/*.%s' % (reqPath.path, ext))
+def getMiddleFileWithExtension(ext, path):
+    allXmps = glob.glob('%s/*.%s' % (path, ext))
     allXmps = [x for x in allXmps
                if not x.startswith('thumbnail')]
     if not allXmps:
-        raise NoDataError('no %s files in %s' % (ext, reqPath.path))
+        raise NoDataError('no %s files in %s' % (ext, path))
     allXmps.sort()
     assert len(allXmps) > 0
     return allXmps[len(allXmps)//2]
     
-def getMiddleXmpFile(reqPath):
-    return getMiddleFileWithExtension('xmp', reqPath)
+def getMiddleXmpFile(path):
+    return getMiddleFileWithExtension('xmp', path)
 
 def getUtcTimeFromDpName(reqPath, dpname):
     dptime = os.path.basename(dpname)[:13] # extract time part of dpname
