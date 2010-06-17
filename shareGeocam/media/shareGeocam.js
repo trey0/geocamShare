@@ -34,17 +34,26 @@ function getCaptionHtml(item) {
     }
     caption += ''
         + '  <tr>\n'
-        + '    <td colspan="2" style="color: #007;">' + item.name + '&nbsp;&nbsp;</td>\n'
+        + '    <td colspan="2" style="color: #007; font-weight: bold;">' + item.name + '&nbsp;&nbsp;</td>\n'
         + '    <td colspan="2" style="color: #777;">' + timeSummary + '</td>\n'
-        + '  </tr>\n'
-        + '  <tr>\n'
-        + '    <td style="font-style: italic">Lat,Lon:</td>\n'
-        + '    <td colspan="3">' + item.lat + ',' + item.lon + '&nbsp;&nbsp;</td>\n'
-        + '  </tr>\n'
-        + '  <tr>\n'
-        + '    <td style="font-style: italic">USNG:</td>\n'
-        + '    <td colspan="3">' + LLtoUSNG(item.lat, item.lon, 5) + '&nbsp;&nbsp;</td>\n'
-        + '  </tr>\n'
+        + '  </tr>\n';
+    if (item.lat != null) {
+        caption += ''
+            + '  <tr>\n'
+            + '    <td style="font-style: italic">Lat,Lon,Heading:&nbsp;&nbsp;</td>\n'
+            + '    <td colspan="3">' + item.lat + ', ' + item.lon + ', ' + Math.floor(item.yaw) + '&nbsp;&nbsp;</td>\n'
+            + '  </tr>\n'
+            + '  <tr>\n'
+            + '    <td style="font-style: italic">USNG:</td>\n'
+            + '    <td colspan="3">' + LLtoUSNG(item.lat, item.lon, 5) + '&nbsp;&nbsp;</td>\n'
+            + '  </tr>\n';
+    } else {
+        caption += ''
+            + '  <tr>\n'
+            + '    <td colspan="4">(No position information)</td>\n'
+            + '  </tr>\n';        
+    }
+    caption += ''
         + '  <tr>\n'
         + '    <td style="font-style: italic">User:</td>\n'
         + '    <td>' + item.author + '</td>\n'
