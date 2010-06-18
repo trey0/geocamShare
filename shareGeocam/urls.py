@@ -17,6 +17,8 @@ urlpatterns = patterns(
     (r'^track/upload/(?P<authorName>[^/]+)/$', views.uploadTrack),
     (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack),
 
+    (r'^setVars(?:\?[^/]*)?$', views.setVars),
+
     )
 
 if settings.USE_STATIC_SERVE:

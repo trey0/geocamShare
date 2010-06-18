@@ -249,6 +249,7 @@ var MapsApiMapViewer = new Class({
                 if (!this.boundsAreSet) {
                     this.zoomToFit();
                 }
+                setGalleryToVisibleSubsetOf(itemsG);
             }
         },
 
@@ -508,8 +509,9 @@ function init() {
 function reloadItems(query) {
     var url = SCRIPT_NAME + "gallery.json";
     if (query != null) {
-        url += '?q=' + escape(query); // FIX: urlencode!
+        url += '?q=' + escape(query);
     }
+    $("#gallery").html('Searching...');
     $.getJSON(url,
 	      function (items) {
                   newItemsG = items;
