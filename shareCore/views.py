@@ -105,7 +105,7 @@ class ViewCore:
                     lat = self.checkMissing(form.cleaned_data['latitude'])
                     lon = self.checkMissing(form.cleaned_data['longitude'])
                     timestamp = form.cleaned_data['cameraTime'] or datetime.datetime.now()
-                    yaw = self.checkMissing(form.cleaned_data['yaw']),
+                    yaw = self.checkMissing(form.cleaned_data['yaw'])
                     yawRef = form.cleaned_data['yawRef'] or 'M'
                     if yawRef == 'M' and lat != None and lon != None:
                         # FIX
