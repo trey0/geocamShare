@@ -1,8 +1,11 @@
+
 import os
 import sys
 import glob
 import shutil
 import datetime
+import random
+import re
 try:
     import json
 except ImportError:
@@ -289,7 +292,7 @@ class Feature(models.Model):
                     )
 
     def getDirUrl(self):
-        return '/'.join(settings.DATA_URL, *self.getDirSuffix())
+        return '/'.join([settings.DATA_URL] + list(self.getDirSuffix()))
 
     class Meta:
         ordering = ('-minTime',)
@@ -347,6 +350,38 @@ class Placemark(Feature):
                    timestamp=self.localTime.isoformat(),
                    dateText=self.localTime.strftime('%Y%m%d'))
         return dct
+
+    def getBalloonHtml(self, request):
+        return ''
+
+    def getKml(self, request=None):
+        if self.lon == None:
+            return ''
+        relIconUrl = '%sshare/map/%s.png' % (settings.MEDIA_URL, self.icon)
+        iconUrl = request.build_absolute_uri(relIconUrl)
+        shortReqId = re.sub('^..._', '', self.requestId)
+        return ("""
+<Placemark>
+  <name>%(shortReqId)s</name>
+  <description><![CDATA[%(balloonHtml)s]]></description>
+  <Style>
+    <IconStyle>
+      <Icon>
+        <href>%(iconUrl)s</href>
+      </Icon>
+      <heading>%(yaw)s</heading>
+    </IconStyle>
+  </Style>
+  <Point>
+    <coordinates>%(lon)s,%(lat)s</coordinates>
+  </Point>
+</Placemark>
+""" % dict(shortReqId=shortReqId,
+           balloonHtml=self.getBalloonHtml(request),
+           iconUrl=iconUrl,
+           yaw=self.yaw,
+           lon=self.lon,
+           lat=self.lat))
 
 class Image(Placemark):
     roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
@@ -437,23 +472,68 @@ class Image(Placemark):
         self.makeThumbnail(settings.DESC_THUMB_SIZE)
         # remember to call save() after process()
 
-    def getPlacemark(self, request):
-        iconUrl = request.build_absolute_uri('%s/share/%s.png' % (settings.MEDIA_URL, self.icon))
-        return """
-<Placemark>
+    def getBalloonHtml(self, request):
+        w0 = settings.DESC_THUMB_SIZE[0]
+        scale = settings.DESC_THUMB_SIZE[0] / settings.GALLERY_THUMB_SIZE[0]
+        tw, th = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
+        dw, dh = tw*scale, th*scale
+        viewerUrl = request.build_absolute_uri(self.getViewerUrl())
+        thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.DESC_THUMB_SIZE[0]))
+        captionHtml = self.getCaptionHtml()
+        return ("""
+<div>
+  <a href="%(viewerUrl)s"
+     title="Show high-res view">
+    <img
+     src="%(thumbnailUrl)s"
+     width="%(dw)f"
+     height="%(dh)f"
+     border="0"
+     />
+  </a>
+  %(captionHtml)s
+</div>
+""" % dict(viewerUrl=viewerUrl,
+           thumbnailUrl=thumbnailUrl,
+           captionHtml=captionHtml,
+           dw=dw,
+           dh=dh))
+
+    def getKmlAdvanced(self):
+        # FIX: fix this up and rename it to getKml()
+        return ("""
+<PhotoOverlay %(uuid)s>
+  <name>%(requestId)s</name>
   <Style>
-    <IconStyle>
-      <Icon>
-        <href>%s</href>
-      </Icon>
-      <heading>%s</heading>
-    </IconStyle>
+    <IconStyle><Icon></Icon></IconStyle>
+    <BalloonStyle>
+      <displayMode>hide</displayMode><!-- suppress confusing description balloon -->
+    </BalloonStyle>
   </Style>
+  <Camera>
+    <longitude></longitude>
+    <latitude></latitude>
+    <altitude></altitude>
+    <heading>{{ self.cameraRotation.yawDegrees }}</heading>
+    <tilt>90</tilt>
+    <roll>{{ self.cameraRotation.rollDegrees }}</roll>
+  </Camera>
+  <Icon>
+    <href>{{ self.hrefBase }}s/photos/{{ self.rollName }}/{{ self.imageFile }}</href>
+  </Icon>
   <Point>
-    <coordinates>%s,%s</coordinates>
+    <coordinates>{{ billboardLonLatAlt.commaString }}</coordinates>
+    <altitudeMode>relativeToGround</altitudeMode>
   </Point>
-</Placemark>
-""" % (iconUrl, self.yaw, self.lon, self.lat)
+  <ViewVolume>
+    <near>{{ settings.STYLE.billboard.photoNear }}</near>
+    <leftFov>-{{ halfWidthDegrees }}</leftFov>
+    <rightFov>{{ halfWidthDegrees }}</rightFov>
+    <bottomFov>-{{ halfHeightDegrees }}</bottomFov>
+    <topFov>{{ halfHeightDegrees }}</topFov>
+  </ViewVolume>
+</PhotoOverlay>
+""" % dict())
 
 class Track(Feature):
     lineColor = models.CharField(max_length=10, blank=True,
@@ -495,3 +575,33 @@ class Snapshot(models.Model):
 
     def __unicode__(self):
         return self.title
+
+class GoogleEarthSession(models.Model):
+    """Session state for a Google Earth client that is requesting periodic updates."""
+    sessionId = models.CharField(max_length=256)
+    query = models.CharField(max_length=128, default='', help_text="User's query when session was initiated")
+    utime = models.DateTimeField(help_text="The last time we sent an update to the client.")
+    extras = models.TextField(max_length=1024, default='{}', help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
+
+    @staticmethod
+    def getSessionId(searchQuery=None):
+        randomPart = '%08x' % random.getrandbits(32)
+        if searchQuery:
+            MAX_SEARCH_LEN = 200
+            if len(searchQuery) > MAX_SEARCH_LEN:
+                raise Exception('due to limitations of current db schema, search queries are limited to %d chars' % MAX_SEARCH_LEN)
+            return '%s-%s' % (randomPart, searchQuery)
+        else:
+            return randomPart
+        
+    def getSearchQuery(self):
+        if '-' in self.sessionId:
+            return self.sessionId.split('-', 1)[1]
+        else:
+            return None
+
+    def __unicode__(self):
+        return u'<Session %s (%s)>' % (self.sessionId, self.utime)
+    class Meta:
+        verbose_name = 'Google Earth session'
+        ordering = ['utime']

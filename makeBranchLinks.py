@@ -54,7 +54,7 @@ def doit(opts):
     # geocam symlinks in shareCore
     for p in matchFiles('shareGeocam', EXTENSIONS):
         stem, ext = os.path.splitext(p)
-        links.append(('shareGeocam/%s' % p, 'shareCore/%s--geocam%s' % (stem, ext)))
+        links.append(('../shareGeocam/%s' % p, 'shareCore/%s--geocam%s' % (stem, ext)))
     
     # gds symlinks in shareCore
     for p in matchFiles('%s/shareGds' % opts.gdsDir, EXTENSIONS):
@@ -74,7 +74,7 @@ def main():
                       action='store_true', default=False,
                       help='Clean links instead of creating them')
     parser.add_option('-g', '--gdsDir',
-                      default='../gds',
+                      default=os.path.realpath('../gds'),
                       help='Directory containing setup.py for GDS [%default]')
     opts, args = parser.parse_args()
     if args:

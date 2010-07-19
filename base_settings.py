@@ -129,4 +129,6 @@ TMP_URL = '%stmp/' % STATIC_URL
 
 DELETE_TMP_FILE_WAIT_SECONDS = 60*60
 
+SITE_TITLE = 'K10 Share'
+
 from local_settings import *

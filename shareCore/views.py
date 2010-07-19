@@ -23,14 +23,23 @@ from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm
 from share2.shareCore.utils.icons import cacheIconSize
+from share2.shareCore.kml.ViewKml import ViewKml
 
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
 
-class ViewCore:
+class ViewCore(ViewKml):
+    # override in derived classes
+    search = None
+
+    def getMatchingFeaturesForQuery(self, query):
+        features = TaskData.objects.all()
+        if query:
+            features = self.search.searchFeatures(features, query)
+        return features
+
     def getMatchingFeatures(self, request):
         query = request.REQUEST.get('q', '')
-        print >>sys.stderr, 'getMatchingFeatures: query:', query
         return self.getMatchingFeaturesForQuery(query)
 
     def getGalleryData(self, request, page):
@@ -71,10 +80,6 @@ class ViewCore:
                                   dict(query=request.session.get('q', ''),
                                        viewport=request.session.get('v', '')),
                                   context_instance=RequestContext(request))
-
-    def kml(request):
-        kml = self.getKml(request)
-        return HttpResponse(kml, mimetype='application/vnd.google-earth.kml+xml')
 
     def checkMissing(self, num):
         if num in (0, -999):
@@ -259,7 +264,6 @@ class ViewCore:
         return HttpResponse(track.json, mimetype='application/json')
 
     def setVars(self, request):
-        print >>sys.stderr, 'setVars:', request.GET.items()
         for var in ('v', 'q'):
             if var in request.GET:
                 request.session[var] = request.GET[var]
