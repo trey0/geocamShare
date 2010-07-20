@@ -33,7 +33,7 @@ class ViewCore(ViewKml):
     search = None
 
     def getMatchingFeaturesForQuery(self, query):
-        features = TaskData.objects.all()
+        features = self.search.getAllFeatures()
         if query:
             features = self.search.searchFeatures(features, query)
         return features

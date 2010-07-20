@@ -11,6 +11,7 @@ class BadQuery(Exception):
 
 class SearchCore:
     # override these settings in derived classes
+    getAllFeatures = None
     fields = ()
     fieldAliases = ()
     timeField = 'timestamp'

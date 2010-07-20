@@ -12,7 +12,7 @@ class BogusRequest:
     def build_absolute_uri(self, text):
         return text
 
-class ViewKml:
+class ViewKml(object):
     def kmlGetStartSessionKml(self, request, sessionId):
         quotedId = urllib.quote_plus(sessionId)
         absUrl = request.build_absolute_uri('%skml/%s/initial.kml' % (settings.SCRIPT_NAME, quotedId))
