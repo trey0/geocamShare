@@ -394,12 +394,19 @@ class Image(Placemark):
     def getThumbnailPath(self, width):
         return os.path.join(self.getDir(), 'th%d.jpg' % width)
 
-    def getThumbSize(self, width):
-        if os.path.exists(self.getThumbnailPath(width)):
-            im = PIL.Image.open(self.getThumbnailPath(width))
-            return im.size
+    def calcThumbSize(self, fullWidth, fullHeight, maxOutWidth, maxOutHeight=None):
+        if maxOutHeight == None:
+            maxOutHeight = (maxOutWidth * 3) // 4
+        if float(maxOutWidth) / fullWidth < float(maxOutHeight) / fullHeight:
+            thumbWidth = maxOutWidth
+            thumbHeight = int(float(maxOutWidth)/fullWidth * fullHeight)
         else:
-            return (width, width*3/4)
+            thumbWidth = int(float(maxOutHeight)/fullHeight * fullWidth)
+            thumbHeight = maxOutHeight
+        return (thumbWidth, thumbHeight)
+
+    def getThumbSize(self, width):
+        return self.calcThumbSize(self.widthPixels, self.heightPixels, width)
 
     def getImagePath(self, version=None):
         return os.path.join(self.getDir(version), 'full.jpg')
@@ -408,25 +415,14 @@ class Image(Placemark):
         return '%s/th%d.jpg' % (self.getDirUrl(), width)
 
     def makeThumbnail0(self, previewOriginalPath, thumbSize):
-        thumbWidth0, thumbHeight0 = thumbSize
-        if previewOriginalPath is not None and not os.path.exists(self.getThumbnailPath(thumbWidth0)):
+        maxOutWidth, maxOutHeight = thumbSize
+        if previewOriginalPath is not None and not os.path.exists(self.getThumbnailPath(maxOutWidth)):
             im = PIL.Image.open(previewOriginalPath)
             fullWidth, fullHeight = im.size
-            # when we request a thumbnail of size (W,H) we want the result
-            # to (1) have the same aspect ratio as the original image, which
-            # might be different from the aspect ratio W:H, and (2) produce
-            # the largest image that fits into a box of size WxH subject to (1).
-            # PIL thumbnail() guarantees (1) but not (2), so here's our own
-            # logic for achieving both.
-            if float(thumbWidth0) / fullWidth < float(thumbHeight0) / fullHeight:
-                thumbWidth = thumbWidth0
-                thumbHeight = int(float(thumbWidth0)/fullWidth * fullHeight)
-            else:
-                thumbWidth = int(float(thumbHeight0)/fullHeight * fullWidth)
-                thumbHeight = thumbHeight0
+            thumbWidth, thumbHeight = self.calcThumbSize(fullWidth, fullHeight, maxOutWidth, maxOutHeight)
             im.thumbnail((thumbWidth, thumbHeight), PIL.Image.ANTIALIAS)
             mkdirP(self.getDir())
-            im.save(self.getThumbnailPath(thumbWidth0))
+            im.save(self.getThumbnailPath(maxOutWidth))
 
     def makeThumbnail(self, thumbSize):
         previewOriginalPath = self.getImagePath()
@@ -473,10 +469,7 @@ class Image(Placemark):
         # remember to call save() after process()
 
     def getBalloonHtml(self, request):
-        w0 = settings.DESC_THUMB_SIZE[0]
-        scale = settings.DESC_THUMB_SIZE[0] / settings.GALLERY_THUMB_SIZE[0]
-        tw, th = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
-        dw, dh = tw*scale, th*scale
+        dw, dh = self.getThumbSize(settings.DESC_THUMB_SIZE[0])
         viewerUrl = request.build_absolute_uri(self.getViewerUrl())
         thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.DESC_THUMB_SIZE[0]))
         captionHtml = self.getCaptionHtml()

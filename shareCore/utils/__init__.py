@@ -5,6 +5,7 @@ import re
 from cStringIO import StringIO
 import errno
 import datetime
+import time
 
 import rdflib
 from rdflib.Graph import Graph
@@ -102,7 +103,7 @@ def getMiddleXmpFile(reqPath):
 
 def getUtcTimeFromDpName(reqPath, dpname):
     dptime = os.path.basename(dpname)[:13] # extract time part of dpname
-    timeNoTz = datetime.datetime.strptime(dptime, '%Y%m%d_%H%M')
+    timeNoTz = datetime.datetime(*time.strptime(dptime, '%Y%m%d_%H%M')[:6])
     deploymentPrefix = reqPath.requestId[:3]
     matchingTimeZones = [tz
                          for (dep, tz) in settings.DEPLOYMENT_TIME_ZONES
@@ -116,6 +117,8 @@ def getUtcTimeFromDpName(reqPath, dpname):
     return timeUtc
 
 def getIdSuffix(requestId):
+    # ignore attempt number if it exists
+    requestId = re.sub('_\d+$', '', requestId)
     return requestId.split('_')[-1]
 
 def mkdirP(dir):

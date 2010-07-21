@@ -40,6 +40,7 @@
     <tr>
       <td style="font-size: 1.2em; font-weight: bold;">
         {% block siteTitle %}GeoCam{% endblock %} - {% block siteSection %}Map{% endblock %}
+        <a href="{{ settings.SCRIPT_NAME }}kml/startSession.kml">[Google Earth NetworkLink]</a>
       </td>
       <td>
         <form style="display: inline" onsubmit="return reloadItems($('#searchBox').val());">
@@ -52,8 +53,7 @@
       <td>{% include "mapPane.html" %}</td>
       <td style="width: 520px; vertical-align: top; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;">
         <div id="gallery">
-          <!-- Loading... -->
-          <a href="{{ settings.SCRIPT_NAME }}kml/startSession.kml">[Google Earth NetworkLink]</a>
+          Loading...
         </div>
         <div id="caption">
         </div>

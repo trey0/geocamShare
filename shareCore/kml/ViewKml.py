@@ -38,7 +38,7 @@ class ViewKml(object):
             # FIX: update models so this filtering statement can work
             features = features.filter(mtime__lte=newUtime,
                                        deleted=False)
-        featuresKml = '\n'.join((f.asLeafClass().getKml(request) for f in features))
+        featuresKml = '\n'.join([f.asLeafClass().getKml(request) for f in features])
         return ("""
 <Folder id="allFeatures">
   <name>All features</name>
