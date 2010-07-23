@@ -1,5 +1,5 @@
 
-var USE_EARTH_API;
+var MAP_BACKEND;
 var SCRIPT_NAME;
 var SERVER_ROOT_URL;
 var MEDIA_URL;
@@ -12,11 +12,53 @@ var mapViewChangeTimeoutG = null;
 var mapG = null;
 var debugObjectG = null;
 
-if (USE_EARTH_API) {
+if (MAP_BACKEND == "earth") {
     google.load("earth", "1");
 }
 
-var MapViewer = new Class({});
+var MapViewer = new Class({
+	isReady: false,
+
+        initialize: function() {
+	    // initialize the map
+	    this.isReady = true;
+	    setViewIfReady();
+        },
+
+        updateItems: function (diff) {
+	    // add or delete features when we get an update
+        },
+
+        zoomToFit: function () {
+	    // zoom map bounds to fit all markers
+        },
+
+        getViewport: function () {
+	    // get viewport coords as a string, which will be stored in session state.
+	    // the format of the string can vary depending on the back end, but
+	    // calling setViewport() with the result must return the viewport to the
+	    // same place.
+	    return "";
+        },
+
+        setViewport: function (view) {
+	    // set viewport coords (see getViewport)
+        },
+
+        getVisibleItems: function (items) {
+	    // get the subset of items which are visible within the current map viewport
+	    return items;
+        },
+
+        highlightItem: function(item) {
+	    // highlight the given item in the map view.
+        },
+
+        unhighlightItem: function(item) {
+	    // unhighlight the given item in the map view
+        }
+
+});
 
 var EarthApiMapViewer = new Class({
         Extends: MapViewer,
@@ -490,10 +532,12 @@ var MapsApiMapViewer = new Class({
 
 function init() {
     // fetch JSON items and start map loading in parallel
-    if (USE_EARTH_API) {
+    if (MAP_BACKEND == "earth") {
         mapG = new EarthApiMapViewer();
-    } else {
+    } else if (MAP_BACKEND == "maps") {
         mapG = new MapsApiMapViewer();
+    } else {
+	mapG = new MapViewer();
     }
     if (queryG != "") {
         var searchBox = $('#searchBox');

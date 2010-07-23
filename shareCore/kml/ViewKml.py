@@ -16,15 +16,21 @@ class ViewKml(object):
     def kmlGetStartSessionKml(self, request, sessionId):
         quotedId = urllib.quote_plus(sessionId)
         absUrl = request.build_absolute_uri('%skml/%s/initial.kml' % (settings.SCRIPT_NAME, quotedId))
+        if settings.KML_FLY_TO_VIEW:
+            flyToView = '<flyToView>1</flyToView>'
+        else:
+            flyToView = ''
         return ("""
 <NetworkLink>
   <name>%(SITE_TITLE)s</name>
   <Link>
     <href>%(absUrl)s</href>
   </Link>
-  <flyToView>1</flyToView>
+  %(flyToView)s
 </NetworkLink>
-""" % dict(SITE_TITLE=settings.SITE_TITLE, absUrl=absUrl))
+""" % dict(SITE_TITLE=settings.SITE_TITLE,
+           absUrl=absUrl,
+           flyToView=flyToView))
 
     def kmlStartSession(self, request):
         searchQuery = request.REQUEST.get('q', None)

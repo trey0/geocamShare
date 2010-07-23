@@ -131,4 +131,6 @@ DELETE_TMP_FILE_WAIT_SECONDS = 60*60
 
 SITE_TITLE = 'K10 Share'
 
+KML_FLY_TO_VIEW = True
+
 from local_settings import *
