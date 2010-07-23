@@ -89,7 +89,7 @@ class NoDataError(Exception):
     pass
 
 def getMiddleFileWithExtension(ext, reqPath):
-    allXmps = glob.glob('%s/*.%s' % (reqPath, ext))
+    allXmps = glob.glob('%s/*%s' % (reqPath, ext))
     allXmps = [x for x in allXmps
                if not x.startswith('thumbnail')]
     if not allXmps:
