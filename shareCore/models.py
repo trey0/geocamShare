@@ -91,7 +91,11 @@ class Folder(models.Model):
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
     def __unicode__(self):
-        return self.name
+        if self.name:
+            name = self.name
+        else:
+            name = '[untitled]'
+        return '%s id=%d' % (name, self.id)
 
 class Permission(models.Model):
     folder = models.ForeignKey(Folder, default=1)
@@ -341,6 +345,9 @@ class Placemark(Feature):
     def getLocalTime(self):
         return self.utcToLocalTime(self.minTime)
     localTime = property(getLocalTime)
+
+    def getLocalTimeHumanReadable(self):
+        return self.getLocalTime().strftime('%Y-%m-%d %H:%M:%S (%z)')
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
