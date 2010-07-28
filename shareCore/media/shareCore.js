@@ -291,6 +291,7 @@ var MapsApiMapViewer = new Class({
                 if (!this.boundsAreSet) {
                     this.zoomToFit();
                 }
+                setGalleryToVisibleSubsetOf(itemsG);
             }
         },
 
@@ -552,8 +553,9 @@ function init() {
 function reloadItems(query) {
     var url = SCRIPT_NAME + "gallery.json";
     if (query != null) {
-        url += '?q=' + escape(query); // FIX: urlencode!
+        url += '?q=' + escape(query);
     }
+    $("#gallery").html('Searching...');
     $.getJSON(url,
 	      function (items) {
                   newItemsG = items;
@@ -946,35 +948,37 @@ function setGalleryToVisibleSubsetOf(items) {
 function setPage(visibleItems, pageNum, force) {
     if (pageG == pageNum && !force) return;
 
-    // set gallery html
-    $("#gallery").html(getGalleryHtml(visibleItems, pageNum));
+    if (visibleItems.length != 0) {
+        // set gallery html
+        $("#gallery").html(getGalleryHtml(visibleItems, pageNum));
     
-    // set gallery listeners
-    const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
-    for (var j=0; j < pageSize; j++) {
-	var i = (pageNum-1)*pageSize + j;
-	if (i < visibleItems.length) {
-	    var item = visibleItems[i];
-	    $("td#" + item.uuid).hover(
-                                       function(uuid) {
-                                           return function() {
-                                               highlightItem(uuid, doMapHighlight=true);
-                                           }
-                                       }(item.uuid),
-                                       function(uuid) {
-                                           return function() {
-                                               unhighlightItem(uuid, doMapUnhighlight=true);
-                                           }
-                                       }(item.uuid)
-                                       );
-	    $("td#" + item.uuid).click(
-                                       function(uuid) {
-                                           return function() {
-                                               mapG.showBalloonForItem(uuid);
-                                           }
-                                       }(item.uuid)
-                                       );
-	}
+        // set gallery listeners
+        const pageSize = GALLERY_PAGE_ROWS*GALLERY_PAGE_COLS;
+        for (var j=0; j < pageSize; j++) {
+            var i = (pageNum-1)*pageSize + j;
+            if (i < visibleItems.length) {
+                var item = visibleItems[i];
+                $("td#" + item.uuid).hover(
+                                           function(uuid) {
+                                               return function() {
+                                                   highlightItem(uuid, doMapHighlight=true);
+                                               }
+                                           }(item.uuid),
+                                           function(uuid) {
+                                               return function() {
+                                                   unhighlightItem(uuid, doMapUnhighlight=true);
+                                               }
+                                           }(item.uuid)
+                                           );
+                $("td#" + item.uuid).click(
+                                           function(uuid) {
+                                               return function() {
+                                                   mapG.showBalloonForItem(uuid);
+                                               }
+                                           }(item.uuid)
+                                           );
+            }
+        }
     }
 
     pageG = pageNum;
@@ -992,6 +996,13 @@ function setGalleryItems(visibleItems, allItems) {
 }
 
 function setView(oldItems, newItems) {
+    if (newItems.length == 0) {
+        if (queryG == "") {
+            $("#gallery").html("No features in DB yet.");
+        } else {
+            $("#gallery").html("No matches found.");
+        }
+    }
     var diff = diffItems(oldItems, newItems);
     mapG.updateItems(diff);
 }
