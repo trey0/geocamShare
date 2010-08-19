@@ -366,10 +366,9 @@ class Placemark(Feature):
             return ''
         relIconUrl = '%sshare/map/%s.png' % (settings.MEDIA_URL, self.icon)
         iconUrl = request.build_absolute_uri(relIconUrl)
-        shortReqId = re.sub('^..._', '', self.requestId)
         return ("""
 <Placemark>
-  <name>%(shortReqId)s</name>
+  <name>%(name)s</name>
   <description><![CDATA[%(balloonHtml)s]]></description>
   <Style>
     <IconStyle>
@@ -383,7 +382,7 @@ class Placemark(Feature):
     <coordinates>%(lon)s,%(lat)s</coordinates>
   </Point>
 </Placemark>
-""" % dict(shortReqId=shortReqId,
+""" % dict(name=self.name,
            balloonHtml=self.getBalloonHtml(request),
            iconUrl=iconUrl,
            yaw=self.yaw,
@@ -474,6 +473,12 @@ class Image(Placemark):
         self.makeThumbnail(settings.GALLERY_THUMB_SIZE)
         self.makeThumbnail(settings.DESC_THUMB_SIZE)
         # remember to call save() after process()
+
+    def getViewerUrl(self):
+        return '%sview/%s/' % (settings.SCRIPT_NAME, self.uuid)
+
+    def getCaptionHtml(self):
+        return ''
 
     def getBalloonHtml(self, request):
         dw, dh = self.getThumbSize(settings.DESC_THUMB_SIZE[0])

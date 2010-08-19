@@ -17,5 +17,5 @@ DESC_THUMB_SIZE = [480, 360]
 
 THUMB_SIZES = [GALLERY_THUMB_SIZE, DESC_THUMB_SIZE]
 
-# MAP_BACKEND possible values: 'earth', 'maps', 'none'
-MAP_BACKEND = 'none'
+# MAP_BACKEND possible values: 'earth', 'maps', 'none'.
+MAP_BACKEND = 'maps'

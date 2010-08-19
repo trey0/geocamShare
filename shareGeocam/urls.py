@@ -11,13 +11,15 @@ urlpatterns = patterns(
     (r'^gallery.json', views.galleryJson),
     (r'^galleryJson.js', views.galleryJsonJs),
     (r'^$', views.main),
-    (r'^data.kml$', views.kml),
     (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
 
     (r'^track/upload/(?P<authorName>[^/]+)/$', views.uploadTrack),
     (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack),
 
     (r'^setVars(?:\?[^/]*)?$', views.setVars),
+
+    (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession),
+    (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse),
 
     )
 
