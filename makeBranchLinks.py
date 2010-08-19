@@ -42,14 +42,15 @@ def doit(opts):
     os.chdir(THIS_DIR)
     links = []
 
-    if not os.path.exists(os.path.join(opts.gdsDir, 'setup.py')):
-        print >>sys.stderr, 'no setup.py found in GDS directory; try -g option'
+    if not opts.noGds and not os.path.exists(os.path.join(opts.gdsDir, 'setup.py')):
+        print >>sys.stderr, 'no setup.py found in GDS directory; try -g or -n option'
         sys.exit(1)
 
     # gds symlinks in top-level dir
-    for p in matchFiles(opts.gdsDir, EXTENSIONS, nlevels=0):
-        stem, ext = os.path.splitext(p)
-        links.append(('%s/%s' % (opts.gdsDir, p), '%s--gds%s' % (stem, ext)))
+    if not opts.noGds:
+        for p in matchFiles(opts.gdsDir, EXTENSIONS, nlevels=0):
+            stem, ext = os.path.splitext(p)
+            links.append(('%s/%s' % (opts.gdsDir, p), '%s--gds%s' % (stem, ext)))
 
     # geocam symlinks in shareCore
     for p in matchFiles('shareGeocam', EXTENSIONS):
@@ -57,9 +58,10 @@ def doit(opts):
         links.append(('../shareGeocam/%s' % p, 'shareCore/%s--geocam%s' % (stem, ext)))
     
     # gds symlinks in shareCore
-    for p in matchFiles('%s/shareGds' % opts.gdsDir, EXTENSIONS):
-        stem, ext = os.path.splitext(p)
-        links.append(('%s/shareGds/%s' % (opts.gdsDir, p), 'shareCore/%s--gds%s' % (stem, ext)))
+    if not opts.noGds:
+        for p in matchFiles('%s/shareGds' % opts.gdsDir, EXTENSIONS):
+            stem, ext = os.path.splitext(p)
+            links.append(('%s/shareGds/%s' % (opts.gdsDir, p), 'shareCore/%s--gds%s' % (stem, ext)))
 
     for targ, src in links:
         if opts.clean:
@@ -76,6 +78,9 @@ def main():
     parser.add_option('-g', '--gdsDir',
                       default=os.path.realpath('../gds'),
                       help='Directory containing setup.py for GDS [%default]')
+    parser.add_option('-n', '--noGds',
+                      default=False, action='store_true',
+                      help='Do not make GDS links')
     opts, args = parser.parse_args()
     if args:
         parser.error('expected no arguments')
