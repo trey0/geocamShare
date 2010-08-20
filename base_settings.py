@@ -78,8 +78,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'share2.shareCore.middleware.LogErrorsMiddleware',
     'share2.shareCore.middleware.SecurityRedirectMiddleware',
+    'share2.shareCore.middleware.LogErrorsMiddleware',
 )
 
 ROOT_URLCONF = 'share2.urls'
@@ -114,8 +114,13 @@ SECURITY_REDIRECT_ENABLED = True
 # DIGEST_* -- settings for django_digest HTTP digest authentication
 
 DIGEST_REALM = 'geocamshare.org'
+
+# Nonce count is a security feature that makes replay attacks more
+# difficult.  However, it apparently causes problems when browsers with
+# cached credentials make several simultaneous connections to the
+# server, so it's recommended to turn it off.
+# See http://bitbucket.org/akoha/django-digest/wiki/Home
 DIGEST_ENFORCE_NONCE_COUNT = False
-DIGEST_REQUIRE_AUTHENTICATION = True
 
 #DEBUG_TOOLBAR_CONFIG = {
 #    'INTERCEPT_REDIRECTS': False,
@@ -145,8 +150,7 @@ TMP_URL = '%stmp/' % STATIC_URL
 
 DELETE_TMP_FILE_WAIT_SECONDS = 60*60
 
-SITE_TITLE = 'K10 Share'
-
+SITE_TITLE = 'GeoCam Share'
 KML_FLY_TO_VIEW = True
 
 from local_settings import *

@@ -364,7 +364,7 @@ class Placemark(Feature):
     def getKml(self, request=None):
         if self.lon == None:
             return ''
-        relIconUrl = '%sshare/map/%s.png' % (settings.MEDIA_URL, self.icon)
+        relIconUrl = '%sshare/map/%sPoint.png' % (settings.MEDIA_URL, self.icon)
         iconUrl = request.build_absolute_uri(relIconUrl)
         return ("""
 <Placemark>
