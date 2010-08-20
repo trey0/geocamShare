@@ -7,6 +7,12 @@ from share2.shareGeocam.views import viewSingleton as views
 urlpatterns = patterns(
     '',
 
+    (r'^accounts/login/$', 'django.contrib.auth.views.login',
+     {'loginRequired': False, # avoid redirect loop
+      'sslRequired': True
+      }
+     ),
+
     (r'^gallery/(?P<page>\d+)/$', views.gallery),
     (r'^gallery.json', views.galleryJson),
     (r'^galleryJson.js', views.galleryJsonJs),

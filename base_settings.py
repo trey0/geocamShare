@@ -79,6 +79,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'share2.shareCore.middleware.LogErrorsMiddleware',
+    'share2.shareCore.middleware.SecurityRedirectMiddleware',
 )
 
 ROOT_URLCONF = 'share2.urls'
@@ -100,6 +101,17 @@ INSTALLED_APPS = (
     'tagging',
     'share2.shareCore',
 )
+
+AUTH_PROFILE_MODULE = 'shareCore.UserProfile'
+
+LOGIN_URL = SCRIPT_NAME + 'accounts/login'
+
+# SECURITY_REDIRECT_* -- settings for our SecurityRedirectMiddleware
+
+SECURITY_REDIRECT_ENABLED = True
+SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT = False
+SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT = True
+SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED = True        
 
 #DEBUG_TOOLBAR_CONFIG = {
 #    'INTERCEPT_REDIRECTS': False,
