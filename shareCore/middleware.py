@@ -2,6 +2,7 @@
 import re
 import sys
 import traceback
+import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -33,23 +34,58 @@ def requestIsSecure(request):
 # http://stackoverflow.com/questions/2164069/best-way-to-make-djangos-login-required-the-default
 # http://stackoverflow.com/questions/1548210/how-to-force-the-use-of-ssl-for-some-url-of-my-django-application
 class SecurityRedirectMiddleware(object):
+    # can override these built-in defaults with same-name variables in your Django settings
+    SECURITY_REDIRECT_ENABLED = True
+    SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT = False
+    SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT = True
+    SECURITY_REDIRECT_USE_DIGEST_CHALLENGE_BY_DEFAULT = False
+    SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED = True
+    SECURITY_REDIRECT_ACCEPT_DIGEST_AUTH = True
+
+    def __init__(self):
+        if self._getSetting('SECURITY_REDIRECT_ACCEPT_DIGEST_AUTH'):
+            import django_digest
+            self._digestAuthenticator = django_digest.HttpDigestAuthenticator()
+
+    def _digestAuthenticate(self, request):
+        if self._getSetting('SECURITY_REDIRECT_ACCEPT_DIGEST_AUTH'):
+            return self._digestAuthenticator.authenticate(request)
+        else:
+            return False
+
+    def _getSetting(self, name):
+        if hasattr(settings, name):
+            return getattr(settings, name)
+        else:
+            return getattr(self, name)
+    
     def process_view(self, request, viewFunc, viewArgs, viewKwargs):
-        if not settings.SECURITY_REDIRECT_ENABLED:
+        sslRequired = viewKwargs.pop('sslRequired', self._getSetting('SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT'))
+        loginRequired = viewKwargs.pop('loginRequired', self._getSetting('SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT'))
+        useDigestChallenge = viewKwargs.pop('useDigestChallenge',
+                                            self._getSetting('SECURITY_REDIRECT_USE_DIGEST_CHALLENGE_BY_DEFAULT'))
+
+        # must put this after the pop() calls above, otherwise get errors due to unknown viewKwargs
+        if not self._getSetting('SECURITY_REDIRECT_ENABLED'):
             return None
 
-        sslRequired = viewKwargs.pop('sslRequired', settings.SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT)
-        loginRequired = viewKwargs.pop('loginRequired', settings.SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT)
-        
         # todo: optimize to avoid multiple redirects when login requires SSL?
 
-        if loginRequired and not request.user.is_authenticated():
-            return login_required(viewFunc)(request, *viewArgs, **viewKwargs)
+        if (loginRequired and
+            not (request.user.is_authenticated()
+                 or self._digestAuthenticate(request))):
+            if useDigestChallenge:
+                return self._digestAuthenticator.build_challenge_response()
+            else:
+                print >>sys.stderr, 'digest auth:', self._digestAuthenticate(request)
+                print >>sys.stderr, 'sending login_required response'
+                return login_required(viewFunc)(request, *viewArgs, **viewKwargs)
 
         isSecure = requestIsSecure(request)
         if sslRequired and not isSecure:
             return self._redirect(request, sslRequired)
 
-        if isSecure and not sslRequired and settings.SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED:
+        if isSecure and not sslRequired and self._getSetting('SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED'):
             return self._redirect(request, sslRequired)
 
         return None

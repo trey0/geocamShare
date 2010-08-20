@@ -100,18 +100,22 @@ INSTALLED_APPS = (
     'django.contrib.comments',
     'tagging',
     'share2.shareCore',
+    'django_digest',
 )
 
 AUTH_PROFILE_MODULE = 'shareCore.UserProfile'
 
 LOGIN_URL = SCRIPT_NAME + 'accounts/login'
 
-# SECURITY_REDIRECT_* -- settings for our SecurityRedirectMiddleware
+# SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
 
 SECURITY_REDIRECT_ENABLED = True
-SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT = False
-SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT = True
-SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED = True        
+
+# DIGEST_* -- settings for django_digest HTTP digest authentication
+
+DIGEST_REALM = 'geocamshare.org'
+DIGEST_ENFORCE_NONCE_COUNT = False
+DIGEST_REQUIRE_AUTHENTICATION = True
 
 #DEBUG_TOOLBAR_CONFIG = {
 #    'INTERCEPT_REDIRECTS': False,

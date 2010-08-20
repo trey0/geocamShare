@@ -25,7 +25,9 @@ urlpatterns = patterns(
     (r'^setVars(?:\?[^/]*)?$', views.setVars),
 
     (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession),
-    (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse),
+    (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
+     {'useDigestChallenge': True # google earth can use digest auth but not django standard auth
+      }),
 
     )
 
