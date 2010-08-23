@@ -838,7 +838,7 @@ function getPagerHtml(numItems, pageNum, pageNumToUrl) {
 	ret.push(pg(pageNum-1));*/
     }
     if (numPages > 1) {
-        ret.push('' + pageNum);
+        ret.push('<b>' + pageNum + '</b>');
     }
     if (pageNum < numPages-1) {
         ret.push('...');
