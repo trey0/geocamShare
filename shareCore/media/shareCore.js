@@ -291,7 +291,10 @@ var MapsApiMapViewer = new Class({
                 if (!this.boundsAreSet) {
                     this.zoomToFit();
                 }
-                setGalleryToVisibleSubsetOf(itemsG);
+                // used to call setGalleryToVisibleSubsetOf(itemsG)
+                // here, but handleMapViewChange() gives the map backend
+                // some time to adjust after the zoomToFit() call
+                handleMapViewChange();
             }
         },
 

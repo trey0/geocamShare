@@ -42,6 +42,7 @@
       <td style="font-size: 1.2em; font-weight: bold;">
         {% block siteTitle %}GeoCam{% endblock %} - {% block siteSection %}Map{% endblock %}
         <a href="{{ settings.SCRIPT_NAME }}kml/startSession.kml">[Google Earth NetworkLink]</a>
+        <span style="float: right; font-weight: normal; padding-right: 3px;">{{ accountWidget|safe }}</span>
       </td>
       <td>
         <form style="display: inline" onsubmit="return reloadItems($('#searchBox').val());">

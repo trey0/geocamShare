@@ -76,9 +76,16 @@ class ViewCore(ViewKml):
                                   mimetype='text/javascript')
 
     def main(self, request):
+        if request.user.is_authenticated():
+            accountWidget = ('<b>%(username)s</b> <a href="%(SCRIPT_NAME)saccounts/logout/">logout</a>'
+                             % dict(username=request.user.username,
+                                    SCRIPT_NAME=settings.SCRIPT_NAME))
+        else:
+            accountWidget = 'welcome, <b>guest</b>'
         return render_to_response('main.html',
                                   dict(query=request.session.get('q', ''),
-                                       viewport=request.session.get('v', '')),
+                                       viewport=request.session.get('v', ''),
+                                       accountWidget=accountWidget),
                                   context_instance=RequestContext(request))
 
     def checkMissing(self, num):

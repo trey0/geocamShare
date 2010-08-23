@@ -91,6 +91,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'share2.shareCore',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -99,7 +100,6 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.comments',
     'tagging',
-    'share2.shareCore',
     'django_digest',
 )
 

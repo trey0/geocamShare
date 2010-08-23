@@ -10,8 +10,10 @@ urlpatterns = patterns(
     (r'^accounts/login/$', 'django.contrib.auth.views.login',
      {'loginRequired': False, # avoid redirect loop
       'sslRequired': True
-      }
-     ),
+      }),
+    (r'^accounts/logout/$', 'django.contrib.auth.views.logout',
+     {'loginRequired': False, # show logout page instead of redirecting to log in again
+      'template_name': 'registration/logged_out.html'}),
 
     (r'^gallery/(?P<page>\d+)/$', views.gallery),
     (r'^gallery.json', views.galleryJson),
