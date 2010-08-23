@@ -2,7 +2,6 @@
 import re
 import sys
 import traceback
-import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -77,8 +76,6 @@ class SecurityRedirectMiddleware(object):
             if useDigestChallenge:
                 return self._digestAuthenticator.build_challenge_response()
             else:
-                print >>sys.stderr, 'digest auth:', self._digestAuthenticate(request)
-                print >>sys.stderr, 'sending login_required response'
                 return login_required(viewFunc)(request, *viewArgs, **viewKwargs)
 
         isSecure = requestIsSecure(request)
