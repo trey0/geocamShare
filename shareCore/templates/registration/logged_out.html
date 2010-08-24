@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block contents %}
+
+<h1>{{ settings.SITE_TITLE }}</h1>
+
+<p style="font-size: 1.3em;">Logged out successfully.</p>
+
+<p><a href="{{ settings.SCRIPT_NAME }}">Log in again</a></p>
+
+{% endblock %}
