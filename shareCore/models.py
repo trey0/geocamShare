@@ -134,7 +134,7 @@ class Operation(models.Model):
         '''If self is the parent-class portion of a derived class instance, this returns the
         full derived class instance. See http://www.djangosnippets.org/snippets/1031/'''
         leafModel = self.contentType.model_class()
-        if leafModel == Feature:
+        if leafModel == Operation:
             return self
         else:
             return leafModel.objects.get(id=self.id)
