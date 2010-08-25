@@ -74,7 +74,11 @@ def importDir(opts, dir):
         folder, created = Folder.objects.get_or_create(name=folderName,
                                                        defaults=dict(timeZone=timeZone))
 
-    csvName = glob.glob('%s/*.csv' % dir)[0]
+    csvFiles = glob.glob('%s/*.csv' % dir)
+    if not csvFiles:
+        print >>sys.stderr, "warning: can't import dir %s, no *.csv files found" % dir
+        return
+    csvName = csvFiles[0]
     reader = csv.reader(file(csvName, 'r'))
     firstLine = True
     i = 0
