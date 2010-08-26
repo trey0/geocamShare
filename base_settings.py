@@ -2,7 +2,9 @@
 
 import os
 
-CHECKOUT_DIR = os.environ['CHECKOUT_DIR']
+CHECKOUT_DIR = os.path.dirname(os.path.realpath(__file__))
+os.environ['CHECKOUT_DIR'] = CHECKOUT_DIR
+
 SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
 if not SCRIPT_NAME.endswith('/'):
     SCRIPT_NAME += '/'
@@ -107,6 +109,8 @@ AUTH_PROFILE_MODULE = 'shareCore.UserProfile'
 
 LOGIN_URL = SCRIPT_NAME + 'accounts/login'
 
+CACHE_BACKEND = 'locmem://?timeout=30'
+
 # SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
 
 SECURITY_REDIRECT_ENABLED = True
@@ -153,4 +157,23 @@ DELETE_TMP_FILE_WAIT_SECONDS = 60*60
 SITE_TITLE = 'GeoCam Share'
 KML_FLY_TO_VIEW = True
 
-from local_settings import *
+STATUS_CHOICES = (('p', 'pending'), # in db but not fully processed yet
+                  ('a', 'active'),  # active, display this to user
+                  ('d', 'deleted'), # deleted but not purged yet
+                  )
+# define constants like STATUS_PENDING based on above choices
+for code, label in STATUS_CHOICES:
+    globals()['STATUS_' + label.upper()] = code
+
+GALLERY_PAGE_COLS = 3
+GALLERY_PAGE_ROWS = 3
+
+# for multiple thumbnails in sidebar gallery
+GALLERY_THUMB_SIZE = [160, 120]
+# for single thumbnail in sidebar gallery
+DESC_THUMB_SIZE = [480, 360]
+
+THUMB_SIZES = [GALLERY_THUMB_SIZE, DESC_THUMB_SIZE]
+
+# MAP_BACKEND possible values: 'earth', 'maps', 'none'.
+MAP_BACKEND = 'maps'
