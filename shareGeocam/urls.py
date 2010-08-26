@@ -18,6 +18,8 @@ urlpatterns = patterns(
     (r'^gallery/(?P<page>\d+)/$', views.gallery),
     (r'^gallery.json', views.galleryJson),
     (r'^galleryJson.js', views.galleryJsonJs),
+    (r'^galleryDebug.html', views.galleryDebug),
+
     (r'^$', views.main),
     (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
 

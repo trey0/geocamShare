@@ -18,6 +18,7 @@ from tagging.fields import TagField
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 
 from share2.shareCore.utils import mkdirP, makeUuid
 from share2.shareCore.utils.gpx import TrackLog
@@ -244,14 +245,32 @@ class Feature(models.Model):
     def deleteFiles(self):
         shutil.rmtree(self.getDir(), ignore_errors=True)
 
+    def getCachedField(self, field):
+        relatedId = getattr(self, '%s_id' % field)
+        key = 'fieldCache-shareCore-Feature-%s-%d' % (field, relatedId)
+        result = cache.get(key)
+        if not result:
+            result = getattr(self, field)
+            cache.set(key, result)
+        return result
+
+    def getCachedFolder(self):
+        return self.getCachedField('folder')
+
+    def getCachedAuthor(self):
+        return self.getCachedField('author')
+
     def utcToLocalTime(self, dtUtc0):
         dtUtc = pytz.utc.localize(dtUtc0)
-        localTz = pytz.timezone(self.folder.timeZone)
+        localTz = pytz.timezone(self.getCachedFolder().timeZone)
         dtLocal = dtUtc.astimezone(localTz)
         return dtLocal
 
     def hasPosition(self):
         return self.minLat != None
+
+    def getAuthor(self):
+        pass
 
     def __unicode__(self):
         return '%s %d %s %s %s %s' % (self.__class__.__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
@@ -262,7 +281,7 @@ class Feature(models.Model):
     def getDirSuffix(self, version=None):
         if version == None:
             version = self.version
-        return (self.getDateText(), self.author.username, self.uuid, str(version))
+        return (self.getDateText(), self.getCachedAuthor().username, self.uuid, str(version))
 
     def getDir(self, version=None):
         return os.path.join(settings.DATA_DIR, *self.getDirSuffix(version))
@@ -283,7 +302,7 @@ class Feature(models.Model):
                     maxLat=self.maxLat,
                     maxLon=self.maxLon,
                     isAerial=self.isAerial,
-                    author=self.author.username,
+                    author=self.getCachedAuthor().username,
                     notes=self.notes,
                     tags=self.tags,
                     icon=self.getIconDict(),

@@ -74,6 +74,9 @@ class ViewCore(ViewKml):
                                   dict(galleryJsonText=self.getGalleryJsonText(request)),
                                   mimetype='text/javascript')
 
+    def galleryDebug(self, request):
+        return HttpResponse('<body><pre>%s</pre></body>' % self.getGalleryJsonText(request))
+
     def main(self, request):
         if request.user.is_authenticated():
             accountWidget = ('<b>%(username)s</b> <a href="%(SCRIPT_NAME)saccounts/logout/">logout</a>'
