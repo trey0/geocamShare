@@ -137,4 +137,4 @@ class SearchCore:
         result = startSet
         if query:
             result = self.searchFeatures0(result, query)
-        return result.distinct().order_by('-'+self.timeField, 'id')
+        return result.distinct().order_by('-'+self.timeField)

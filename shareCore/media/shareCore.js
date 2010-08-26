@@ -764,10 +764,6 @@ function getTrackKml(item) {
     return result;
 }
 
-function isImage(item) {
-    return item.type == "Image";
-}
-
 function getItemKml(item) {
     if (isImage(item)) {
         return getImageKml(item);

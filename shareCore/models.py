@@ -23,6 +23,7 @@ from share2.shareCore.utils import mkdirP, makeUuid
 from share2.shareCore.utils.gpx import TrackLog
 from share2.shareCore.ExtrasField import ExtrasField
 from share2.shareCore.utils.icons import getIconSize
+from share2.shareCore.managers import AbstractClassManager, LeafClassManager
 
 ICON_CHOICES = [(i,i) for i in settings.ICONS]
 DEFAULT_ICON = settings.ICONS[0]
@@ -195,7 +196,7 @@ class Sensor(models.Model):
 class Feature(models.Model):
     folder = models.ForeignKey(Folder, default=1)
     name = models.CharField(max_length=80, blank=True, default='')
-    author = models.ForeignKey(User, null=True, related_name='authoredSet',
+    author = models.ForeignKey(User, null=True, related_name='%(app_label)s_%(class)s_authoredSet',
                                help_text='The user who collected the data (when you upload data, Share tags you as the author)')
     minTime = models.DateTimeField(blank=True, verbose_name='start time')
     maxTime = models.DateTimeField(blank=True, verbose_name='end time')
@@ -225,29 +226,23 @@ class Feature(models.Model):
 
     uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
                             help_text="Universally unique id used to identify this db record across servers.")
-    contentType = models.ForeignKey(ContentType, editable=False, null=True)
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
+
+    objects = AbstractClassManager(parentModel=None)
+
+    class Meta:
+        ordering = ('-minTime',)
+        abstract = True
 
     def save(self, **kwargs):
         if self.minTime == None:
             timestamp = datetime.datetime.now()
             self.minTime = timestamp
             self.maxTime = timestamp
-        if self.contentType == None:
-            self.contentType = ContentType.objects.get_for_model(self.__class__)
         super(Feature, self).save(**kwargs)
 
     def deleteFiles(self):
         shutil.rmtree(self.getDir(), ignore_errors=True)
-
-    def asLeafClass(self):
-        '''If self is the parent-class portion of a derived class instance, this returns the
-        full derived class instance. See http://www.djangosnippets.org/snippets/1031/'''
-        leafModel = self.contentType.model_class()
-        if leafModel == Feature:
-            return self
-        else:
-            return leafModel.objects.get(id=self.id)
 
     def utcToLocalTime(self, dtUtc0):
         dtUtc = pytz.utc.localize(dtUtc0)
@@ -259,7 +254,7 @@ class Feature(models.Model):
         return self.minLat != None
 
     def __unicode__(self):
-        return '%s %d %s %s %s %s' % (self.contentType.model_class().__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
+        return '%s %d %s %s %s %s' % (self.__class__.__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
 
     def getDateText(self):
         return self.utcToLocalTime(self.minTime).strftime('%Y%m%d')
@@ -298,9 +293,6 @@ class Feature(models.Model):
     def getDirUrl(self):
         return '/'.join([settings.DATA_URL] + list(self.getDirSuffix()))
 
-    class Meta:
-        ordering = ('-minTime',)
-
 class Change(models.Model):
     """The concept workflow is like this: there are two roles involved,
     the author (the person who collected the data and who knows it best)
@@ -318,7 +310,7 @@ class Change(models.Model):
     its status back to 'needs author fixes', edit, and then resubmit.
     Each status change in the workflow is recorded as a Change object."""
     timestamp = models.DateTimeField()
-    feature = models.ForeignKey(Feature)
+    featureUuid = models.CharField(max_length=48)
     user = models.ForeignKey(User)
     action = models.CharField(max_length=40, blank=True,
                               help_text='Brief human-readable description like "upload" or "validation check"')
@@ -328,6 +320,11 @@ class Change(models.Model):
                             help_text="Universally unique id used to identify this db record across servers.")
 
 class Placemark(Feature):
+    objects = AbstractClassManager(parentModel=Feature)
+    
+    class Meta:
+        abstract = True
+
     # with point geometry, the bounding box has zero size and the
     # position of the object is equal to its southwest corner.
     def getLat(self):
@@ -396,6 +393,10 @@ class Image(Placemark):
     yawRef = models.CharField(max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF)
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
+    objects = AbstractClassManager(parentModel=Placemark)
+
+    class Meta:
+        abstract = True
 
     def getThumbnailPath(self, width):
         return os.path.join(self.getDir(), 'th%d.jpg' % width)
@@ -551,6 +552,7 @@ class Track(Feature):
                                  help_text='Line style for visualization')
     json = models.TextField(help_text='GeoJSON encoding exchanged with browser clients')
     gpx = models.TextField(help_text='If this track was imported as a GPX log, we keep the original GPX here in case there are important fields that are not currently captured in our GeoJSON format.')
+    objects = LeafClassManager(parentModel=Feature)
 
     def getShortDict(self):
         dct = super(Track, self).getShortDict()
@@ -569,7 +571,7 @@ class Track(Feature):
         self.json = data.geoJsonString()
 
 class Snapshot(models.Model):
-    img = models.ForeignKey(Image)
+    imgUuid = models.CharField(max_length=48)
     xmin = models.FloatField()
     ymin = models.FloatField()
     xmax = models.FloatField()

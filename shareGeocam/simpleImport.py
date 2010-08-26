@@ -16,11 +16,18 @@ import pytz
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from share2.shareCore.models import Feature, Image, Folder
+from share2.shareCore.models import Feature, Folder
+from share2.shareGeocam.models import Photo
 from share2.shareCore.utils import mkdirP, uploadClient
 from share2.shareCore.TimeUtils import parseUploadTime
 
 DEFAULT_IMPORT_DIR = os.path.join(settings.CHECKOUT_DIR, 'importData', 'guiberson')
+
+def checkMissing(val):
+    if val == -999:
+        return None
+    else:
+        return val
 
 def importImageDirect(imagePath, attributes):
     im = PIL.Image.open(imagePath, 'r')
@@ -34,7 +41,7 @@ def importImageDirect(imagePath, attributes):
     timestampLocal = parseUploadTime(attributes['cameraTime']).replace(tzinfo=tz)
     timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
-    img, created = (Image.objects.get_or_create
+    img, created = (Photo.objects.get_or_create
                     (name=os.path.basename(imagePath),
                      author=User.objects.get(username=attributes['userName']),
                      minTime=timestampUtc,
@@ -45,7 +52,7 @@ def importImageDirect(imagePath, attributes):
                                    maxLon=lon,
                                    roll=attributes['roll'],
                                    pitch=attributes['pitch'],
-                                   yaw=attributes['yaw'],
+                                   yaw=checkMissing(attributes['yaw']),
                                    notes=attributes['notes'],
                                    tags=attributes['tags'],
                                    widthPixels=widthPixels,

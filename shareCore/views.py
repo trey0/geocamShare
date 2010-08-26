@@ -60,8 +60,7 @@ class ViewCore(ViewKml):
                                   context_instance=RequestContext(request))
     
     def getGalleryJsonText(self, request):
-        features = [f.asLeafClass() for f in self.getMatchingFeatures(request)]
-        obj = [f.getShortDict() for f in features]
+        obj = [f.getShortDict() for f in self.getMatchingFeatures(request)]
         if 1:
             return json.dumps(obj, indent=4, sort_keys=True) # pretty print for debugging
         else:

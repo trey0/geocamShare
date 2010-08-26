@@ -3,6 +3,10 @@
 
 DATA_URL = SCRIPT_NAME + "/data/";
 
+function isImage(item) {
+    return item.type == "Photo";
+}
+
 function getDirUrl(item) {
     return DATA_URL + item.dateText + "/" + item.author + "/" + item.uuid + "/" + item.version + "/";
 }

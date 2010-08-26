@@ -53,9 +53,10 @@ def doit(opts):
             links.append(('%s/%s' % (opts.gdsDir, p), '%s--gds%s' % (stem, ext)))
 
     # geocam symlinks in shareCore
-    for p in matchFiles('shareGeocam', EXTENSIONS):
+    geocamDir = os.path.join(THIS_DIR, 'shareGeocam')
+    for p in matchFiles(geocamDir, EXTENSIONS):
         stem, ext = os.path.splitext(p)
-        links.append(('../shareGeocam/%s' % p, 'shareCore/%s--geocam%s' % (stem, ext)))
+        links.append(('%s/%s' % (geocamDir, p), 'shareCore/%s--geocam%s' % (stem, ext)))
     
     # gds symlinks in shareCore
     if not opts.noGds:
