@@ -25,6 +25,7 @@ class ChainQuerySet:
         self._resultCache = None
         self._distinct = False
         self._orderBy = ''
+        self._selectRelated = None
 
     def __iter__(self):
         self._evalQuery()
@@ -59,6 +60,9 @@ class ChainQuerySet:
                 qs = c._default_manager.get_query_set().filter(self._query)
                 if self._distinct:
                     qs = qs.distinct()
+                if self._selectRelated:
+                    srFields, srKwargs = self._selectRelated
+                    qs = qs.select_related(*srFields, **srKwargs)
                 subQueries.append(qs)
             self._resultCache = list(itertools.chain(*subQueries)) # flatten
             if self._orderBy:
@@ -93,6 +97,11 @@ class ChainQuerySet:
         assert len(field_names) == 1, 'ChainQuerySet order_by() only supports a single field, sorry'
         c = self._clone()
         c._orderBy = field_names[0]
+        return c
+
+    def select_related(self, *fields, **kwargs):
+        c = self._clone()
+        c._selectRelated = (fields, kwargs)
         return c
 
     def get(self, *args, **kwargs):
