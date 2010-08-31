@@ -116,6 +116,10 @@ class ChainQuerySet:
             raise django.core.exceptions.MultipleObjectsReturned("get() returned more than one %s -- it returned %s! Lookup parameters were %s"
                                                                  % (self.model._meta.object_name, num, kwargs))
 
+    def count(self):
+        self._evalQuery()
+        return len(self._resultCache)
+
 class LeafClassManager(models.Manager):
     def __init__(self, parentModel):
         super(LeafClassManager, self).__init__()

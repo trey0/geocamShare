@@ -31,6 +31,7 @@ cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
 class ViewCore(ViewKml):
     # override in derived classes
     search = None
+    uploadImageModel = None
 
     def getMatchingFeaturesForQuery(self, query):
         features = self.search.getAllFeatures()
@@ -96,6 +97,9 @@ class ViewCore(ViewKml):
         else:
             return num
 
+    def uploadImageAuth(self, request):
+        return self.uploadImage(request, request.user.username)
+
     def uploadImage(self, request, userName):
         author = User.objects.get(username=userName)
         if request.method == 'POST':
@@ -105,7 +109,7 @@ class ViewCore(ViewKml):
             if form.is_valid():
                 incoming = request.FILES['photo']
                 uuid = form.cleaned_data['uuid'] or makeUuid()
-                uuidMatches = Image.objects.filter(uuid=uuid)
+                uuidMatches = self.uploadImageModel.objects.filter(uuid=uuid)
                 sameUuid = (uuidMatches.count() > 0)
                 if sameUuid:
                     # if the incoming uuid matches an existing uuid, this is
@@ -127,26 +131,27 @@ class ViewCore(ViewKml):
                         # yaw = correctForMagneticDeclination(yaw, lat, lon)
                         # yawRef = 'T'
                         pass
-                    if yaw < 0:
-                        yaw += 360
-                    if yaw > 360:
-                        yaw -= 360
-                    img = Image(name=incoming.name,
-                                author=author,
-                                minTime=timestamp,
-                                maxTime=timestamp,
-                                minLat=lat,
-                                minLon=lon,
-                                maxLat=lat,
-                                maxLon=lon,
-                                yaw=yaw,
-                                yawRef=yawRef,
-                                notes=form.cleaned_data['notes'],
-                                tags=form.cleaned_data['tags'],
-                                uuid=uuid,
-                                status=settings.STATUS_PENDING,
-                                version=0
-                                )
+                    if yaw != None:
+                        if yaw < 0:
+                            yaw += 360
+                        if yaw > 360:
+                            yaw -= 360
+                    img = self.uploadImageModel(name=incoming.name,
+                                                author=author,
+                                                minTime=timestamp,
+                                                maxTime=timestamp,
+                                                minLat=lat,
+                                                minLon=lon,
+                                                maxLat=lat,
+                                                maxLon=lon,
+                                                yaw=yaw,
+                                                yawRef=yawRef,
+                                                notes=form.cleaned_data['notes'],
+                                                tags=form.cleaned_data['tags'],
+                                                uuid=uuid,
+                                                status=settings.STATUS_PENDING,
+                                                version=0
+                                                )
                     newVersion = 0
 
                 # store the image data on disk
@@ -212,6 +217,9 @@ class ViewCore(ViewKml):
                                   context_instance=RequestContext(request))
         print >>sys.stderr, 'upload image end'
         return resp
+
+    def uploadTrackAuth(self, request):
+        return self.uploadTrack(request, request.user.username)
 
     def uploadTrack(self, request, authorName):
         author = User.objects.get(username=authorName)

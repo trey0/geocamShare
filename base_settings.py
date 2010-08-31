@@ -107,9 +107,13 @@ INSTALLED_APPS = (
 
 AUTH_PROFILE_MODULE = 'shareCore.UserProfile'
 
-LOGIN_URL = SCRIPT_NAME + 'accounts/login'
+LOGIN_URL = SCRIPT_NAME + 'accounts/login/'
 
 CACHE_BACKEND = 'locmem://?timeout=30'
+
+# time out sessions after 30 minutes of inactivity
+SESSION_COOKIE_AGE = 30*60
+SESSION_SAVE_EVERY_REQUEST = True
 
 # SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
 

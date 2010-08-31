@@ -12,8 +12,8 @@ urlpatterns = patterns(
       'sslRequired': True
       }),
     (r'^accounts/logout/$', 'django.contrib.auth.views.logout',
-     {'loginRequired': False, # show logout page instead of redirecting to log in again
-      'template_name': 'registration/logged_out.html'}),
+     # show logout page instead of redirecting to log in again
+     {'loginRequired': False}),
 
     (r'^gallery/(?P<page>\d+)/$', views.gallery),
     (r'^gallery.json', views.galleryJson),
@@ -21,17 +21,31 @@ urlpatterns = patterns(
     (r'^galleryDebug.html', views.galleryDebug),
 
     (r'^$', views.main),
-    (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
+    (r'^upload/$', views.uploadImageAuth),
+    # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
+    (r'^upload-m/$', views.uploadImageAuth,
+     {'sslRequired': True,
+      'challenge': 'basic'}),
 
-    (r'^track/upload/(?P<authorName>[^/]+)/$', views.uploadTrack),
+    (r'^track/upload/$', views.uploadTrackAuth),
+    # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
+    (r'^track/upload-m/$', views.uploadTrackAuth,
+     {'sslRequired': True,
+      'challenge': 'basic'}),
+
     (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack),
 
     (r'^setVars(?:\?[^/]*)?$', views.setVars),
 
     (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession),
     (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
-     {'useDigestChallenge': True # google earth can use digest auth but not django standard auth
-      }),
+     # google earth can't handle django challenge
+     {'challenge': 'digest'}),
+
+    # legacy URLs, compatible with the old version of GeoCam
+    # Mobile *if* user authentication is off (not recommended!).
+    (r'^upload/(?P<userName>[^/]+)/$', views.uploadImage),
+    (r'^track/upload/(?P<authorName>[^/]+)/$', views.uploadTrack),
 
     )
 
