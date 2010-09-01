@@ -3,7 +3,8 @@
 import os
 import sys
 
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+_up = os.path.dirname
+CHECKOUT_DIR = _up(_up(os.path.realpath(__file__)))
 EXTENSIONS = ['.py', '.js', '.html']
 
 def dosys(cmd):
@@ -39,11 +40,11 @@ def matchFiles(root, extensions, stem='', nlevels=999):
     return matches
 
 def doit(opts):
-    os.chdir(THIS_DIR)
+    os.chdir(CHECKOUT_DIR)
     links = []
 
     if not opts.noGds and not os.path.exists(os.path.join(opts.gdsDir, 'setup.py')):
-        print >>sys.stderr, 'no setup.py found in GDS directory; try -g or -n option'
+        print >>sys.stderr, 'no setup.py found in GDS directory %s; try -g or -n option' % opts.gdsDir
         sys.exit(1)
 
     # gds symlinks in top-level dir
@@ -53,7 +54,7 @@ def doit(opts):
             links.append(('%s/%s' % (opts.gdsDir, p), '%s--gds%s' % (stem, ext)))
 
     # geocam symlinks in shareCore
-    geocamDir = os.path.join(THIS_DIR, 'shareGeocam')
+    geocamDir = os.path.join(CHECKOUT_DIR, 'shareGeocam')
     for p in matchFiles(geocamDir, EXTENSIONS):
         stem, ext = os.path.splitext(p)
         links.append(('%s/%s' % (geocamDir, p), 'shareCore/%s--geocam%s' % (stem, ext)))
@@ -77,7 +78,7 @@ def main():
                       action='store_true', default=False,
                       help='Clean links instead of creating them')
     parser.add_option('-g', '--gdsDir',
-                      default=os.path.realpath('../gds'),
+                      default='%s/gds' % os.path.dirname(CHECKOUT_DIR),
                       help='Directory containing setup.py for GDS [%default]')
     parser.add_option('-n', '--noGds',
                       default=False, action='store_true',
