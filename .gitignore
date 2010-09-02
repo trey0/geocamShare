@@ -6,6 +6,8 @@ importData
 sqlite3.db
 local_settings.py
 sourceme
+sourceme.sh
 *--gds.*
 *--geocam.*
 gigapan
+django.wsgi

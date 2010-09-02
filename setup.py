@@ -10,7 +10,7 @@ from glob import glob
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
 LOCAL_SETTINGS = 'local_settings.py'
-LOCAL_SOURCEME = 'sourceme'
+LOCAL_SOURCEME = 'sourceme.sh'
 GIGAPAN_MEDIA_SEARCH_DIRS = ('%s/gigapan' % THIS_DIR,
                              '/Library/WebServer/Documents/gigapan')
 
@@ -101,6 +101,9 @@ def install():
     rotateIconsCore()
     makeLocalSourceme()
     makeLocalSettings()
+    if not os.path.exists('django.wsgi'):
+        # backward compatible with older share installations
+        dosys('ln -s djangoWsgi.py django.wsgi')
     dosys('touch django.wsgi')
 
 def main():
