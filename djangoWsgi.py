@@ -15,7 +15,7 @@ def getEnvironmentFromSourceMe():
     thisDir = os.path.dirname(os.path.realpath(__file__))
     fd, tmp = tempfile.mkstemp('djangoWsgiSourceMe.txt')
     os.close(fd)
-    os.system('bash -c "(source %s/sourceme && printenv > %s)"' % (thisDir, tmp))
+    os.system('bash -c "(source %s/sourceme.sh && printenv > %s)"' % (thisDir, tmp))
     varsIn = file(tmp, 'r')
     for line in varsIn:
         line = line[:-1] # chop final cr
