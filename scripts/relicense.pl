@@ -32,6 +32,7 @@ my %comment = (
     ".sh"   => "#",
     ".js"   => "//",
     ".tcc"  => "//",
+    ".rst"  => "|",
 );
 
 # Read the license text from __DATA__ by default
