@@ -1,3 +1,4 @@
+// __NO_RELICENSE__
 // ***************************************************************************
 // *  usng.js  (U.S. National Grid functions)
 // *  Module to calculate National Grid Coordinates

@@ -1,3 +1,4 @@
+// __NO_RELICENSE__
 /*
 Copyright 2009 Google Inc.
 

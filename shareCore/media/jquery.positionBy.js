@@ -1,3 +1,4 @@
+// __NO_RELICENSE__
 /*
  * positionBy 1.0.7 (2008-01-29)
  *
