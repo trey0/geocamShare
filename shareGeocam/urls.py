@@ -20,12 +20,13 @@ urlpatterns = patterns(
      # show logout page instead of redirecting to log in again
      {'loginRequired': False}),
 
-    (r'^gallery/(?P<page>\d+)/$', views.gallery),
-    (r'^gallery.json', views.galleryJson),
-    (r'^galleryJson.js', views.galleryJsonJs),
-    (r'^galleryDebug.html', views.galleryDebug),
+    (r'^gallery/(?P<page>\d+)/$', views.gallery, {'readOnly': True}),
+    (r'^gallery.json', views.galleryJson, {'readOnly': True}),
+    (r'^galleryJson.js', views.galleryJsonJs, {'readOnly': True}),
+    (r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),
 
-    (r'^$', views.main),
+    (r'^$', views.main, {'readOnly': True}),
+
     (r'^upload/$', views.uploadImageAuth),
     # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
     (r'^upload-m/$', views.uploadImageAuth,
@@ -38,14 +39,16 @@ urlpatterns = patterns(
      {'sslRequired': True,
       'challenge': 'basic'}),
 
-    (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack),
+    (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack, {'readOnly': True}),
 
-    (r'^setVars(?:\?[^/]*)?$', views.setVars),
+    (r'^setVars(?:\?[^/]*)?$', views.setVars, {'readOnly': True}),
 
-    (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession),
+    (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession,
+     {'readOnly': True}),
     (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
      # google earth can't handle django challenge
-     {'challenge': 'digest'}),
+     {'challenge': 'digest',
+      'readOnly': True}),
 
     # legacy URLs, compatible with the old version of GeoCam
     # Mobile *if* user authentication is off (not recommended!).

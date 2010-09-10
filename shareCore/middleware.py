@@ -47,7 +47,11 @@ class SecurityRedirectMiddleware(object):
     SECURITY_REDIRECT_ENABLED = True
     SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT = False
     SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED = False
+
+    # can specify True, False, or 'write'.  if 'write', login is required to access urls that
+    # don't have the 'readOnly' flag.  (but the 'loginRequired' flag always takes precedence.)
     SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT = True
+
     SECURITY_REDIRECT_DEFAULT_CHALLENGE = 'django'
     # 'django' auth type always accepted -- leave it out of the list
     SECURITY_REDIRECT_ACCEPT_AUTH_TYPES = ['digest', 'basic']
@@ -123,8 +127,12 @@ class SecurityRedirectMiddleware(object):
         return self._digestAuthenticator.build_challenge_response()
 
     def process_view(self, request, viewFunc, viewArgs, viewKwargs):
+        readOnly = viewKwargs.pop('readOnly', False)
         sslRequired = viewKwargs.pop('sslRequired', self._getSetting('SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT'))
-        loginRequired = viewKwargs.pop('loginRequired', self._getSetting('SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT'))
+        loginRequiredByDefault = self._getSetting('SECURITY_REDIRECT_LOGIN_REQUIRED_BY_DEFAULT')
+        if loginRequiredByDefault == 'write':
+            loginRequiredByDefault = not readOnly
+        loginRequired = viewKwargs.pop('loginRequired', loginRequiredByDefault)
         challenge = viewKwargs.pop('challenge', self._getSetting('SECURITY_REDIRECT_DEFAULT_CHALLENGE'))
         acceptAuthTypes = viewKwargs.pop('acceptAuthTypes', self._getSetting('SECURITY_REDIRECT_ACCEPT_AUTH_TYPES'))
 

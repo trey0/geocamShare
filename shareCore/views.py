@@ -11,6 +11,7 @@ import sys
 import datetime
 import os
 import shutil
+import urllib
 
 import PIL.Image
 from django.http import HttpResponse
@@ -30,6 +31,7 @@ from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm
 from share2.shareCore.utils.icons import cacheIconSize
 from share2.shareCore.kml.ViewKml import ViewKml
+from share2.shareCore.middleware import requestIsSecure
 
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
@@ -90,7 +92,12 @@ class ViewCore(ViewKml):
                              % dict(username=request.user.username,
                                     SCRIPT_NAME=settings.SCRIPT_NAME))
         else:
-            accountWidget = 'welcome, <b>guest</b>'
+            path = request.get_full_path()
+            if not requestIsSecure(request):
+                path += '?protocol=http' # redirect back to http after login
+            accountWidget = ('<b>guest</b> <a href="%(SCRIPT_NAME)saccounts/login/?next=%(path)s">login</a>'
+                             % dict(SCRIPT_NAME=settings.SCRIPT_NAME,
+                                    path=urllib.quote(path)))
         return render_to_response('main.html',
                                   dict(query=request.session.get('q', ''),
                                        viewport=request.session.get('v', ''),
