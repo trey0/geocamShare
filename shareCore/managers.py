@@ -109,7 +109,7 @@ class ChainQuerySet:
         c._selectRelated = (fields, kwargs)
         return c
 
-    def get(self, *args, **kwargs):
+    def _get0(self):
         self._evalQuery()
         num = len(self._resultCache)
         if num == 1:
@@ -120,6 +120,9 @@ class ChainQuerySet:
         else:
             raise django.core.exceptions.MultipleObjectsReturned("get() returned more than one %s -- it returned %s! Lookup parameters were %s"
                                                                  % (self.model._meta.object_name, num, kwargs))
+
+    def get(self, *args, **kwargs):
+        return self.filter(*args, **kwargs)._get0()
 
     def count(self):
         self._evalQuery()

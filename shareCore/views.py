@@ -289,9 +289,15 @@ class ViewCore(ViewKml):
         print >>sys.stderr, 'upload image end'
         return resp
 
-    def viewTrack(self, request, uuid):
+    def viewTrack(self, request, uuid, version):
         track = Track.objects.get(uuid=uuid)
         return HttpResponse(track.json, mimetype='application/json')
+
+    def viewPhoto(self, request, uuid, version):
+        # this is not very efficient
+        img = Image.objects.get(uuid=uuid)
+        imgData = file(img.getImagePath(), 'r').read()
+        return HttpResponse(imgData, mimetype='image/jpeg')
 
     def setVars(self, request):
         for var in ('v', 'q'):

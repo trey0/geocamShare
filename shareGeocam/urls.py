@@ -27,6 +27,11 @@ urlpatterns = patterns(
 
     (r'^$', views.main, {'readOnly': True}),
 
+    (r'^photo/(?P<uuid>[^/]+)/(?P<version>[\d+])/(?:[^/]+)$', views.viewPhoto,
+     {'readOnly': True}),
+    (r'^track/(?P<uuid>[^/]+)/(?P<version>[\d+])/(?:[^/]+)$', views.viewTrack,
+     {'readOnly': True}),
+
     (r'^upload/$', views.uploadImageAuth),
     # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
     (r'^upload-m/$', views.uploadImageAuth,

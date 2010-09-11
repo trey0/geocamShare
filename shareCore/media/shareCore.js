@@ -652,6 +652,9 @@ function getItemBalloonHtml(item) {
         + '  />\n'
         + ' </a>\n'
         + '  ' + getCaptionHtml(item)
+        + '  <a href="' + getViewerUrl(item) + '">\n'
+        + '    Download full-res image'
+        + '  </a>\n'
         + '</div>\n';
 }
 

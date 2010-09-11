@@ -21,7 +21,17 @@ function getThumbnailUrl(item, width) {
 }
 
 function getViewerUrl(item) {
-    return SCRIPT_NAME + "/" + item.type + "/" + item.uuid + "/" + item.version + "/";
+    var name = item.name;
+    if (name == "") {
+        if (item.type == "Photo") {
+            name = "untitled.jpg";
+        } else if (item.type == "Track") {
+            name = "untitled.json";
+        } else {
+            name = "untitled";
+        }
+    }
+    return SCRIPT_NAME + item.type.toLowerCase() + "/" + item.uuid + "/" + item.version + "/" + name;
 }
 
 function getCaptionHtml(item) {
