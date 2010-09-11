@@ -12,6 +12,8 @@ import datetime
 import os
 import shutil
 import urllib
+import tempfile
+import shutil
 
 import PIL.Image
 from django.http import HttpResponse
@@ -25,7 +27,7 @@ except ImportError:
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from share2.shareCore.utils import makeUuid, mkdirP
+from share2.shareCore.utils import makeUuid, mkdirP, Xmp
 from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm
@@ -104,12 +106,6 @@ class ViewCore(ViewKml):
                                        accountWidget=accountWidget),
                                   context_instance=RequestContext(request))
 
-    def checkMissing(self, num):
-        if num in (0, -999):
-            return None
-        else:
-            return num
-
     def uploadImageAuth(self, request):
         return self.uploadImage(request, request.user.username)
 
@@ -121,6 +117,17 @@ class ViewCore(ViewKml):
             print >>sys.stderr, 'FILES:', request.FILES.keys()
             if form.is_valid():
                 incoming = request.FILES['photo']
+
+                # store image data in temp file
+                fd, tempStorePath = tempfile.mkstemp('-uploadImage.jpg')
+                os.close(fd)
+                storeFile = file(tempStorePath, 'wb')
+                for chunk in incoming.chunks():
+                    storeFile.write(chunk)
+                storeFile.close()
+                print >>sys.stderr, 'upload: saved image data to temp file:', tempStorePath
+
+                # create image db record
                 uuid = form.cleaned_data['uuid'] or makeUuid()
                 uuidMatches = self.uploadImageModel.objects.filter(uuid=uuid)
                 sameUuid = (uuidMatches.count() > 0)
@@ -133,49 +140,59 @@ class ViewCore(ViewKml):
                     print >>sys.stderr, 'upload: photo %s with same uuid %s posted' % (img.name, img.uuid)
                     newVersion = img.version + 1
                 else:
-                    # create Image db record and fill in most fields
-                    lat = self.checkMissing(form.cleaned_data['latitude'])
-                    lon = self.checkMissing(form.cleaned_data['longitude'])
-                    timestamp = form.cleaned_data['cameraTime'] or datetime.datetime.now()
-                    yaw = self.checkMissing(form.cleaned_data['yaw'])
-                    yawRef = form.cleaned_data['yawRef'] or 'M'
-                    if yawRef == 'M' and lat != None and lon != None:
-                        # FIX
-                        # yaw = correctForMagneticDeclination(yaw, lat, lon)
-                        # yawRef = 'T'
-                        pass
-                    if yaw != None:
-                        if yaw < 0:
-                            yaw += 360
-                        if yaw > 360:
-                            yaw -= 360
-                    img = self.uploadImageModel(name=incoming.name,
-                                                author=author,
-                                                minTime=timestamp,
-                                                maxTime=timestamp,
-                                                minLat=lat,
-                                                minLon=lon,
-                                                maxLat=lat,
-                                                maxLon=lon,
-                                                yaw=yaw,
-                                                yawRef=yawRef,
-                                                notes=form.cleaned_data['notes'],
-                                                tags=form.cleaned_data['tags'],
-                                                uuid=uuid,
-                                                status=settings.STATUS_PENDING,
+                    # create Image db record
+                    img = self.uploadImageModel(status=settings.STATUS_PENDING,
                                                 version=0
                                                 )
+
+                    # defaults
+                    timestamp = datetime.datetime.now()
+                    vals = dict(minTime=timestamp,
+                                maxTime=timestamp)
+
+                    # extract fields from exif or xmp headers
+                    xmp = Xmp(tempStorePath)
+                    xmpVals = xmp.getDict()
+                    print >>sys.stderr, 'upload: exif/xmp data:', xmpVals
+                    vals.update(xmpVals)
+                    
+                    # extract fields from http post
+                    lat = Xmp.checkMissing(form.cleaned_data['latitude'])
+                    lon = Xmp.checkMissing(form.cleaned_data['longitude'])
+                    timestamp = form.cleaned_data['cameraTime']
+                    yaw, yawRef = Xmp.normalizeYaw(form.cleaned_data['yaw'],
+                                                   form.cleaned_data['yawRef'])
+                    httpVals0 = dict(name=incoming.name,
+                                     author=author,
+                                     notes=form.cleaned_data['notes'],
+                                     tags=form.cleaned_data['tags'],
+                                     uuid=uuid,
+                                     minLat=lat,
+                                     maxLat=lat,
+                                     minLon=lon,
+                                     maxLon=lon,
+                                     minTime=timestamp,
+                                     maxTime=timestamp,
+                                     yaw=yaw,
+                                     yawRef=yawRef)
+                    httpVals = dict([(k, v) for k, v in httpVals0.iteritems()
+                                     if Xmp.checkMissing(v) != None])
+                    print >>sys.stderr, 'upload: form data:', httpVals
+                    vals.update(httpVals)
+
+                    # copy extracted fields to img
+                    for k, v in vals.iteritems():
+                        setattr(img, k, v)
+
+                    # set version
                     newVersion = 0
 
-                # store the image data on disk
+                # move the image data to its permanent location
                 storePath = img.getImagePath(version=newVersion)
                 storeDir = os.path.dirname(storePath)
                 mkdirP(storeDir)
-                storeFile = file(storePath, 'wb')
-                for chunk in incoming.chunks():
-                    storeFile.write(chunk)
-                storeFile.close()
-                print >>sys.stderr, 'upload: saved image data to:', storePath
+                shutil.move(tempStorePath, storePath)
+                print >>sys.stderr, 'upload: moved image data to:', storePath
 
                 # check the new image file on disk to get the dimensions
                 im = PIL.Image.open(storePath, 'r')

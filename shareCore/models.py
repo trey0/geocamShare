@@ -60,7 +60,8 @@ PERMISSION_CHOICES = ((PERM_VIEW, 'view'),
                       (PERM_ADMIN, 'admin'),
                       )
 
-YAW_REF_CHOICES = (('T', 'true'),
+YAW_REF_CHOICES = (('', 'unknown'),
+                   ('T', 'true'),
                    ('M', 'magnetic'),
                    )
 DEFAULT_YAW_REF = YAW_REF_CHOICES[0][0]
