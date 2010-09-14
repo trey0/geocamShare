@@ -73,9 +73,9 @@ def mkdirP(dir):
 
 # pull in other modules in this dir so they're exported
 import MimeMultipartFormData
-import uploadClient
 import gpx
 import Printable
 import geo
+from UploadClient import UploadClient
 from Xmp import Xmp
 from Builder import Builder

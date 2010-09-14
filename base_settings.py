@@ -152,10 +152,12 @@ USE_STATIC_SERVE = False
 DATA_DIR = '%s/data/' % CHECKOUT_DIR
 DATA_URL = '%sdata/' % SCRIPT_NAME
 
-ICON_PATTERN = '%s/build/media/share/map/*Point.png' % CHECKOUT_DIR
+ICON_PATTERN = MEDIA_ROOT + 'share/map/*Point.png'
 ICONS_RAW = [re.sub(r'Point\.png$', '', os.path.basename(i))
              for i in glob(ICON_PATTERN)]
+# put 'camera' first, indicating the default
 ICONS = ['camera'] + [i for i in ICONS_RAW if i != 'camera']
+ICONS_DICT = dict.fromkeys(ICONS)
 
 BASE_LINE_STYLES = ('solid',)
 LINE_STYLES = BASE_LINE_STYLES

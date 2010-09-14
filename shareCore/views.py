@@ -16,6 +16,7 @@ import tempfile
 import shutil
 
 import PIL.Image
+import tagging
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.safestring import mark_safe
@@ -179,6 +180,15 @@ class ViewCore(ViewKml):
                                      if Xmp.checkMissing(v) != None])
                     print >>sys.stderr, 'upload: form data:', httpVals
                     vals.update(httpVals)
+
+                    # post process some fields
+                    icon = settings.ICONS[0] # default
+                    tags = tagging.utils.parse_tag_input(vals['tags'])
+                    for t in tags:
+                        if t in settings.ICONS_DICT:
+                            icon = t
+                            break
+                    vals['icon'] = icon
 
                     # copy extracted fields to img
                     for k, v in vals.iteritems():
