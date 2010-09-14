@@ -7,10 +7,15 @@
 
 import sys
 import os
-from random import choice
-import django
-from share2.shareCore.utils.icons import generateAllDirections
+import stat
+import itertools
+import traceback
+import errno
+import shutil
 from glob import glob
+from random import choice
+
+import django
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
@@ -18,7 +23,21 @@ LOCAL_SETTINGS = 'local_settings.py'
 LOCAL_SOURCEME = 'sourceme.sh'
 GIGAPAN_MEDIA_SEARCH_DIRS = ('%s/gigapan' % THIS_DIR,
                              '/Library/WebServer/Documents/gigapan')
+BUILDING_FOR_GEOCAM = (__name__ == '__main__')
 
+# avoid obscure error message if share2 module is not found
+try:
+    import share2
+except ImportError:
+    # try adding parent directory to $PYTHONPATH
+    sys.path = [os.path.dirname(THIS_DIR)] + sys.path
+    import share2
+
+from share2.shareCore import utils
+from share2.shareCore.icons import rotate, svg
+
+builderG = utils.Builder()
+        
 def dosys(cmd):
     print cmd
     ret = os.system(cmd)
@@ -36,27 +55,98 @@ def findDirContaining(f, dirs, envVar):
         for dir in dirs:
             if os.path.exists(os.path.join(dir, f)):
                 return dir
-        raise Exception('no file %s in default search path, try setting $%s to the directory that contains it'
-                        % (f, envVar))
+        print >>sys.stderr, ('**** warning: no file %s in search path, try setting $%s to the directory that contains it'
+                             % (f, envVar))
+        return None
+
+def joinNoTrailingSlash(a, b):
+    if b == '':
+        return a
+    else:
+        return a + os.path.sep + b
+
+def getFiles(src, suffix=''):
+    #print 'getFiles: src=%s suffix=%s' % (src, suffix)
+    path = joinNoTrailingSlash(src, suffix)
+    pathMode = os.stat(path)[stat.ST_MODE]
+    if stat.S_ISREG(pathMode):
+        return [suffix]
+    elif stat.S_ISDIR(pathMode):
+        return itertools.chain([suffix + os.path.sep],
+                               *(getFiles(src, os.path.join(suffix, f))
+                                 for f in os.listdir(path)))
+    else:
+        return [] # not a dir or regular file, ignore
+
+def installFile(src, dst):
+    if src.endswith(os.path.sep):
+        if os.path.exists(dst):
+            if os.path.isdir(dst):
+                # dir already exists, nothing to do
+                pass
+            else:
+                # replace plain file with directory
+                os.unlink(dst)
+                os.makedirs(dst)
+        else:
+            # make directory
+            os.makedirs(dst)
+    else:
+        # install plain file
+        if not os.path.exists(os.path.dirname(dst)):
+            os.makedirs(os.path.dirname(dst))
+        shutil.copy(src, dst)
+
+def installDir0(src, dst):
+    for f in getFiles(src):
+        #print 'src=%s f=%s' % (src, f)
+        dst1 = joinNoTrailingSlash(dst, f)
+        src1 = joinNoTrailingSlash(src, f)
+        #print 'dst1=%s src1=%s' % (dst1, src1)
+        builderG.applyRule(dst1, [src1],
+                           lambda: installFile(src1, dst1))
+
+def installDir(src, dst):
+    print 'installDir %s %s' % (src, dst)
+    installDir0(src, dst)
+
+def installDirs0(srcs, dst):
+    for src in srcs:
+        installDir0(src, os.path.join(dst, os.path.basename(src)))
+
+def installDirs(pat, dst):
+    print 'installDirs %s %s' % (pat, dst)
+    installDirs0(glob(pat), dst)
 
 def collectMedia():
-    dosys('rm -rf build/media')
     dosys('mkdir -p build/s/tmp')
-    dosys('cp configTemplates/tmp/README.txt build/s/tmp')
+    installFile('configTemplates/tmp/README.txt', 'build/s/tmp')
     dosys('chmod go+rw build/s/tmp')
-    dosys('mkdir -p build/media/share')
-    dosys('cp -r shareCore/media/* build/media/share/')
-    if __name__ == '__main__':
-        dosys('cp -r shareGeocam/media/* build/media/share/')
-    dosys('cp -r %s/contrib/admin/media build/media/admin' % DJANGO_DIR)
+    installDirs('shareCore/media/static/*', 'build/media/share/')
+    if BUILDING_FOR_GEOCAM:
+        installDirs('shareGeocam/media/static/*', 'build/media/share/')
+    installDir('%s/contrib/admin/media' % DJANGO_DIR,
+               'build/media/admin')
     gigapanMediaDir = findDirContaining('PanoramaViewer.swf',
                                         GIGAPAN_MEDIA_SEARCH_DIRS,
                                         'GIGAPAN_MEDIA_DIR')
-    dosys('cp -r %s build/media/gigapan' % gigapanMediaDir)
+    if gigapanMediaDir:
+        dosys('cp -r %s build/media/gigapan' % gigapanMediaDir)
 
-def rotateIconsCore():
-    for imPath in glob('shareCore/media/map/*Point*'):
-        generateAllDirections(imPath, outputDir='build/media/share/mapr')
+def svgIcons(pat, outputDir):
+    print 'svgIcons %s %s' % (pat, outputDir)
+    for imPath in glob(pat):
+        svg.buildIcon(builderG, imPath, outputDir=outputDir)
+
+def generateIcons():
+    svgIcons('shareCore/media/svgIcons/*.svg', 'build/media/share/map/')
+    if BUILDING_FOR_GEOCAM:
+        svgIcons('shareGeocam/media/svgIcons/*.svg', 'build/media/share/map/')
+    rotGlob = 'build/media/share/map/*Point.png'
+    rotOutput = 'build/media/share/mapr'
+    print 'rotateIcons %s %s' % (rotGlob, rotOutput)
+    for imPath in glob(rotGlob):
+        rotate.buildAllDirections(builderG, imPath, outputDir=rotOutput)
 
 def makeLocalSourceme():
     if not os.path.exists(LOCAL_SOURCEME):
@@ -103,13 +193,14 @@ def install():
     dosys('mkdir -p build')
     dosys('touch build/__init__.py')
     collectMedia()
-    rotateIconsCore()
+    generateIcons()
     makeLocalSourceme()
     makeLocalSettings()
     if not os.path.exists('django.wsgi'):
         # backward compatible with older share installations
         dosys('ln -s djangoWsgi.py django.wsgi')
-    dosys('touch django.wsgi')
+    dosys('touch djangoWsgi.py')
+    builderG.finish()
 
 def main():
     import optparse

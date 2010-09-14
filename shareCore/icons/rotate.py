@@ -43,14 +43,22 @@ def copyThumbnails(inDir, outDir, nameTransform=None, reqSize=REQ_SIZE):
             base = nameTransform(base)
         im.save('%s/%s%s' % (outDir, base, ext))
 
-def generateAllDirections(imPath, outputDir):
-    im = Image.open(imPath)
+def getOutPath(imPath, outputDir, angle):
     base, ext = os.path.splitext(os.path.basename(imPath))
     base = re.sub(r'Point$', '', base)
+    return os.path.join(outputDir, '%s%03d%s' % (base, angle, ext))
+
+def buildAllDirections(builder, imPath, outputDir):
+    firstOutFile = getOutPath(imPath, outputDir, 0)
+    builder.applyRule(firstOutFile, [imPath],
+                      lambda: generateAllDirections(imPath, outputDir))
+
+def generateAllDirections(imPath, outputDir):
+    im = Image.open(imPath)
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
     for angle in xrange(0, 360, 10):
-        outPath = os.path.join(outputDir, '%s%03d%s' % (base, angle, ext))
+        outPath = getOutPath(imPath, outputDir, angle)
         # PIL rotates counter-clockwise, angle is clockwise compass direction
         rotateAntialias(im, -angle).save(outPath)
 
