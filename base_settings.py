@@ -7,6 +7,8 @@
 # Django settings for gds project.
 
 import os
+import re
+from glob import glob
 
 CHECKOUT_DIR = os.path.dirname(os.path.realpath(__file__))
 os.environ['CHECKOUT_DIR'] = CHECKOUT_DIR
@@ -150,8 +152,10 @@ USE_STATIC_SERVE = False
 DATA_DIR = '%s/data/' % CHECKOUT_DIR
 DATA_URL = '%sdata/' % SCRIPT_NAME
 
-BASE_ICONS = ('camera', 'track',)
-ICONS = BASE_ICONS
+ICON_PATTERN = '%s/build/media/share/map/*Point.png' % CHECKOUT_DIR
+ICONS_RAW = [re.sub(r'Point\.png$', '', os.path.basename(i))
+             for i in glob(ICON_PATTERN)]
+ICONS = ['camera'] + [i for i in ICONS_RAW if i != 'camera']
 
 BASE_LINE_STYLES = ('solid',)
 LINE_STYLES = BASE_LINE_STYLES
