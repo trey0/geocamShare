@@ -131,7 +131,7 @@ def collectMedia():
                                         GIGAPAN_MEDIA_SEARCH_DIRS,
                                         'GIGAPAN_MEDIA_DIR')
     if gigapanMediaDir:
-        dosys('cp -r %s build/media/gigapan' % gigapanMediaDir)
+        installDir(gigapanMediaDir, 'build/media/gigapan')
 
 def svgIcons(pat, outputDir):
     print 'svgIcons %s %s' % (pat, outputDir)
