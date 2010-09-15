@@ -36,7 +36,7 @@ except ImportError:
 from share2.shareCore import utils
 from share2.shareCore.icons import rotate, svg
 
-builderG = utils.Builder()
+builderG = None
         
 def dosys(cmd):
     print cmd
@@ -72,18 +72,18 @@ def getFiles(src, suffix=''):
     if stat.S_ISREG(pathMode):
         return [suffix]
     elif stat.S_ISDIR(pathMode):
-        return itertools.chain([suffix + os.path.sep],
+        return itertools.chain([suffix],
                                *(getFiles(src, os.path.join(suffix, f))
                                  for f in os.listdir(path)))
     else:
         return [] # not a dir or regular file, ignore
 
 def installFile(src, dst):
-    if src.endswith(os.path.sep):
+    if os.path.isdir(src):
         if os.path.exists(dst):
             if os.path.isdir(dst):
-                # dir already exists, nothing to do
-                pass
+                # dir already exists, just mark it up to date
+                os.system('touch %s' % dst)
             else:
                 # replace plain file with directory
                 os.unlink(dst)
@@ -203,11 +203,16 @@ def install():
     builderG.finish()
 
 def main():
+    global builderG
     import optparse
     parser = optparse.OptionParser('usage: %prog <install>')
+    parser.add_option('-v', '--verbose',
+                      action='count',
+                      help='Increase verbosity.  Can specify -v multiple times.')
     opts, args = parser.parse_args()
     if not (len(args) == 1 and args[0] == 'install'):
         parser.error('expected install command')
+    builderG = utils.Builder(verbose=opts.verbose)
     install()
 
 if __name__ == '__main__':
