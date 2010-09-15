@@ -6,7 +6,7 @@
 
 // can override stuff from shareCore.js here
 
-DATA_URL = SCRIPT_NAME + "/data/";
+DATA_URL = SCRIPT_NAME + "data/";
 
 function isImage(item) {
     return item.type == "Photo";

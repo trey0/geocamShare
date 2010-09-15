@@ -63,8 +63,8 @@ urlpatterns = patterns(
     )
 
 if settings.USE_STATIC_SERVE:
-    urlpatterns += patterns(
+    urlpatterns += patterns('',
         (r'^data/(?P<path>.*)$', 'django.views.static.serve',
-         dict(document_root=settings.PROCESSED_DIR,
-              show_indexes=True)),
+         {'document_root':settings.DATA_DIR,
+          'show_indexes':True}),
         )
