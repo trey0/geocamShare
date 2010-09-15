@@ -17,12 +17,15 @@
 import os
 import optparse
 import re
-
 from math import sqrt
-
 import xml
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
+
+from PIL import Image # not needed if using ImageMagick backend
+
+RENDER_BACKEND = None
+
 ##############################################################################
 def getAttributeData(tag, attribute):
     """
@@ -660,7 +663,52 @@ def resizeCanvas(fileName, documentX, documentY, append):
     os.system('rm ' + outputFileName) 
 
     return outputFileName2
-##############################################################################
+
+def detectSvgBackend():
+    global RENDER_BACKEND
+
+    ret = os.system('convert --version > /dev/null')
+    if ret == 0:
+        RENDER_BACKEND = 'ImageMagick'
+        return
+
+    ret = os.system('rsvg --version > /dev/null')
+    if ret == 0:
+        RENDER_BACKEND = 'rsvg'
+        return
+
+    raise Exception('no svg rendering backend found, try installing ImageMagick or rsvg')
+
+def renderSvgImageMagick(size, src, dst):
+    os.system('convert -background transparent -trim -resize %(size)dx%(size)d %(src)s %(dst)s' 
+              % dict(size=size,
+                     src=src,
+                     dst=dst))
+
+def renderSvgRsvg(size, src, dst):
+    oversize = size*8
+    dstName, dstExt = os.path.splitext(dst)
+    dstUncropped = dstName + 'Uncropped' + dstExt
+    os.system('rsvg -w %(oversize)d -h %(oversize)d %(src)s %(dstUncropped)s'
+              % dict(oversize=oversize,
+                     src=src,
+                     dstUncropped=dstUncropped))
+    im = Image.open(dstUncropped)
+    cropped = im.crop(im.getbbox()) # autocrop
+    cropped.thumbnail((size, size), Image.ANTIALIAS)
+    cropped.save(dst)
+    os.unlink(dstUncropped)
+
+def renderSvg(size, src, dst):
+    if RENDER_BACKEND == None:
+        detectSvgBackend()
+
+    if RENDER_BACKEND == 'rsvg':
+        renderSvgRsvg(size, src, dst)
+    else:
+        renderSvgImageMagick(size, src, dst)
+    print 'svg rendered to %s' % dst
+
 def renderIcon(iconFileName, options=None, **kwargs):
     """
     Main function to initiate icon rendering. 
@@ -858,43 +906,33 @@ def renderIcon(iconFileName, options=None, **kwargs):
     iconWithAandBWFileNameChanged = os.path.splitext(os.path.basename(iconWithAandBWFileName))[0] 
     iconWithAGandBWFileNameChanged = os.path.splitext(os.path.basename(iconWithAGandBWFileName))[0] 
 
-    out = options.outputDir + iconFileNameChanged + '.png'
-    os.system('convert -background transparent -trim -resize 32x32 ' 
-              + iconFileName + ' ' + out)
-    print 'svg rendered to %s' % out
+    renderSvg(32, iconFileName,
+              options.outputDir + iconFileNameChanged + '.png')
 
-    out = options.outputDir + iconFileNameChanged + 'Point.png'
-    os.system('convert -background transparent -trim -resize 32x32 ' 
-              + iWAFN + ' ' + out)
-    print 'svg rendered to %s' % out
+    renderSvg(32, iWAFN,
+              options.outputDir + iconFileNameChanged + 'Point.png')
         
     if 0:
         #Make 16 px version
-        os.system('convert -background transparent -trim -resize 16x16 ' 
-                  + iconFileName + ' ' + options.outputDir + '/16/' 
-                  + iconFileNameChanged + '.png')
+        renderSvg(16, iconFileName,
+                  options.outputDir + '/16/' + iconFileNameChanged + '.png')
         
         #Make 48 px versions
-        os.system('convert -background transparent -trim -resize 48x48 ' 
-                  + iconFileName + ' ' + options.outputDir + '/48/' 
-                  + iconFileNameChanged + '.png')
+        renderSvg(48, iconFileName,
+                  options.outputDir + '/48/' + iconFileNameChanged + '.png')
         
         #Make 64 px versions
-        os.system('convert -background transparent -trim -resize 64x64 ' 
-                  + iWAFN + ' ' + options.outputDir + '/64/'
-                  + iconWithArrowFileNameChanged + '.png')
+        renderSvg(64, iWAFN,
+                  options.outputDir + '/64/' + iconWithArrowFileNameChanged + '.png')
         print "icon with arrow done"
-        os.system('convert -background transparent -trim -resize 64x64 ' 
-                  + iWAGFN + ' ' + options.outputDir + '/64/'
-                  + iconWithAandGlowFileNameChanged + '.png')
+        renderSvg(64, iWAGFN,
+                  options.outputDir + '/64/' + iconWithAandGlowFileNameChanged + '.png')
         print "icon with arrow and glow done"
-        os.system('convert -background transparent -trim -resize 64x64 ' 
-                  + iWABWFN + ' ' + options.outputDir + '/64/'
-                  + iconWithAandBWFileNameChanged + '.png')
+        renderSvg(64, iWABWFN,
+                  options.outputDir + '/64/' + iconWithAandBWFileNameChanged + '.png')
         print "icon with arrow and black and white done"
-        os.system('convert -background transparent -trim -resize 64x64 ' 
-                  + iWAGBWFN + ' ' + options.outputDir + '/64/'
-                  + iconWithAGandBWFileNameChanged + '.png')
+        renderSvg(64, iWAGBWFN,
+                  options.outputDir + '/64/' + iconWithAGandBWFileNameChanged + '.png')
         print "icon with arrow, glow, and black and white done"
 
     #Remove workfiles with expanded canvases
