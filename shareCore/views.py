@@ -82,9 +82,9 @@ class ViewCore(ViewKml):
         return HttpResponse(self.getGalleryJsonText(request), mimetype='application/json')
 
     def galleryJsonJs(self, request):
-        return render_to_response('galleryJson.js',
-                                  dict(galleryJsonText=self.getGalleryJsonText(request)),
-                                  mimetype='text/javascript')
+        galleryJsonText = self.getGalleryJsonText(request)
+        return HttpResponse('newItemsG = %s;\nsetViewIfReady();' % galleryJsonText,
+                            mimetype='text/javascript')
 
     def galleryDebug(self, request):
         return HttpResponse('<body><pre>%s</pre></body>' % self.getGalleryJsonText(request))
