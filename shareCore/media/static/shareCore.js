@@ -15,13 +15,136 @@ var highlightedItemG = null;
 var visibleItemsG = [];
 var mapViewChangeTimeoutG = null;
 var mapG = null;
+var galleryG = null;
 var debugObjectG = null;
+var widgetManagerG = null;
 
 if (MAP_BACKEND == "earth") {
     google.load("earth", "1");
 }
 
+var ShareWidget = new Class({
+        // functions to implement in derived classes
+
+        initialize: function (domId) {
+        },
+
+        highlightFeature: function (feature) {
+        },
+
+        unhighlightFeature: function (feature) {
+        },
+
+        selectFeature: function (feature) {
+        },
+
+        unselectFeature: function (feature) {
+        },
+
+        // wrapper functions and associated member variables
+
+        highlightedFeatureUuid: null,
+
+        selectedFeatureUuid: null,
+
+        setFeatureHighlighted: function (uuid, isHighlighted) {
+            if (isHighlighted) {
+                if (this.highlightedFeatureUuid == uuid) {
+                    // do nothing
+                } else {
+                    if (this.highlightedFeatureUuid != null) {
+                        this.unhighlightFeature(itemsByUuidG[this.highlightedFeatureUuid]);
+                    }
+                    this.highlightFeature(itemsByUuidG[uuid]);
+                    this.highlightedFeatureUuid = uuid;
+                }
+            } else {
+                if (this.highlightedFeatureUuid == uuid) {
+                    this.unhighlightFeature(itemsByUuidG[uuid]);
+                    this.highlightedFeatureUuid = null;
+                } else {
+                    // do nothing
+                }
+            }
+        },
+
+        setFeatureSelected: function (uuid, isSelected) {
+            if (isSelected) {
+                if (this.selectedFeatureUuid == uuid) {
+                    // do nothing
+                } else {
+                    if (uuid != null) {
+                        this.unselectFeature(itemsByUuidG[this.selectedFeatureUuid]);
+                    }
+                    this.selectFeature(itemsByUuidG[uuid]);
+                    this.selectedFeatureUuid = uuid;
+                }
+            } else {
+                if (this.selectedFeatureUuid == uuid) {
+                    this.unselectFeature(itemsByUuidG[uuid]);
+                    this.selectedFeatureUuid = null;
+                } else {
+                    // do nothing
+                }
+            }
+        }
+    });
+
+var ShareWidgetManager = new Class({
+        activeWidgets: {},
+
+        setWidgetForDomId: function (domId, widgetFactory) {
+            this.activeWidgets[domId] = widgetFactory(domId);
+        },
+
+        setFeatureSelected: function (uuid, isSelected) {
+            $.each(this.activeWidgets,
+                   function (domId, widget) {
+                       widget.setFeatureSelected(uuid, isSelected);
+                   });
+        },
+
+        setFeatureHighlighted: function (uuid, isHighlighted) {
+            $.each(this.activeWidgets,
+                   function (domId, widget) {
+                       widget.setFeatureHighlighted(uuid, isHighlighted);
+                   });
+        }
+    });
+
+var Gallery = new Class({
+        Extends: ShareWidget,
+
+        highlightFeature: function (item) {
+            setPage(visibleItemsG, getItemPage(item, visibleItemsG));
+            $("td#" + item.uuid + " div").css({backgroundColor: 'red'});
+	
+            $("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
+        },
+
+        unhighlightFeature: function (item) {
+            $("td#" + item.uuid + " div").css({backgroundColor: ''});
+	
+            $("#caption").html('');
+        },
+
+        selectFeature: function (feature) {
+            // currently a no-op
+        },
+
+        unselectFeature: function (feature) {
+            // currently a no-op
+        }
+
+    });
+
+Gallery.factory = function (domId) {
+    return new Gallery(domId);
+}
+
 var MapViewer = new Class({
+        Extends: ShareWidget,
+
 	isReady: false,
 
         initialize: function() {
@@ -53,17 +176,16 @@ var MapViewer = new Class({
         getVisibleItems: function (items) {
 	    // get the subset of items which are visible within the current map viewport
 	    return items;
-        },
-
-        highlightItem: function(item) {
-	    // highlight the given item in the map view.
-        },
-
-        unhighlightItem: function(item) {
-	    // unhighlight the given item in the map view
         }
-
 });
+
+var StubMapViewer = new Class({
+        Extends: MapViewer
+    });
+
+StubMapViewer.factory = function (domId) {
+    return new StubMapViewer(domId);
+}
 
 var EarthApiMapViewer = new Class({
         Extends: MapViewer,
@@ -86,7 +208,8 @@ var EarthApiMapViewer = new Class({
          * implement MapViewer interface
          **********************************************************************/
 
-        initialize: function () {
+        initialize: function (domId) {
+            $('#'+domId).html('<div id="map3d"></div>');
 
             var self = this;
             google.earth.createInstance('map3d',
@@ -150,11 +273,11 @@ var EarthApiMapViewer = new Class({
             this.gex.util.flyToObject(this.allFeaturesFolder);
         },
 
-        highlightItem: function(item) {
+        highlightFeature: function(item) {
             item.mapObject.getStyleSelector().getIconStyle().setScale(1.5);
         },
 
-        unhighlightItem: function(item) {
+        unhighlightFeature: function(item) {
             item.mapObject.getStyleSelector().getIconStyle().setScale(1);
         },
 
@@ -189,8 +312,7 @@ var EarthApiMapViewer = new Class({
                     && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));
         },
 
-        showBalloonForItem: function(uuid) {
-            var item = itemsByUuidG[uuid];
+        selectFeature: function(item) {
             var balloon = this.ge.createHtmlStringBalloon('');
             
             var placemark = item.mapObject;
@@ -208,20 +330,20 @@ var EarthApiMapViewer = new Class({
                        google.earth.addEventListener(placemark, 'mouseover',
                                                      function (uuid) {
                                                          return function(event) {
-                                                             highlightItem(uuid, doMapHighlight=false);
+                                                             widgetManagerG.setFeatureHighlighted(uuid, true);
                                                          }
                                                      }(item.uuid));
                        google.earth.addEventListener(placemark, 'mouseout',
                                                      function (uuid) {
                                                          return function(event) {
-                                                             unhighlightItem(uuid, doMapUnhighlight=false);
+                                                             widgetManagerG.setFeatureHighlighted(uuid, false);
                                                          }
                                                      }(item.uuid));
                        google.earth.addEventListener(placemark, 'click',
                                                      function (uuid) {
                                                          return function(event) {
                                                              event.preventDefault();
-                                                             self.showBalloonForItem(uuid);
+                                                             widgetManagerG.setFeatureSelected(uuid, true);
                                                          }
                                                      }(item.uuid));
                    });
@@ -237,6 +359,10 @@ var EarthApiMapViewer = new Class({
         }
 
     });
+
+EarthApiMapViewer.factory = function (domId) {
+    return new EarthApiMapViewer(domId);
+}
 
 var MapsApiMapViewer = new Class({
         Extends: MapViewer,
@@ -259,14 +385,14 @@ var MapsApiMapViewer = new Class({
          * implement MapViewer interface
          **********************************************************************/
 
-        initialize: function() {
+        initialize: function(domId) {
             //var latlng = new google.maps.LatLng(37, -120);
             var myOptions = {
                 /*zoom: 4,
                   center: latlng,*/
                 mapTypeId: google.maps.MapTypeId.HYBRID
             };
-            this.gmap = new google.maps.Map(document.getElementById("map3d_container"), myOptions);
+            this.gmap = new google.maps.Map(document.getElementById(domId), myOptions);
             if (viewportG != "") {
                 this.setViewport(viewportG);
                 this.boundsAreSet = true;
@@ -333,7 +459,7 @@ var MapsApiMapViewer = new Class({
             return visibleItems;
         },
 
-        highlightItem: function(item) {
+        highlightFeature: function(item) {
             if (item.mapObject != null && item.mapObject.current != item.mapObject.highlight) {
                 this.addToMap(item.mapObject.highlight);
                 this.removeFromMap(item.mapObject.normal);
@@ -341,7 +467,7 @@ var MapsApiMapViewer = new Class({
             }
         },
 
-        unhighlightItem: function(item) {
+        unhighlightFeature: function(item) {
             if (item.mapObject != null && item.mapObject.current != item.mapObject.normal) {
                 this.addToMap(item.mapObject.normal);
                 this.removeFromMap(item.mapObject.highlight);
@@ -394,26 +520,26 @@ var MapsApiMapViewer = new Class({
                     (marker, 'mouseover',
                      function (uuid) {
                         return function () {
-                            highlightItem(uuid, doMapHighlight=false);
+                            widgetManagerG.setFeatureHighlighted(uuid, true);
                         }
                     }(item.uuid));
                 google.maps.event.addListener
                     (marker, 'mouseout',
                      function (uuid) {
                         return function () {
-                            unhighlightItem(uuid, doMapUnhighlight=false);
+                            widgetManagerG.setFeatureHighlighted(uuid, false);
                         }
                     }(item.uuid));
                 google.maps.event.addListener
                     (marker, 'click',
                      function (uuid) {
                         return function () {
-                            self.showBalloonForItem(uuid);
+                            widgetManagerG.setFeatureSelected(uuid, true);
                         }
                     }(item.uuid));
             });
 
-            self.unhighlightItem(item); // add to map in 'normal' state
+            self.unhighlightFeature(item); // add to map in 'normal' state
         },
 
         addTrack: function (item) {
@@ -487,9 +613,7 @@ var MapsApiMapViewer = new Class({
             return bounds;
         },
 
-        showBalloonForItem: function(uuid) {
-            var item = itemsByUuidG[uuid];
-
+        selectFeature: function(item) {
             if (this.balloon != null) {
                 this.balloon.close();
             }
@@ -499,38 +623,6 @@ var MapsApiMapViewer = new Class({
 
         setListeners: function(items) {
             var self = this;
-            /*
-            $.each
-            (items,
-             function (i, item) {
-                var markers = [item.mapObject.normal, item.mapObject.highlight];
-                $.each
-                (markers,
-                 function (j, marker) {
-                    google.maps.event.addListener
-                        (marker, 'mouseover',
-                         function (uuid) {
-                            return function () {
-                                highlightItem(uuid, doMapHighlight=false);
-                            }
-                        }(item.uuid));
-                    google.maps.event.addListener
-                        (marker, 'mouseout',
-                         function (uuid) {
-                            return function () {
-                                unhighlightItem(uuid, doMapUnhighlight=false);
-                            }
-                        }(item.uuid));
-                    google.maps.event.addListener
-                        (marker, 'click',
-                         function (uuid) {
-                            return function () {
-                                self.showBalloonForItem(uuid);
-                            }
-                        }(item.uuid));
-                });
-            });
-            */
             if (!this.mainListenerInitialized) {
                 google.maps.event.addListener(this.gmap, 'bounds_changed', handleMapViewChange);
                 this.mainListenerInitialized = true;
@@ -539,15 +631,27 @@ var MapsApiMapViewer = new Class({
 
     });
 
+MapsApiMapViewer.factory = function (domId) {
+    return new MapsApiMapViewer(domId);
+}
+
 function init() {
     // fetch JSON items and start map loading in parallel
+    var mapFactory;
     if (MAP_BACKEND == "earth") {
-        mapG = new EarthApiMapViewer();
+        mapFactory = EarthApiMapViewer.factory;
     } else if (MAP_BACKEND == "maps") {
-        mapG = new MapsApiMapViewer();
+        mapFactory = MapsApiMapViewer.factory;
     } else {
-	mapG = new MapViewer();
+        mapFactory = StubMapViewer.factory;
     }
+
+    widgetManagerG = new ShareWidgetManager();
+    widgetManagerG.setWidgetForDomId("mapContainer", mapFactory);
+    mapG = widgetManagerG.activeWidgets["mapContainer"];
+    widgetManagerG.setWidgetForDomId("galleryContainer", Gallery.factory);
+    galleryG = widgetManagerG.activeWidgets["galleryContainer"];
+
     if (queryG != "") {
         var searchBox = $('#searchBox');
         searchBox.val(queryG);
@@ -968,19 +1072,19 @@ function setPage(visibleItems, pageNum, force) {
                 $("td#" + item.uuid).hover(
                                            function(uuid) {
                                                return function() {
-                                                   highlightItem(uuid, doMapHighlight=true);
+                                                   widgetManagerG.setFeatureHighlighted(uuid, true);
                                                }
                                            }(item.uuid),
                                            function(uuid) {
                                                return function() {
-                                                   unhighlightItem(uuid, doMapUnhighlight=true);
+                                                   widgetManagerG.setFeatureHighlighted(uuid, false);
                                                }
                                            }(item.uuid)
                                            );
                 $("td#" + item.uuid).click(
                                            function(uuid) {
                                                return function() {
-                                                   mapG.showBalloonForItem(uuid);
+                                                   widgetManagerG.setFeatureSelected(uuid, true);
                                                }
                                            }(item.uuid)
                                            );
@@ -1028,10 +1132,11 @@ function setViewIfReady() {
     }
 }
 
-function highlightItem(uuid, doMapHighlight) {
+/*
+function highlightFeature(uuid, doMapHighlight) {
     if (highlightedItemG != uuid) {
 	if (highlightedItemG != null) {
-	    unhighlightItem(highlightedItemG, doMapHighlight);
+	    unhighlightFeature(highlightedItemG, doMapHighlight);
 	}
 
 	var item = itemsByUuidG[uuid];
@@ -1042,14 +1147,14 @@ function highlightItem(uuid, doMapHighlight) {
 	$("#caption").html(getCaptionHtml(item)); // add the rest of the preview data
 
 	if (doMapHighlight) {
-            mapG.highlightItem(item);
+            mapG.highlightFeature(item);
 	}
 
 	highlightedItemG = uuid;
     }
 }
 
-function unhighlightItem(uuid, doMapUnhighlight) {
+function unhighlightFeature(uuid, doMapUnhighlight) {
     if (highlightedItemG == uuid) {
 	var item = itemsByUuidG[uuid];
 	
@@ -1058,10 +1163,10 @@ function unhighlightItem(uuid, doMapUnhighlight) {
 	$("#caption").html('');
 
         if (doMapUnhighlight) {
-            mapG.unhighlightItem(item);
+            mapG.unhighlightFeature(item);
         }
 
 	highlightedItemG = null;
     }
 }
-
+*/
