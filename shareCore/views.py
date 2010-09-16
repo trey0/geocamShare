@@ -83,7 +83,7 @@ class ViewCore(ViewKml):
 
     def galleryJsonJs(self, request):
         galleryJsonText = self.getGalleryJsonText(request)
-        return HttpResponse('newItemsG = %s;\nsetViewIfReady();' % galleryJsonText,
+        return HttpResponse('share.core.newFeaturesG =\n%s;\nshare.core.setViewIfReady();' % galleryJsonText,
                             mimetype='text/javascript')
 
     def galleryDebug(self, request):

@@ -122,9 +122,9 @@ def collectMedia():
     dosys('mkdir -p build/s/tmp')
     installFile('configTemplates/tmp/README.txt', 'build/s/tmp')
     dosys('chmod go+rw build/s/tmp')
-    installDirs('shareCore/media/static/*', 'build/media/share/')
+    installDirs('shareCore/media/static/*', 'build/media/')
     if BUILDING_FOR_GEOCAM:
-        installDirs('shareGeocam/media/static/*', 'build/media/share/')
+        installDirs('shareGeocam/media/static/*', 'build/media/')
     installDir('%s/contrib/admin/media' % DJANGO_DIR,
                'build/media/admin')
     gigapanMediaDir = findDirContaining('PanoramaViewer.swf',
