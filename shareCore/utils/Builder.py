@@ -17,24 +17,37 @@ class Builder:
 
     def applyRule(self, dst, srcs, func):
         self.numRules += 1
+
         try:
-            dstTime = os.stat(dst)[stat.ST_MTIME]
+            dstStat = os.stat(dst)
         except OSError, e:
             if e.errno == errno.ENOENT:
-                dstTime = 0
+                dstStat = None
             else:
                 raise
-        maxSrcTime = 0
-        for src in srcs:
-            try:
-                srcTime = os.stat(src)[stat.ST_MTIME]
-            except OSError, e:
-                traceback.print_exc()
-                print ('[could not stat source file %s in rule to generate %s]'
-                       % (src, dst))
-                sys.exit(1)
-            maxSrcTime = max(maxSrcTime, srcTime)
-        if maxSrcTime > dstTime:
+
+        if dstStat:
+            dstMode = dstStat[stat.ST_MODE]
+            if stat.S_ISLNK(dstMode) or stat.S_ISDIR(dstMode):
+                # assume symlinks and directories are up to date
+                rebuild = False
+            else:
+                dstTime = dstStat[stat.ST_MTIME]
+                maxSrcTime = 0
+                for src in srcs:
+                    try:
+                        srcTime = os.stat(src)[stat.ST_MTIME]
+                    except OSError, e:
+                        traceback.print_exc()
+                        print ('[could not stat source file %s in rule to generate %s]'
+                               % (src, dst))
+                        sys.exit(1)
+                maxSrcTime = max(maxSrcTime, srcTime)
+                rebuild = (maxSrcTime > dstTime)
+        else:
+            rebuild = True
+
+        if rebuild:
             if self.verbose > 1:
                 print '[building: %s]' % dst
             func()

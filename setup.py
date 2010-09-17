@@ -24,6 +24,7 @@ LOCAL_SOURCEME = 'sourceme.sh'
 GIGAPAN_MEDIA_SEARCH_DIRS = ('%s/gigapan' % THIS_DIR,
                              '/Library/WebServer/Documents/gigapan')
 BUILDING_FOR_GEOCAM = (__name__ == '__main__')
+USE_SYMLINKS = True
 
 # avoid obscure error message if share2 module is not found
 try:
@@ -81,10 +82,7 @@ def getFiles(src, suffix=''):
 def installFile(src, dst):
     if os.path.isdir(src):
         if os.path.exists(dst):
-            if os.path.isdir(dst):
-                # dir already exists, just mark it up to date
-                os.system('touch %s' % dst)
-            else:
+            if not os.path.isdir(dst):
                 # replace plain file with directory
                 os.unlink(dst)
                 os.makedirs(dst)
@@ -95,7 +93,14 @@ def installFile(src, dst):
         # install plain file
         if not os.path.exists(os.path.dirname(dst)):
             os.makedirs(os.path.dirname(dst))
-        shutil.copy(src, dst)
+        if USE_SYMLINKS:
+            if os.path.isdir(dst):
+                dst = os.path.join(dst, os.path.basename(src))
+            if os.path.exists(dst):
+                os.unlink(dst)
+            os.symlink(os.path.realpath(src), dst)
+        else:
+            shutil.copy(src, dst)
 
 def installDir0(src, dst):
     for f in getFiles(src):
