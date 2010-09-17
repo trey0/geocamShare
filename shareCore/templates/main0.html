@@ -21,6 +21,8 @@
   <script src="{{ MEDIA_URL }}share/core/MapsApiMapViewer.js" type="text/javascript"></script>
   <script src="{{ MEDIA_URL }}share/core/EarthApiMapViewer.js" type="text/javascript"></script>
   <script src="{{ MEDIA_URL }}share/core/Gallery.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}share/core/SidebarSwitcher.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}share/core/FeatureDetailWidget.js" type="text/javascript"></script>
 
   {% if query %}
     <script src="{{ settings.SCRIPT_NAME }}galleryJson.js?q={{ query|urlencode}}&forceReload={% now "ymdHis" %}" type="text/javascript"></script>

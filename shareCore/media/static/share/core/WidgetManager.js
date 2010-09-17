@@ -8,8 +8,11 @@ geocamShare.core.WidgetManager = new Class(
 {
     activeWidgets: {},
     
-    setWidgetForDomId: function (domId, widgetFactory) {
-        this.activeWidgets[domId] = widgetFactory(domId);
+    setWidgetForDomId: function (domId, widgetFactory, widgetFactoryArgs) {
+        if (widgetFactoryArgs == undefined) {
+            widgetFactoryArgs = [];
+        }
+        this.activeWidgets[domId] = widgetFactory.apply(null, [domId].concat(widgetFactoryArgs));
     },
     
     updateFeatures: function (oldFeatures, newFeatures, diff) {
@@ -33,6 +36,34 @@ geocamShare.core.WidgetManager = new Class(
                });
     },
     
+    highlightFeature: function (feature) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.highlightFeature(feature);
+               });
+    },
+    
+    unhighlightFeature: function (feature) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.unhighlightFeature(feature);
+               });
+    },
+    
+    selectFeature: function (feature) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.selectFeature(feature);
+               });
+    },
+    
+    unselectFeature: function (feature) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.unselectFeature(feature);
+               });
+    },
+
     setFeatureSelected: function (uuid, isSelected) {
         $.each(this.activeWidgets,
                function (domId, widget) {
@@ -45,7 +76,56 @@ geocamShare.core.WidgetManager = new Class(
                function (domId, widget) {
                    widget.setFeatureHighlighted(uuid, isHighlighted);
                });
-    }
+    },
     
+    /**********************************************************************
+     * guard logic for top-level manager
+     **********************************************************************/
+
+    highlightedFeatureUuid: null,
+    
+    selectedFeatureUuid: null,
+    
+    setFeatureHighlighted: function (uuid, isHighlighted) {
+        if (isHighlighted) {
+            if (this.highlightedFeatureUuid == uuid) {
+                // do nothing
+            } else {
+                if (this.highlightedFeatureUuid != null) {
+                    this.unhighlightFeature(geocamShare.core.featuresByUuidG[this.highlightedFeatureUuid]);
+                }
+                this.highlightFeature(geocamShare.core.featuresByUuidG[uuid]);
+                this.highlightedFeatureUuid = uuid;
+            }
+        } else {
+            if (this.highlightedFeatureUuid == uuid) {
+                this.unhighlightFeature(geocamShare.core.featuresByUuidG[uuid]);
+                this.highlightedFeatureUuid = null;
+            } else {
+                // do nothing
+            }
+        }
+    },
+    
+    setFeatureSelected: function (uuid, isSelected) {
+        if (isSelected) {
+            if (this.selectedFeatureUuid == uuid) {
+                // do nothing
+            } else {
+                if (uuid != null) {
+                    this.unselectFeature(geocamShare.core.featuresByUuidG[this.selectedFeatureUuid]);
+                }
+                this.selectFeature(geocamShare.core.featuresByUuidG[uuid]);
+                this.selectedFeatureUuid = uuid;
+            }
+        } else {
+            if (this.selectedFeatureUuid == uuid) {
+                this.unselectFeature(geocamShare.core.featuresByUuidG[uuid]);
+                this.selectedFeatureUuid = null;
+            } else {
+                // do nothing
+            }
+        }
+    }
 });
 

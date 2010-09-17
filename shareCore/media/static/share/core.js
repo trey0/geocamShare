@@ -20,7 +20,7 @@ geocamShare.core = {
     newFeaturesG: null,
     pageG: null,
     highlightedFeatureG: null,
-    visibleFeaturesG: [],
+    visibleFeaturesG: null,
     mapViewChangeTimeoutG: null,
     mapG: null,
     galleryG: null,
@@ -57,8 +57,7 @@ geocamShare.core = {
         geocamShare.core.widgetManagerG = new geocamShare.core.WidgetManager();
         geocamShare.core.widgetManagerG.setWidgetForDomId("mapContainer", mapFactory);
         geocamShare.core.mapG = geocamShare.core.widgetManagerG.activeWidgets["mapContainer"];
-        geocamShare.core.widgetManagerG.setWidgetForDomId("galleryContainer", geocamShare.core.Gallery.factory);
-        geocamShare.core.galleryG = geocamShare.core.widgetManagerG.activeWidgets["galleryContainer"];
+        geocamShare.core.widgetManagerG.setWidgetForDomId("galleryContainer", geocamShare.core.SidebarSwitcher.factory);
         
         if (geocamShare.core.queryG != "") {
             var searchBox = $('#searchBox');
@@ -174,7 +173,8 @@ geocamShare.core = {
 
         visibleFeatures = geocamShare.core.mapG.getVisibleFeatures(features);
 
-        if (geocamShare.core.featureListsEqual(geocamShare.core.visibleFeaturesG, visibleFeatures)) return;
+        if (geocamShare.core.visibleFeaturesG != null
+            && geocamShare.core.featureListsEqual(geocamShare.core.visibleFeaturesG, visibleFeatures)) return;
         
         fhtml = (visibleFeatures.length) + ' of '
 	    + (features.length) + ' features in view';

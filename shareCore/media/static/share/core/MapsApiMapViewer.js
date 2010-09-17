@@ -254,12 +254,16 @@ geocamShare.core.MapsApiMapViewer = new Class(
         return bounds;
     },
     
-    selectFeature: function(feature) {
+    showBalloonForFeature: function (feature) {
         if (this.balloon != null) {
             this.balloon.close();
         }
         this.balloon = new google.maps.InfoWindow({content: geocamShare.core.getFeatureBalloonHtml(feature)});
         this.balloon.open(this.gmap, feature.mapObject.current);
+    },
+
+    selectFeature: function(feature) {
+        // this.showBalloonForFeature(feature);
     },
     
     setListeners: function(features) {

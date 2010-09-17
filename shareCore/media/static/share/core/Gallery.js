@@ -10,10 +10,17 @@ geocamShare.core.Gallery = new Class(
 
     initialize: function (domId) {
         this.domId = domId;
+        geocamShare.core.galleryG = this;
+
         $("#" + this.domId).html
           ('<div id="geocamShare_core_gallery"></div>\n' +
            '<div id="geocamShare_core_galleryCaption"></div>\n');
-        $("#geocamShare_core_gallery").html('Loading...');
+
+        if (geocamShare.core.visibleFeaturesG != null) {
+            this.notifyFeaturesInMapViewport(geocamShare.core.visibleFeaturesG);
+        } else {
+            $("#geocamShare_core_gallery").html('Loading...');
+        }
     },
 
     updateFeatures: function (oldFeatures, newFeatures, diff) {
@@ -39,7 +46,7 @@ geocamShare.core.Gallery = new Class(
     unhighlightFeature: function (feature) {
         $("td#" + feature.uuid + " div").css({backgroundColor: ''});
 	
-        $("#caption").html('');
+        $("#geocamShare_core_galleryCaption").html('');
     },
     
     selectFeature: function (feature) {
