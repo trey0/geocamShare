@@ -27,7 +27,7 @@ class Xmp:
     def parseImageHeader(self, fname):
         fd, xmpFname = tempfile.mkstemp('-parseImageHeader.xmp')
         os.close(fd)
-        os.system('exiftool -fast -tagsfromfile %s -all>xmp:all -xmp:all>xmp:all %s'
+        os.system('exiftool -fast -tagsfromfile %s "-all>xmp:all" "-xmp:all>xmp:all" %s'
                   % (fname, xmpFname))
         self.parseXmp(xmpFname)
         try:
