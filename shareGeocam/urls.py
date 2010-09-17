@@ -67,4 +67,7 @@ if settings.USE_STATIC_SERVE:
         (r'^data/(?P<path>.*)$', 'django.views.static.serve',
          {'document_root':settings.DATA_DIR,
           'show_indexes':True}),
+        (r'^favicon.ico$', 'django.views.generic.simple.redirect_to',
+         {'url': settings.MEDIA_URL + 'share/camera.ico'}
+         ),
         )
