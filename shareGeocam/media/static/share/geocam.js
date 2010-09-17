@@ -59,7 +59,7 @@ share.core.getCaptionHtml = function (feature) {
         caption += ''
             + '  <tr>\n'
             + '    <td style="font-style: italic">Lat,Lon,Heading:&nbsp;&nbsp;</td>\n'
-            + '    <td colspan="3">' + feature.lat + ', ' + feature.lon + ', ' + Math.floor(feature.yaw) + '&nbsp;&nbsp;</td>\n'
+            + '    <td colspan="3">' + feature.lat.toFixed(6) + ', ' + feature.lon.toFixed(6) + ', ' + Math.floor(feature.yaw) + '&nbsp;&nbsp;</td>\n'
             + '  </tr>\n'
             + '  <tr>\n'
             + '    <td style="font-style: italic">USNG:</td>\n'
