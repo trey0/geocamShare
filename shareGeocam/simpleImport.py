@@ -92,7 +92,7 @@ def importDir(opts, dir, uploadClient):
         timeZone = 'US/Pacific' # default
 
     folderName = os.path.basename(dir)
-    if not opts.url:
+    if not opts.upload:
         folder, created = Folder.objects.get_or_create(name=folderName,
                                                        defaults=dict(timeZone=timeZone))
 
@@ -149,7 +149,7 @@ def importDir(opts, dir, uploadClient):
         i += 1
 
 def doit(opts, importDirs):
-    if opts.downsample:
+    if opts.downsample != '1':
         opts.upload = True
     if opts.password:
         opts.secure = True
