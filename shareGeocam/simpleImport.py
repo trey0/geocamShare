@@ -22,6 +22,7 @@ import pytz
 import tagging
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from share2.shareCore.models import Feature, Folder
 from share2.shareGeocam.models import Photo
@@ -48,16 +49,22 @@ def importImageDirect(imagePath, attributes):
     timestampLocal = parseUploadTime(attributes['cameraTime']).replace(tzinfo=tz)
     timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
-    tags = tagging.utils.parse_tag_input(attributes['tags'])
+    tagsList = tagging.utils.parse_tag_input(attributes['tags'])
     icon = settings.ICONS[0] # default
-    for t in tags:
+    for t in tagsList:
         if t in settings.ICONS_DICT:
             icon = t
             break
 
+    try:
+        user = User.objects.get(username=attributes['userName'])
+    except ObjectDoesNotExist:
+        print 'ERROR: No Django user "%s"; specify an existing user with the --user option, or create the user' % attributes['userName']
+        sys.exit(1)
+
     img, created = (Photo.objects.get_or_create
                     (name=os.path.basename(imagePath),
-                     author=User.objects.get(username=attributes['userName']),
+                     author=user,
                      minTime=timestampUtc,
                      maxTime=timestampUtc,
                      defaults=dict(minLat=lat,
@@ -68,7 +75,7 @@ def importImageDirect(imagePath, attributes):
                                    pitch=attributes['pitch'],
                                    yaw=checkMissing(attributes['yaw']),
                                    notes=attributes['notes'],
-                                   tags=tags,
+                                   tags=attributes['tags'],
                                    widthPixels=widthPixels,
                                    heightPixels=heightPixels,
                                    folder=folder,

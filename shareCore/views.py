@@ -184,8 +184,8 @@ class ViewCore(ViewKml):
                     # post process some fields
                     icon = settings.ICONS[0] # default
                     if vals.has_key('tags'):
-                        tags = tagging.utils.parse_tag_input(vals['tags'])
-                        for t in tags:
+                        tagsList = tagging.utils.parse_tag_input(vals['tags'])
+                        for t in tagsList:
                             if t in settings.ICONS_DICT:
                                 icon = t
                                 break
