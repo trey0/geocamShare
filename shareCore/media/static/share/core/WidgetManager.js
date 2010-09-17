@@ -4,25 +4,48 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-share.core.WidgetManager = new Class({
-        activeWidgets: {},
+geocamShare.core.WidgetManager = new Class(
+{
+    activeWidgets: {},
+    
+    setWidgetForDomId: function (domId, widgetFactory) {
+        this.activeWidgets[domId] = widgetFactory(domId);
+    },
+    
+    updateFeatures: function (oldFeatures, newFeatures, diff) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.updateFeatures(oldFeatures, newFeatures, diff);
+               });
+    },
 
-        setWidgetForDomId: function (domId, widgetFactory) {
-            this.activeWidgets[domId] = widgetFactory(domId);
-        },
+    notifyLoading: function () {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.notifyLoading();
+               });
+    },
 
-        setFeatureSelected: function (uuid, isSelected) {
-            $.each(this.activeWidgets,
-                   function (domId, widget) {
-                       widget.setFeatureSelected(uuid, isSelected);
-                   });
-        },
-
-        setFeatureHighlighted: function (uuid, isHighlighted) {
-            $.each(this.activeWidgets,
-                   function (domId, widget) {
-                       widget.setFeatureHighlighted(uuid, isHighlighted);
-                   });
-        }
-    });
+    notifyFeaturesInMapViewport: function (features) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.notifyFeaturesInMapViewport(features);
+               });
+    },
+    
+    setFeatureSelected: function (uuid, isSelected) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.setFeatureSelected(uuid, isSelected);
+               });
+    },
+    
+    setFeatureHighlighted: function (uuid, isHighlighted) {
+        $.each(this.activeWidgets,
+               function (domId, widget) {
+                   widget.setFeatureHighlighted(uuid, isHighlighted);
+               });
+    }
+    
+});
 

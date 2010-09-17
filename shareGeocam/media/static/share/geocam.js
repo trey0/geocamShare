@@ -6,20 +6,20 @@
 
 // can override stuff from shareCore.js here
 
-share.core.isImage = function (feature) {
+geocamShare.core.isImage = function (feature) {
     return feature.type == "Photo";
 }
 
-share.core.getDirUrl = function (feature) {
-    ret = share.core.DATA_URL + feature.dateText + "/" + feature.author + "/" + feature.uuid + "/" + feature.version + "/";
+geocamShare.core.getDirUrl = function (feature) {
+    ret = geocamShare.core.DATA_URL + feature.dateText + "/" + feature.author + "/" + feature.uuid + "/" + feature.version + "/";
     return ret;
 }
 
-share.core.getThumbnailUrl = function (feature, width) {
-    return share.core.getDirUrl(feature) + "th" + width + ".jpg";
+geocamShare.core.getThumbnailUrl = function (feature, width) {
+    return geocamShare.core.getDirUrl(feature) + "th" + width + ".jpg";
 }
 
-share.core.getViewerUrl = function (feature) {
+geocamShare.core.getViewerUrl = function (feature) {
     var name = feature.name;
     if (name == "") {
         if (feature.type == "Photo") {
@@ -30,10 +30,10 @@ share.core.getViewerUrl = function (feature) {
             name = "untitled";
         }
     }
-    return share.core.SCRIPT_NAME + feature.type.toLowerCase() + "/" + feature.uuid + "/" + feature.version + "/" + name;
+    return geocamShare.core.SCRIPT_NAME + feature.type.toLowerCase() + "/" + feature.uuid + "/" + feature.version + "/" + name;
 }
 
-share.core.getCaptionHtml = function (feature) {
+geocamShare.core.getCaptionHtml = function (feature) {
     var timeSummary;
     if (feature.type == "Track") {
         timeSummary = (getTimeShort(feature.minTime)

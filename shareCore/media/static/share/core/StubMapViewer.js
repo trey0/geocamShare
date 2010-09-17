@@ -4,10 +4,27 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-share.core.StubMapViewer = new Class({
-        Extends: share.core.MapViewer
-    });
+geocamShare.core.StubMapViewer = new Class(
+{
+    Extends: geocamShare.core.MapViewer,
 
-share.core.StubMapViewer.factory = function (domId) {
-    return new share.core.StubMapViewer(domId);
+    domId: null,
+
+    initialize: function (domId) {
+        this.parent(domId);
+        this.domId = domId;
+    },
+
+    selectFeature: function (feature) {
+        $('#' + this.domId).html(geocamShare.core.getFeatureBalloonHtml(feature));
+    },
+    
+    unselectFeature: function (feature) {
+        // no-op
+    }
+
+});
+
+geocamShare.core.StubMapViewer.factory = function (domId) {
+    return new geocamShare.core.StubMapViewer(domId);
 }

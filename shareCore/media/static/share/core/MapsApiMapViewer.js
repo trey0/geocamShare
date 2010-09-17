@@ -4,8 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-share.core.MapsApiMapViewer = new Class({
-    Extends: share.core.MapViewer,
+geocamShare.core.MapsApiMapViewer = new Class(
+{
+    Extends: geocamShare.core.MapViewer,
 
     /**********************************************************************
      * variables
@@ -25,252 +26,252 @@ share.core.MapsApiMapViewer = new Class({
      * implement MapViewer interface
      **********************************************************************/
     
-        initialize: function(domId) {
-            //var latlng = new google.maps.LatLng(37, -120);
-            var myOptions = {
-                /*zoom: 4,
-                  center: latlng,*/
-                mapTypeId: google.maps.MapTypeId.HYBRID
-            };
-            this.gmap = new google.maps.Map(document.getElementById(domId), myOptions);
-            if (share.core.viewportG != "") {
-                this.setViewport(share.core.viewportG);
-                this.boundsAreSet = true;
-            }
-            this.isReady = true;
-
-            share.core.setViewIfReady();
-        },
-
-        updateFeatures: function (diff) {
-            var self = this;
-
-            $.each(diff.featuresToDelete,
-                   function (i, feature) {
-                       self.removeFeatureFromMap(feature);
-                   });
-            
-            if (diff.featuresToAdd.length > 0) {
-                $.each(diff.featuresToAdd,
-                       function (i, feature) {
-                           self.addFeature(feature);
-                       });
-            }
-            this.setListeners(diff.featuresToAdd);
-
-            if (diff.featuresToDelete.length > 0 || diff.featuresToAdd.length > 0) {
-                if (!this.boundsAreSet) {
-                    this.zoomToFit();
-                }
-                // used to call share.core.setGalleryToVisibleSubsetOf(share.core.featuresG)
-                // here, but share.core.handleMapViewChange() gives the map backend
-                // some time to adjust after the zoomToFit() call
-                share.core.handleMapViewChange();
-            }
-        },
-
-        zoomToFit: function () {
-            this.gmap.fitBounds(this.getMarkerBounds());
+    initialize: function(domId) {
+        //var latlng = new google.maps.LatLng(37, -120);
+        var myOptions = {
+            /*zoom: 4,
+              center: latlng,*/
+            mapTypeId: google.maps.MapTypeId.HYBRID
+        };
+        this.gmap = new google.maps.Map(document.getElementById(domId), myOptions);
+        if (geocamShare.core.viewportG != "") {
+            this.setViewport(geocamShare.core.viewportG);
             this.boundsAreSet = true;
-        },
+        }
+        this.isReady = true;
+        
+        geocamShare.core.setViewIfReady();
+    },
 
-        getViewport: function () {
-            var c = this.gmap.getCenter();
-            return c.lat() + ',' + c.lng() + ',' + this.gmap.getZoom();
-        },
-
-        setViewport: function (view) {
-            var v = view.split(',');
-            this.gmap.setCenter(new google.maps.LatLng(v[0], v[1]));
-            this.gmap.setZoom(parseInt(v[2]));
-        },
-
-        getVisibleFeatures: function (features) {
-            var bounds = this.gmap.getBounds();
-            
-            var visibleFeatures = [];
-            var self = this;
-            $.each(features,
+    updateFeatures: function (oldFeatures, newFeatures, diff) {
+        var self = this;
+        
+        $.each(diff.featuresToDelete,
+               function (i, feature) {
+                   self.removeFeatureFromMap(feature);
+               });
+        
+        if (diff.featuresToAdd.length > 0) {
+            $.each(diff.featuresToAdd,
                    function (i, feature) {
-                       if (self.featureIntersectsBounds(feature, bounds)) {
-                           visibleFeatures.push(feature);
-                       }
+                       self.addFeature(feature);
                    });
-            return visibleFeatures;
-        },
-
-        highlightFeature: function(feature) {
-            if (feature.mapObject != null && feature.mapObject.current != feature.mapObject.highlight) {
-                this.addToMap(feature.mapObject.highlight);
-                this.removeFromMap(feature.mapObject.normal);
-                feature.mapObject.current = feature.mapObject.highlight;
+        }
+        this.setListeners(diff.featuresToAdd);
+        
+        if (diff.featuresToDelete.length > 0 || diff.featuresToAdd.length > 0) {
+            if (!this.boundsAreSet) {
+                this.zoomToFit();
             }
-        },
-
-        unhighlightFeature: function(feature) {
-            if (feature.mapObject != null && feature.mapObject.current != feature.mapObject.normal) {
-                this.addToMap(feature.mapObject.normal);
-                this.removeFromMap(feature.mapObject.highlight);
-                feature.mapObject.current = feature.mapObject.normal;
+            // used to call geocamShare.core.setGalleryToVisibleSubsetOf(geocamShare.core.featuresG)
+            // here, but geocamShare.core.handleMapViewChange() gives the map backend
+            // some time to adjust after the zoomToFit() call
+            geocamShare.core.handleMapViewChange();
+        }
+    },
+    
+    zoomToFit: function () {
+        this.gmap.fitBounds(this.getMarkerBounds());
+        this.boundsAreSet = true;
+    },
+    
+    getViewport: function () {
+        var c = this.gmap.getCenter();
+        return c.lat() + ',' + c.lng() + ',' + this.gmap.getZoom();
+    },
+    
+    setViewport: function (view) {
+        var v = view.split(',');
+        this.gmap.setCenter(new google.maps.LatLng(v[0], v[1]));
+        this.gmap.setZoom(parseInt(v[2]));
+    },
+    
+    getVisibleFeatures: function (features) {
+        var bounds = this.gmap.getBounds();
+        
+        var visibleFeatures = [];
+        var self = this;
+        $.each(features,
+               function (i, feature) {
+                   if (self.featureIntersectsBounds(feature, bounds)) {
+                       visibleFeatures.push(feature);
+                   }
+               });
+        return visibleFeatures;
+    },
+    
+    highlightFeature: function(feature) {
+        if (feature.mapObject != null && feature.mapObject.current != feature.mapObject.highlight) {
+            this.addToMap(feature.mapObject.highlight);
+            this.removeFromMap(feature.mapObject.normal);
+            feature.mapObject.current = feature.mapObject.highlight;
+        }
+    },
+    
+    unhighlightFeature: function(feature) {
+        if (feature.mapObject != null && feature.mapObject.current != feature.mapObject.normal) {
+            this.addToMap(feature.mapObject.normal);
+            this.removeFromMap(feature.mapObject.highlight);
+            feature.mapObject.current = feature.mapObject.normal;
+        }
+    },
+    
+    /**********************************************************************
+     * helper functions
+     **********************************************************************/
+    
+    removeFeatureFromMap: function (feature) {
+        var self = this;
+        if (feature.mapObject == null) {
+            // nothing to remove
+        } else if (feature.type == "Track") {
+            for (var i=0; i < feature.mapObject.polylines.length; i++) {
+                var polyline = feature.mapObject.polylines[i];
+                self.removeFromMap(polyline);
             }
-        },
-
-        /**********************************************************************
-         * helper functions
-         **********************************************************************/
-
-        removeFeatureFromMap: function (feature) {
-            var self = this;
-            if (feature.mapObject == null) {
-                // nothing to remove
-            } else if (feature.type == "Track") {
-                for (var i=0; i < feature.mapObject.polylines.length; i++) {
-                    var polyline = feature.mapObject.polylines[i];
-                    self.removeFromMap(polyline);
-                }
-            } else {
-                self.removeFromMap(feature.mapObject.normal);
-                self.removeFromMap(feature.mapObject.highlight);
-            }
-        },
-
-        featureIntersectsBounds: function (feature, bounds) {
-            if (feature.minLat == null) {
-                return true;
-            } else {
-                var ibounds = new google.maps.LatLngBounds();
-                ibounds.extend(new google.maps.LatLng(feature.minLat, feature.minLon));
-                ibounds.extend(new google.maps.LatLng(feature.maxLat, feature.maxLon));
-                return ibounds.intersects(bounds);
-            }
-        },
-
-        addMarker: function (feature) {
-            var self = this;
-
-            var iconUrl = share.core.getIconMapUrl(feature);
-            feature.mapObject = {normal: self.getMarker(feature, 0.7),
-                              highlight: self.getMarker(feature, 1.0)};
-
-            var markers = [feature.mapObject.normal, feature.mapObject.highlight];
-            $.each
+        } else {
+            self.removeFromMap(feature.mapObject.normal);
+            self.removeFromMap(feature.mapObject.highlight);
+        }
+    },
+    
+    featureIntersectsBounds: function (feature, bounds) {
+        if (feature.minLat == null) {
+            return true;
+        } else {
+            var ibounds = new google.maps.LatLngBounds();
+            ibounds.extend(new google.maps.LatLng(feature.minLat, feature.minLon));
+            ibounds.extend(new google.maps.LatLng(feature.maxLat, feature.maxLon));
+            return ibounds.intersects(bounds);
+        }
+    },
+    
+    addMarker: function (feature) {
+        var self = this;
+        
+        var iconUrl = geocamShare.core.getIconMapUrl(feature);
+        feature.mapObject = {normal: self.getMarker(feature, 0.7),
+                             highlight: self.getMarker(feature, 1.0)};
+        
+        var markers = [feature.mapObject.normal, feature.mapObject.highlight];
+        $.each
             (markers,
              function (j, marker) {
-                google.maps.event.addListener
-                    (marker, 'mouseover',
-                     function (uuid) {
-                        return function () {
-                            share.core.widgetManagerG.setFeatureHighlighted(uuid, true);
-                        }
-                    }(feature.uuid));
-                google.maps.event.addListener
-                    (marker, 'mouseout',
-                     function (uuid) {
-                        return function () {
-                            share.core.widgetManagerG.setFeatureHighlighted(uuid, false);
-                        }
-                    }(feature.uuid));
-                google.maps.event.addListener
-                    (marker, 'click',
-                     function (uuid) {
-                        return function () {
-                            share.core.widgetManagerG.setFeatureSelected(uuid, true);
-                        }
-                    }(feature.uuid));
-            });
-
-            self.unhighlightFeature(feature); // add to map in 'normal' state
-        },
-
-        addTrack: function (feature) {
-            var self = this;
-            var trackLines = feature.geometry.geometry;
-            var path = [];
-            feature.mapObject = {polylines: []};
-            $.each(trackLines,
-                   function (i, trackLine) {
-                       var path = [];
-                       $.each(trackLine,
-                              function (j, pt) {
-                                  path.push(new google.maps.LatLng(pt[1], pt[0]));
-                              });
-                       var polyline = new google.maps.Polyline({map: self.gmap,
-                                                                path: path,
-                                                                strokeColor: '#FF0000',
-                                                                strokeOpacity: 1.0,
-                                                                strokeWidth: 4,
-                                                                zIndex: 50});
-                       feature.mapObject.polylines.push(polyline);
-                   });
-        },
-
-        addFeature: function (feature) {
-            if (feature.minLat == null) {
-                return; // skip non-geotagged features
-            }
-
-            if (share.core.isImage(feature)) {
-                this.addMarker(feature);
-            } else if (feature.type == 'Track') {
-                this.addTrack(feature);
-            }
-        },
-
-        getMarker: function (feature, scale) {
-            var position = new google.maps.LatLng(feature.lat, feature.lon);
-            var iconUrl = share.core.getIconMapRotUrl(feature);
-            var iconSize = new google.maps.Size(feature.icon.rotSize[0], feature.icon.rotSize[1]);
-            var origin = new google.maps.Point(0, 0);
-            var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
-            var anchor = new google.maps.Point(0.5*scaledSize.width, 0.5*scaledSize.height);
-            
-            var markerImage = new google.maps.MarkerImage(iconUrl, iconSize, origin, anchor, scaledSize);
-            
-            return new google.maps.Marker({position: position,
-                        icon: markerImage
-                        });
-        },
-
-        addToMap: function (marker) {
-            marker.setMap(this.gmap);
-        },
-
-        removeFromMap: function (marker) {
-            marker.setMap(null);
-        },
-
-        getMarkerBounds: function () {
-            var bounds = new google.maps.LatLngBounds();
-            $.each(share.core.featuresG,
-                   function (i, feature) {
-                       if (feature.minLat != null) {
-                           var featureBounds = new google.maps.LatLngBounds
-                               (new google.maps.LatLng(feature.minLat, feature.minLon),
-                                new google.maps.LatLng(feature.maxLat, feature.maxLon));
-                           bounds.union(featureBounds);
-                       }
-                   });
-            return bounds;
-        },
-
-        selectFeature: function(feature) {
-            if (this.balloon != null) {
-                this.balloon.close();
-            }
-            this.balloon = new google.maps.InfoWindow({content: share.core.getFeatureBalloonHtml(feature)});
-            this.balloon.open(this.gmap, feature.mapObject.current);
-        },
-
-        setListeners: function(features) {
-            var self = this;
-            if (!this.mainListenerInitialized) {
-                google.maps.event.addListener(this.gmap, 'bounds_changed', share.core.handleMapViewChange);
-                this.mainListenerInitialized = true;
-            }
+                 google.maps.event.addListener
+                 (marker, 'mouseover',
+                  function (uuid) {
+                      return function () {
+                          geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, true);
+                      }
+                  }(feature.uuid));
+                 google.maps.event.addListener
+                 (marker, 'mouseout',
+                  function (uuid) {
+                      return function () {
+                          geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, false);
+                      }
+                  }(feature.uuid));
+                 google.maps.event.addListener
+                 (marker, 'click',
+                  function (uuid) {
+                      return function () {
+                          geocamShare.core.widgetManagerG.setFeatureSelected(uuid, true);
+                      }
+                  }(feature.uuid));
+             });
+        
+        self.unhighlightFeature(feature); // add to map in 'normal' state
+    },
+    
+    addTrack: function (feature) {
+        var self = this;
+        var trackLines = feature.geometry.geometry;
+        var path = [];
+        feature.mapObject = {polylines: []};
+        $.each(trackLines,
+               function (i, trackLine) {
+                   var path = [];
+                   $.each(trackLine,
+                          function (j, pt) {
+                              path.push(new google.maps.LatLng(pt[1], pt[0]));
+                          });
+                   var polyline = new google.maps.Polyline({map: self.gmap,
+                                                            path: path,
+                                                            strokeColor: '#FF0000',
+                                                            strokeOpacity: 1.0,
+                                                            strokeWidth: 4,
+                                                            zIndex: 50});
+                   feature.mapObject.polylines.push(polyline);
+               });
+    },
+    
+    addFeature: function (feature) {
+        if (feature.minLat == null) {
+            return; // skip non-geotagged features
         }
+        
+        if (geocamShare.core.isImage(feature)) {
+            this.addMarker(feature);
+        } else if (feature.type == 'Track') {
+            this.addTrack(feature);
+        }
+    },
+    
+    getMarker: function (feature, scale) {
+        var position = new google.maps.LatLng(feature.lat, feature.lon);
+        var iconUrl = geocamShare.core.getIconMapRotUrl(feature);
+        var iconSize = new google.maps.Size(feature.icon.rotSize[0], feature.icon.rotSize[1]);
+        var origin = new google.maps.Point(0, 0);
+        var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
+        var anchor = new google.maps.Point(0.5*scaledSize.width, 0.5*scaledSize.height);
+        
+        var markerImage = new google.maps.MarkerImage(iconUrl, iconSize, origin, anchor, scaledSize);
+        
+        return new google.maps.Marker({position: position,
+                                       icon: markerImage
+                                      });
+    },
+    
+    addToMap: function (marker) {
+        marker.setMap(this.gmap);
+    },
+    
+    removeFromMap: function (marker) {
+        marker.setMap(null);
+    },
+    
+    getMarkerBounds: function () {
+        var bounds = new google.maps.LatLngBounds();
+        $.each(geocamShare.core.featuresG,
+               function (i, feature) {
+                   if (feature.minLat != null) {
+                       var featureBounds = new google.maps.LatLngBounds
+                       (new google.maps.LatLng(feature.minLat, feature.minLon),
+                        new google.maps.LatLng(feature.maxLat, feature.maxLon));
+                       bounds.union(featureBounds);
+                   }
+               });
+        return bounds;
+    },
+    
+    selectFeature: function(feature) {
+        if (this.balloon != null) {
+            this.balloon.close();
+        }
+        this.balloon = new google.maps.InfoWindow({content: geocamShare.core.getFeatureBalloonHtml(feature)});
+        this.balloon.open(this.gmap, feature.mapObject.current);
+    },
+    
+    setListeners: function(features) {
+        var self = this;
+        if (!this.mainListenerInitialized) {
+            google.maps.event.addListener(this.gmap, 'bounds_changed', geocamShare.core.handleMapViewChange);
+            this.mainListenerInitialized = true;
+        }
+    }
+    
+});
 
-    });
-
-share.core.MapsApiMapViewer.factory = function (domId) {
-    return new share.core.MapsApiMapViewer(domId);
+geocamShare.core.MapsApiMapViewer.factory = function (domId) {
+    return new geocamShare.core.MapsApiMapViewer(domId);
 }

@@ -30,20 +30,20 @@
 {% endblock %}
 
 {% block jsSetVars %}
-  share.core.SCRIPT_NAME = "{{ settings.SCRIPT_NAME }}";
-  share.core.MEDIA_URL = "{{ settings.MEDIA_URL }}";
-  share.core.DATA_URL = "{{ settings.DATA_URL }}";
-  share.core.SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
-  share.core.GALLERY_PAGE_COLS = {{ settings.GALLERY_PAGE_COLS }};
-  share.core.GALLERY_PAGE_ROWS = {{ settings.GALLERY_PAGE_ROWS }};
-  share.core.GALLERY_THUMB_SIZE = {{ settings.GALLERY_THUMB_SIZE }};
-  share.core.DESC_THUMB_SIZE = {{ settings.DESC_THUMB_SIZE }};
-  share.core.MAP_BACKEND = "{{ settings.MAP_BACKEND }}";
+  geocamShare.core.SCRIPT_NAME = "{{ settings.SCRIPT_NAME }}";
+  geocamShare.core.MEDIA_URL = "{{ settings.MEDIA_URL }}";
+  geocamShare.core.DATA_URL = "{{ settings.DATA_URL }}";
+  geocamShare.core.SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
+  geocamShare.core.GALLERY_PAGE_COLS = {{ settings.GALLERY_PAGE_COLS }};
+  geocamShare.core.GALLERY_PAGE_ROWS = {{ settings.GALLERY_PAGE_ROWS }};
+  geocamShare.core.GALLERY_THUMB_SIZE = {{ settings.GALLERY_THUMB_SIZE }};
+  geocamShare.core.DESC_THUMB_SIZE = {{ settings.DESC_THUMB_SIZE }};
+  geocamShare.core.MAP_BACKEND = "{{ settings.MAP_BACKEND }}";
 
-  share.core.viewportG = "{{ viewport }}";
-  share.core.queryG = "{{ query }}";
+  geocamShare.core.viewportG = "{{ viewport }}";
+  geocamShare.core.queryG = "{{ query }}";
 
-  if (share.core.MAP_BACKEND == "earth") {
+  if (geocamShare.core.MAP_BACKEND == "earth") {
     google.load("earth", "1");
   }
 
@@ -59,7 +59,7 @@
         <span style="float: right; font-weight: normal; padding-right: 3px;">{{ accountWidget|safe }}</span>
       </td>
       <td>
-        <form style="display: inline" onsubmit="return share.core.reloadFeatures($('#searchBox').val());">
+        <form style="display: inline" onsubmit="return geocamShare.core.reloadFeatures($('#searchBox').val());">
           <input id="searchBox" type="text" value="Search" style="color: #999; font-size: 1em; width: 470px;" onfocus="if (this.value == 'Search') { this.value = ''; this.style.color = '#000'; }" onblur="if (this.value == '') { this.value = 'Search'; this.style.color = '#999'; }"/>
           <input type="submit"  style="float: center; vertical-align: middle;" value="Go"/>
         </form>
