@@ -21,10 +21,12 @@ geocamShare.core.FeatureDetailWidget = new Class(
                                                           return 'javascript:geocamShare.core.widgetManagerG.setFeatureSelected(\''+uuid+'\', true)';
                                                       });
         var content =
-            '<span>' +  pagerHtml + '</span>' +
+            '<div style="margin-bottom: 5px;">\n' +
+            '<span>' +  pagerHtml + '</span>\n' +
             '<span style="float: right;">\n' +
-            '  <a href="javascript:geocamShare.core.widgetManagerG.setFeatureSelected(\''+this.feature.uuid+'\', false)">view all</a>\n'+
-            '</span><br/>\n'
+            '  <a href="javascript:geocamShare.core.widgetManagerG.setFeatureSelected(\''+this.feature.uuid+'\', false)">view all</a>\n' +
+            '</span>\n' +
+            '</div>\n';
         content += geocamShare.core.getFeatureBalloonHtml(this.feature);
         $('#'+this.domId).html(content);
     },
