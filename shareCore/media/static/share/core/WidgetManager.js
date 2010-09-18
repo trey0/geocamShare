@@ -96,6 +96,8 @@ geocamShare.core.WidgetManager = new Class(
                 }
                 this.highlightFeature(geocamShare.core.featuresByUuidG[uuid]);
                 this.highlightedFeatureUuid = uuid;
+
+                geocamShare.core.viewIndexUuidG = uuid;
             }
         } else {
             if (this.highlightedFeatureUuid == uuid) {
@@ -117,6 +119,8 @@ geocamShare.core.WidgetManager = new Class(
                 }
                 this.selectFeature(geocamShare.core.featuresByUuidG[uuid]);
                 this.selectedFeatureUuid = uuid;
+
+                geocamShare.core.viewIndexUuidG = uuid;
             }
         } else {
             if (this.selectedFeatureUuid == uuid) {

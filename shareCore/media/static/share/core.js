@@ -27,6 +27,7 @@ geocamShare.core = {
     debugObjectG: null,
     widgetManagerG: null,
     viewportG: "",
+    viewIndexUuidG: null,
     
     reloadFeatures: function (query) {
         var url = geocamShare.core.SCRIPT_NAME + "gallery.json";
@@ -341,6 +342,67 @@ geocamShare.core = {
         }
         
         return true;
+    },
+    
+    getPagerHtml: function (numPages, pageNum, pageNumToUrl) {
+        function pg0(pageNum, text) {
+            return '<a href="' + pageNumToUrl(pageNum) + '">' + text + '</a>';
+        }
+        
+        function pg(pageNum) {
+            return pg0(pageNum, pageNum);
+        }
+        
+        function disabled(text) {
+            return '<span style="color: #999999">' + text + '</span>';
+        }
+        
+        var dotsWidth = 19;
+        var numWidth = 15 * Math.ceil(Math.log(numPages)/Math.log(10));
+        var divWidth = 2*dotsWidth + 3*numWidth;
+        
+        if (numPages <= 1) {
+            return "&nbsp;";
+        }
+        
+        ret = [];
+        if (pageNum > 1) {
+	    ret.push(pg0(pageNum-1, '&laquo; previous'));
+        } else {
+            ret.push(disabled('&laquo; previous'));
+        }
+        ret.push('<div style="width: ' + divWidth + 'px; text-align: center; display: inline-block;">');
+        if (pageNum > 1) {
+	    ret.push(pg(1));
+        }
+        if (pageNum > 2) {
+            ret.push('...');
+	    /*if (pageNum > 3) {
+	      ret.push('...');
+	      }
+	      ret.push(pg(pageNum-1));*/
+        }
+        if (numPages > 1) {
+            ret.push('<b>' + pageNum + '</b>');
+        }
+        if (pageNum < numPages-1) {
+            ret.push('...');
+            /*
+	      ret.push(pg(pageNum+1));
+	      if (pageNum < numPages-2) {
+	      ret.push('...');
+              }*/
+        }
+        if (pageNum < numPages) {
+	    ret.push(pg(numPages));
+        }
+        ret.push('</div>');
+        if (pageNum < numPages) {
+	    ret.push(pg0(pageNum+1, 'next &raquo;'));
+        } else {
+	    ret.push(disabled('next &raquo;'));
+        }
+        return ret.join(' ');
     },
     
     setSessionVars: function (varMap) {

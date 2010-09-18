@@ -41,7 +41,7 @@ geocamShare.core.SidebarSwitcher = new Class(
 
     setToGallery: function () {
         this.setWidgetForDomId(this.domId,
-                               geocamShare.core.Gallery.factory);
+                               geocamShare.core.GalleryWidget.factory);
     },
 
     setToFeatureDetailWidget: function (feature) {

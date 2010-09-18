@@ -13,7 +13,18 @@ geocamShare.core.FeatureDetailWidget = new Class(
         this.domId = domId;
         this.feature = geocamShare.core.featuresByUuidG[uuid];
 
-        var content = '<div style="float: right;"><a href="javascript:geocamShare.core.widgetManagerG.setFeatureSelected(\''+this.feature.uuid+'\', false);">View all</a></div><br/>\n'
+        var pagerHtml = geocamShare.core.getPagerHtml(geocamShare.core.visibleFeaturesG.length,
+                                                      this.feature.index + 1,
+                                                      function (pageNum) {
+                                                          var featureIndex = pageNum-1;
+                                                          var uuid = geocamShare.core.visibleFeaturesG[featureIndex].uuid;
+                                                          return 'javascript:geocamShare.core.widgetManagerG.setFeatureSelected(\''+uuid+'\', true)';
+                                                      });
+        var content =
+            '<span>' +  pagerHtml + '</span>' +
+            '<span style="float: right;">\n' +
+            '  <a href="javascript:geocamShare.core.widgetManagerG.setFeatureSelected(\''+this.feature.uuid+'\', false)">view all</a>\n'+
+            '</span><br/>\n'
         content += geocamShare.core.getFeatureBalloonHtml(this.feature);
         $('#'+this.domId).html(content);
     },

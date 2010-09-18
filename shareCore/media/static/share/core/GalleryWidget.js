@@ -4,9 +4,11 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.Gallery = new Class(
+geocamShare.core.GalleryWidget = new Class(
 {
     Extends: geocamShare.core.Widget,
+
+    page: null,
 
     initialize: function (domId) {
         this.domId = domId;
@@ -32,11 +34,18 @@ geocamShare.core.Gallery = new Class(
     },
 
     notifyFeaturesInMapViewport: function (visibleFeatures) {
-        this.setPage(visibleFeatures, 1, force=true);
+        var pageNum;
+        var viewIndexFeature = geocamShare.core.featuresByUuidG[geocamShare.core.viewIndexUuidG];
+        if (viewIndexFeature == undefined) {
+            pageNum = 1;
+        } else {
+            pageNum = this.getFeaturePage(viewIndexFeature, visibleFeatures);
+        }
+        this.renderPage(visibleFeatures, pageNum);
     },
 
     highlightFeature: function (feature) {
-        this.setPage(geocamShare.core.visibleFeaturesG, this.getFeaturePage(feature, geocamShare.core.visibleFeaturesG));
+        this.renderPage(geocamShare.core.visibleFeaturesG, this.getFeaturePage(feature, geocamShare.core.visibleFeaturesG));
         $("td#" + feature.uuid + " div").css({backgroundColor: 'red'});
 	
         // add the rest of the preview data
@@ -57,82 +66,30 @@ geocamShare.core.Gallery = new Class(
         // currently a no-op
     },
     
-    getPagerHtml: function (numFeatures, pageNum, pageNumToUrl) {
-        function pg0(pageNum, text) {
-            return '<a href="' + pageNumToUrl(pageNum) + '">' + text + '</a>';
-        }
-        
-        function pg(pageNum) {
-            return pg0(pageNum, pageNum);
-        }
-        
-        function disabled(text) {
-            return '<span style="color: #999999">' + text + '</span>';
-        }
-        
+    getNumPages: function (numFeatures) {
         const pageSize = geocamShare.core.GALLERY_PAGE_ROWS*geocamShare.core.GALLERY_PAGE_COLS;
-        var numPages = Math.ceil(numFeatures / pageSize);
-        var dotsWidth = 19;
-        var numWidth = 15 * Math.ceil(Math.log(numPages)/Math.log(10));
-        var divWidth = 2*dotsWidth + 3*numWidth;
-        
-        if (numPages <= 1) {
-            return "&nbsp;";
-        }
-        
-        ret = [];
-        if (pageNum > 1) {
-	    ret.push(pg0(pageNum-1, '&laquo; previous'));
-        } else {
-            ret.push(disabled('&laquo; previous'));
-        }
-        ret.push('<div style="width: ' + divWidth + 'px; text-align: center; display: inline-block;">');
-        if (pageNum > 1) {
-	    ret.push(pg(1));
-        }
-        if (pageNum > 2) {
-            ret.push('...');
-	    /*if (pageNum > 3) {
-	      ret.push('...');
-	      }
-	      ret.push(pg(pageNum-1));*/
-        }
-        if (numPages > 1) {
-            ret.push('<b>' + pageNum + '</b>');
-        }
-        if (pageNum < numPages-1) {
-            ret.push('...');
-            /*
-	      ret.push(pg(pageNum+1));
-	      if (pageNum < numPages-2) {
-	      ret.push('...');
-              }*/
-        }
-        if (pageNum < numPages) {
-	    ret.push(pg(numPages));
-        }
-        ret.push('</div>');
-        if (pageNum < numPages) {
-	    ret.push(pg0(pageNum+1, 'next &raquo;'));
-        } else {
-	    ret.push(disabled('next &raquo;'));
-        }
-        return ret.join(' ');
+        return Math.ceil(numFeatures / pageSize);
     },
-    
+
+    getIndex: function (page, row, col) {
+        return ((page-1)*geocamShare.core.GALLERY_PAGE_ROWS + row)*geocamShare.core.GALLERY_PAGE_COLS + col;
+    },
+
     getGalleryHtml: function (features, pageNum) {
         html = "<table style=\"margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px; background-color: #ddd;\">";
         html += '<tr><td colspan="3">';
-        html += this.getPagerHtml(features.length, pageNum,
-                             function (pageNum) {
-                                 return 'javascript:geocamShare.core.galleryG.setPage(geocamShare.core.visibleFeaturesG,' + pageNum + ')';
-                             });
+        html += geocamShare.core.getPagerHtml
+          (this.getNumPages(features.length),
+           pageNum,
+           function (pageNum) {
+               return 'javascript:geocamShare.core.galleryG.setPage(' + pageNum + ')';
+           });
         //html += '<div style="float: right;">Hide</div>';
         html += '</td></tr>';
         for (var r=0; r < geocamShare.core.GALLERY_PAGE_ROWS; r++) {
 	    html += "<tr>";
 	    for (var c=0; c < geocamShare.core.GALLERY_PAGE_COLS; c++) {
-	        var i = ((pageNum-1)*geocamShare.core.GALLERY_PAGE_ROWS + r)*geocamShare.core.GALLERY_PAGE_COLS + c;
+	        var i = this.getIndex(pageNum, r, c);
 	        if (i < features.length) {
 		    var feature = features[i];
 		    html += geocamShare.core.getGalleryThumbHtml(feature);
@@ -163,9 +120,17 @@ geocamShare.core.Gallery = new Class(
         return Math.floor(visibleIndex / pageSize) + 1;
     },
 
-    setPage: function (visibleFeatures, pageNum, force) {
-        if (geocamShare.core.pageG == pageNum && !force) return;
-        
+    setPage: function (pageNum) {
+        if (this.page != pageNum) {
+            this.renderPage(geocamShare.core.visibleFeaturesG, pageNum);
+
+            // record a uuid to help us return later to this page
+            var firstFeatureIndex = this.getIndex(pageNum, 0, 0);
+            geocamShare.core.viewIndexUuidG = geocamShare.core.visibleFeaturesG[firstFeatureIndex].uuid;
+        }
+    },
+
+    renderPage: function (visibleFeatures, pageNum) {
         if (visibleFeatures.length == 0) {
             if (geocamShare.core.featuresG.length == 0) {
                 if (geocamShare.core.queryG == "") {
@@ -209,11 +174,11 @@ geocamShare.core.Gallery = new Class(
             }
         }
         
-        geocamShare.core.pageG = pageNum;
+        this.page = pageNum;
     }
     
 });
 
-geocamShare.core.Gallery.factory = function (domId) {
-    return new geocamShare.core.Gallery(domId);
+geocamShare.core.GalleryWidget.factory = function (domId) {
+    return new geocamShare.core.GalleryWidget(domId);
 }
