@@ -121,11 +121,11 @@ geocamShare.core.EarthApiMapViewer = new Class(
     },
     
     featureIntersectsBounds: function (feature, bounds) {
-        var lat = feature.lat;
+        var lat = feature.latitude;
 	if (lat == null) {
 	    return true; // non-geotagged features are always "inside bounds"
 	}
-        var lon = feature.lon;
+        var lon = feature.longitude;
         return ((bounds.getSouth() <= lat) && (lat <= bounds.getNorth())
                 && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));
     },

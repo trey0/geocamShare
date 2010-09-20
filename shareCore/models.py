@@ -206,17 +206,6 @@ class Feature(models.Model):
     name = models.CharField(max_length=80, blank=True, default='')
     author = models.ForeignKey(User, null=True, related_name='%(app_label)s_%(class)s_authoredSet',
                                help_text='The user who collected the data (when you upload data, Share tags you as the author)')
-    minTime = models.DateTimeField(blank=True, verbose_name='start time')
-    maxTime = models.DateTimeField(blank=True, verbose_name='end time')
-    # a word about how we encode geometry:
-    # * for a feature with unknown position, we set all lat/lon fields to None.
-    # * for a point feature at lat/lon, we set minLat=maxLat=lat, minLon=maxLon=lon.
-    # * for a feature with spatial extent, like a GPS track, specify its bounding box
-    #   using these lat/lon fields and put any other geometry info in a derived model.
-    minLat = models.FloatField(blank=True, null=True, verbose_name='minimum latitude') # WGS84 degrees
-    minLon = models.FloatField(blank=True, null=True, verbose_name='minimum longitude') # WGS84 degrees
-    maxLat = models.FloatField(blank=True, null=True, verbose_name='maximum latitude') # WGS84 degrees
-    maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
     sensor = models.ForeignKey(Sensor, blank=True, null=True)
     isAerial = models.BooleanField(default=False, blank=True, verbose_name='aerial data', help_text="True for aerial data. Generally for non-aerial data we snap to terrain in 3D visualizations so that GPS errors can't cause features to be rendered underground.")
     notes = models.TextField(blank=True)
@@ -239,15 +228,7 @@ class Feature(models.Model):
     objects = AbstractClassManager(parentModel=None)
 
     class Meta:
-        ordering = ('-minTime',)
         abstract = True
-
-    def save(self, **kwargs):
-        if self.minTime == None:
-            timestamp = datetime.datetime.now()
-            self.minTime = timestamp
-            self.maxTime = timestamp
-        super(Feature, self).save(**kwargs)
 
     def deleteFiles(self):
         shutil.rmtree(self.getDir(), ignore_errors=True)
@@ -280,10 +261,10 @@ class Feature(models.Model):
         pass
 
     def __unicode__(self):
-        return '%s %d %s %s %s %s' % (self.__class__.__name__, self.id, self.name or '[untitled]', self.minTime.strftime('%Y-%m-%d'), self.author.username, self.uuid)
+        return '%s %d %s %s %s %s' % (self.__class__.__name__, self.id, self.name or '[untitled]', self.timestamp.strftime('%Y-%m-%d'), self.author.username, self.uuid)
 
     def getDateText(self):
-        return self.utcToLocalTime(self.minTime).strftime('%Y%m%d')
+        return self.utcToLocalTime(self.timestamp).strftime('%Y%m%d')
 
     def getDirSuffix(self, version=None):
         if version == None:
@@ -314,12 +295,6 @@ class Feature(models.Model):
         return dict(name=self.name,
                     uuid=self.uuid,
                     version=self.version,
-                    minTime=self.utcToLocalTime(self.minTime).isoformat(),
-                    maxTime=self.utcToLocalTime(self.maxTime).isoformat(),
-                    minLat=self.minLat,
-                    minLon=self.minLon,
-                    maxLat=self.maxLat,
-                    maxLon=self.maxLon,
                     isAerial=self.isAerial,
                     author=authorDict,
                     notes=self.notes,
@@ -357,28 +332,23 @@ class Change(models.Model):
     uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
                             help_text="Universally unique id used to identify this db record across servers.")
 
-class Placemark(Feature):
+class PointFeature(Feature):
+    latitude = models.FloatField(blank=True, null=True) # WGS84 degrees
+    longitude = models.FloatField(blank=True, null=True) # WGS84 degrees
+    timestamp = models.DateTimeField(blank=True)
     objects = AbstractClassManager(parentModel=Feature)
     
     class Meta:
         abstract = True
+        ordering = ['-timestamp']
 
-    # with point geometry, the bounding box has zero size and the
-    # position of the object is equal to its southwest corner.
-    def getLat(self):
-        return self.minLat
-    lat = property(getLat)
-
-    def getLon(self):
-        return self.minLon
-    lon = property(getLon)
-    
-    def getTimestamp(self):
-        return self.minTime
-    timestamp = property(getTimestamp)
+    def save(self, **kwargs):
+        if self.timestamp == None:
+            self.timestamp = datetime.datetime.now()
+        super(PointFeature, self).save(**kwargs)
 
     def getLocalTime(self):
-        return self.utcToLocalTime(self.minTime)
+        return self.utcToLocalTime(self.timestamp)
     localTime = property(getLocalTime)
 
     def getLocalTimeHumanReadable(self):
@@ -386,9 +356,9 @@ class Placemark(Feature):
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
-        dct = super(Placemark, self).getShortDict()
-        dct.update(lat=self.lat,
-                   lon=self.lon,
+        dct = super(PointFeature, self).getShortDict()
+        dct.update(latitude=self.latitude,
+                   longitude=self.longitude,
                    timestamp=self.localTime.isoformat(),
                    dateText=self.localTime.strftime('%Y%m%d'))
         return dct
@@ -421,17 +391,17 @@ class Placemark(Feature):
            balloonHtml=self.getBalloonHtml(request),
            iconUrl=iconUrl,
            yaw=self.yaw,
-           lon=self.lon,
-           lat=self.lat))
+           lon=self.longitude,
+           lat=self.latitude))
 
-class Image(Placemark):
+class Image(PointFeature):
     roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
     pitch = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about y in NED frame
     yaw = models.FloatField(blank=True, null=True) # compass degrees, 0 = north, increase clockwise as viewed from above
     yawRef = models.CharField(max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF)
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
-    objects = AbstractClassManager(parentModel=Placemark)
+    objects = AbstractClassManager(parentModel=PointFeature)
 
     class Meta:
         abstract = True
@@ -580,7 +550,41 @@ class Image(Placemark):
 </PhotoOverlay>
 """ % dict())
 
-class Track(Feature):
+class ExtentFeature(Feature):
+    minTime = models.DateTimeField(blank=True, verbose_name='start time')
+    maxTime = models.DateTimeField(blank=True, verbose_name='end time')
+    minLat = models.FloatField(blank=True, null=True, verbose_name='minimum latitude') # WGS84 degrees
+    minLon = models.FloatField(blank=True, null=True, verbose_name='minimum longitude') # WGS84 degrees
+    maxLat = models.FloatField(blank=True, null=True, verbose_name='maximum latitude') # WGS84 degrees
+    maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
+    objects = AbstractClassManager(parentModel=Feature)
+
+    def save(self, **kwargs):
+        if self.minTime == None:
+            timestamp = datetime.datetime.now()
+            self.minTime = timestamp
+            self.maxTime = timestamp
+        super(ExtentFeature, self).save(**kwargs)
+
+    def getTimestamp(self):
+        return self.maxTime
+    timestamp = property(getTimestamp)
+
+    def getShortDict(self):
+        dct = super(ExtentFeature, self).getShortDict()
+        dct.update(minTime=self.utcToLocalTime(self.minTime).isoformat(),
+                   maxTime=self.utcToLocalTime(self.maxTime).isoformat(),
+                   minLat=self.minLat,
+                   minLon=self.minLon,
+                   maxLat=self.maxLat,
+                   maxLon=self.maxLon)
+        return dct
+
+    class Meta:
+        abstract = True
+        ordering = ['-maxTime']
+
+class Track(ExtentFeature):
     lineColor = models.CharField(max_length=10, blank=True,
                                  default='#ff0000ff',
                                  verbose_name='line color',
@@ -591,7 +595,7 @@ class Track(Feature):
                                  help_text='Line style for visualization')
     json = models.TextField(help_text='GeoJSON encoding exchanged with browser clients')
     gpx = models.TextField(help_text='If this track was imported as a GPX log, we keep the original GPX here in case there are important fields that are not currently captured in our GeoJSON format.')
-    objects = LeafClassManager(parentModel=Feature)
+    objects = LeafClassManager(parentModel=ExtentFeature)
 
     def getShortDict(self):
         dct = super(Track, self).getShortDict()

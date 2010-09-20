@@ -259,7 +259,7 @@ geocamShare.core = {
 	    + '    </IconStyle>\n'
 	    + '  </Style>\n'
 	    + '  <Point>\n'
-	    + '    <coordinates>' + feature.lon + ',' + feature.lat + '</coordinates>\n'
+	    + '    <coordinates>' + feature.longitude + ',' + feature.latitude + '</coordinates>\n'
 	    + '  </Point>\n'
 	    + '</Placemark>\n';
     },

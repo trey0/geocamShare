@@ -10,6 +10,6 @@ from share2.shareGeocam.search import SearchGeocam
 
 class ViewGeocam(ViewCore):
     search = SearchGeocam()
-    uploadImageModel = Photo
+    defaultImageModel = Photo
 
 viewSingleton = ViewGeocam()

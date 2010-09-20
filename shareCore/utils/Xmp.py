@@ -133,12 +133,9 @@ class Xmp:
         lat = self.checkMissing(self.getDegMin('exif:GPSLatitude', 'NS'))
         lon = self.checkMissing(self.getDegMin('exif:GPSLongitude', 'EW'))
         yaw, yawRef = self.getYaw()
-        vals0 = dict(minTime=timestamp,
-                     maxTime=timestamp,
-                     minLat=lat,
-                     maxLat=lat,
-                     minLon=lon,
-                     maxLon=lon,
+        vals0 = dict(timestamp=timestamp,
+                     latitude=lat,
+                     longitude=lon,
                      yaw=yaw,
                      yawRef=yawRef)
         return dict([(k,v) for k, v in vals0.iteritems()

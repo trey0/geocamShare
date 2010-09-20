@@ -31,7 +31,7 @@ from django.contrib.auth.models import User
 from share2.shareCore.utils import makeUuid, mkdirP, Xmp
 from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track, EmptyTrackError
-from share2.shareCore.forms import UploadImageForm, UploadTrackForm
+from share2.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
 from share2.shareCore.utils.icons import cacheIconSize
 from share2.shareCore.kml.ViewKml import ViewKml
 from share2.shareCore.middleware import requestIsSecure
@@ -42,7 +42,7 @@ cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
 class ViewCore(ViewKml):
     # override in derived classes
     search = None
-    uploadImageModel = None
+    defaultImageModel = None
 
     def getMatchingFeaturesForQuery(self, query):
         features = self.search.getAllFeatures()
@@ -107,6 +107,29 @@ class ViewCore(ViewKml):
                                        accountWidget=accountWidget),
                                   context_instance=RequestContext(request))
 
+    def editImage(self, request, uuid):
+        img = self.defaultImageModel.objects.get(uuid = uuid)
+        ajax = request.GET.has_key('ajax')
+        if request.method == 'POST':
+            form = EditImageForm(request.POST, instance=img)
+            if form.is_valid():
+                # FIX: update map, etc!
+                form.save()
+                if ajax:
+                    return HttpResponse('success')
+        else:
+            if ajax:
+                return HttpResponse(json.dumps(form._get_errors()),
+                                    mimetype='application/json')
+            else:
+                form = EditImageForm(instance=img)
+        return (render_to_response
+                ('editImage.html',
+                 dict(img=img,
+                      form=form),
+                 context_instance = RequestContext(request)))
+        
+
     def uploadImageAuth(self, request):
         return self.uploadImage(request, request.user.username)
 
@@ -130,7 +153,7 @@ class ViewCore(ViewKml):
 
                 # create image db record
                 uuid = form.cleaned_data['uuid'] or makeUuid()
-                uuidMatches = self.uploadImageModel.objects.filter(uuid=uuid)
+                uuidMatches = self.defaultImageModel.objects.filter(uuid=uuid)
                 sameUuid = (uuidMatches.count() > 0)
                 if sameUuid:
                     # if the incoming uuid matches an existing uuid, this is
@@ -142,14 +165,12 @@ class ViewCore(ViewKml):
                     newVersion = img.version + 1
                 else:
                     # create Image db record
-                    img = self.uploadImageModel(status=settings.STATUS_PENDING,
+                    img = self.defaultImageModel(status=settings.STATUS_PENDING,
                                                 version=0
                                                 )
 
                     # defaults
-                    timestamp = datetime.datetime.now()
-                    vals = dict(minTime=timestamp,
-                                maxTime=timestamp)
+                    vals = dict(timestamp=datetime.datetime.now())
 
                     # extract fields from exif or xmp headers
                     xmp = Xmp(tempStorePath)
@@ -168,12 +189,9 @@ class ViewCore(ViewKml):
                                      notes=form.cleaned_data['notes'],
                                      tags=form.cleaned_data['tags'],
                                      uuid=uuid,
-                                     minLat=lat,
-                                     maxLat=lat,
-                                     minLon=lon,
-                                     maxLon=lon,
-                                     minTime=timestamp,
-                                     maxTime=timestamp,
+                                     latitude=lat,
+                                     longitude=lon,
+                                     timestamp=timestamp,
                                      yaw=yaw,
                                      yawRef=yawRef)
                     httpVals = dict([(k, v) for k, v in httpVals0.iteritems()

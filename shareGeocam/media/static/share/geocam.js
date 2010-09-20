@@ -34,6 +34,13 @@ geocamShare.core.getViewerUrl = function (feature) {
 }
 
 geocamShare.core.getCaptionHtml = function (feature) {
+    var timestamp;
+    if (feature.timestamp != null) {
+        timestamp = feature.timestamp;
+    } else {
+        timestamp = feature.maxTime;
+    }
+
     caption = ''
         + '<table>\n';
 
@@ -68,7 +75,7 @@ geocamShare.core.getCaptionHtml = function (feature) {
     caption += ''
         + '  <tr>\n'
         + '    <td style="padding-top: 10px; padding-bottom: 10px;" colspan="2">'
-        + '      <span style="color: #007; font-weight: bold; margin-right: 10px;">' + getTimeShort(feature.maxTime) + '</span>\n'
+        + '      <span style="color: #007; font-weight: bold; margin-right: 10px;">' + getTimeShort(timestamp) + '</span>\n'
         + '      <span style="margin-right: 10px;">' + feature.author.displayName + '</span>\n'
         + '      <span>' + feature.name + '</span>\n'
         + '    </td>\n'
@@ -78,8 +85,8 @@ geocamShare.core.getCaptionHtml = function (feature) {
     caption += ''
         + '  <tr>\n'
         + '    <td class="captionHeader">lat, lon</td>\n';
-    if (feature.lat != null) {
-        caption += '    <td>' + feature.lat.toFixed(6) + ', ' + feature.lon.toFixed(6) + '</td>\n';
+    if (feature.latitude != null) {
+        caption += '    <td>' + feature.latitude.toFixed(6) + ', ' + feature.longitude.toFixed(6) + '</td>\n';
     } else {
         caption += '    <td>(unknown)</td>\n';
     }
@@ -90,8 +97,8 @@ geocamShare.core.getCaptionHtml = function (feature) {
     caption += ''
         + '  <tr>\n'
         + '    <td class="captionHeader">usng</td>\n';
-    if (feature.lat != null) {
-        caption += '    <td>' + LLtoUSNG(feature.lat, feature.lon, 5) + '&nbsp;&nbsp;</td>\n'
+    if (feature.latitude != null) {
+        caption += '    <td>' + LLtoUSNG(feature.latitude, feature.longitude, 5) + '&nbsp;&nbsp;</td>\n'
     } else {
         caption += '    <td>(unknown)</td>\n'
     }
@@ -121,7 +128,7 @@ geocamShare.core.getCaptionHtml = function (feature) {
     caption += ''
         + '  <tr>\n'
         + '    <td class="captionHeader">time</td>\n'
-        + '    <td>' + getTimePrecise(feature.maxTime) + '</td>\n'
+        + '    <td>' + getTimePrecise(timestamp) + '</td>\n'
         + '  </tr>\n';
 
     caption += '</table>\n';

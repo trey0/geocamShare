@@ -136,13 +136,15 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     featureIntersectsBounds: function (feature, bounds) {
-        if (feature.minLat == null) {
-            return true;
-        } else {
+        if (feature.latitude != null) {
+            return bounds.contains(new google.maps.LatLng(feature.latitude, feature.longitude));
+        } else if (feature.minLat != null) {
             var ibounds = new google.maps.LatLngBounds();
             ibounds.extend(new google.maps.LatLng(feature.minLat, feature.minLon));
             ibounds.extend(new google.maps.LatLng(feature.maxLat, feature.maxLon));
             return ibounds.intersects(bounds);
+        } else {
+            return true;
         }
     },
     
@@ -206,19 +208,21 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     addFeature: function (feature) {
-        if (feature.minLat == null) {
-            return; // skip non-geotagged features
-        }
-        
         if (geocamShare.core.isImage(feature)) {
+            if (feature.latitude == null) {
+                return; // skip non-geotagged features
+            }
             this.addMarker(feature);
         } else if (feature.type == 'Track') {
+            if (feature.minLat == null) {
+                return; // skip non-geotagged features
+            }
             this.addTrack(feature);
         }
     },
     
     getMarker: function (feature, scale) {
-        var position = new google.maps.LatLng(feature.lat, feature.lon);
+        var position = new google.maps.LatLng(feature.latitude, feature.longitude);
         var iconUrl = geocamShare.core.getIconMapRotUrl(feature);
         var iconSize = new google.maps.Size(feature.icon.rotSize[0], feature.icon.rotSize[1]);
         var origin = new google.maps.Point(0, 0);
@@ -244,10 +248,12 @@ geocamShare.core.MapsApiMapViewer = new Class(
         var bounds = new google.maps.LatLngBounds();
         $.each(geocamShare.core.featuresG,
                function (i, feature) {
-                   if (feature.minLat != null) {
+                   if (feature.latitude != null) {
+                       bounds.extend(new google.maps.LatLng(feature.latitude, feature.longitude));
+                   } else if (feature.minLat != null) {
                        var featureBounds = new google.maps.LatLngBounds
-                       (new google.maps.LatLng(feature.minLat, feature.minLon),
-                        new google.maps.LatLng(feature.maxLat, feature.maxLon));
+                         (new google.maps.LatLng(feature.minLat, feature.minLon),
+                          new google.maps.LatLng(feature.maxLat, feature.maxLon));
                        bounds.union(featureBounds);
                    }
                });
