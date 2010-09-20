@@ -59,24 +59,26 @@ foreach my $filename (<>) {
     next if ($file =~ /^\s*$/);
     next if ($file =~ /__NO_RELICENSE__/);
 
-    $shebang = '';
-    # Protect a shebang line
-    if ($file =~ s/^(#!.*\n)//) {
-        if (defined($1)) {
-            $shebang = $1;
+    my $licenseText = $comment{$ext} . join($comment{$ext}, @license) . "\n";
+
+    if ($file =~ /__BEGIN_LICENSE__/) {
+        $file =~ s/^[^\n]*__BEGIN_LICENSE__.*?__END_LICENSE__[^\n]*\s*/$licenseText/ms;
+    } else {
+        my $shebang = '';
+        # Protect a shebang line
+        if ($file =~ s/^(#!.*\n)//) {
+            if (defined($1)) {
+                $shebang = $1;
+            }
         }
+
+        # Remove all blank files from the top of the file
+        while ($file =~ s/^\s*\n//) {};
+        
+        # prepend the license text, prepending the comment string to each line.
+        # Also, separate the license header from content by two blank lines
+        $file = $shebang . $licenseText . $file;
     }
-
-    # Remove a license header if it exists
-    $file =~ s/^[^\n]*__BEGIN_LICENSE__.*?__END_LICENSE__[^\n]*$//ms;
-
-    # Remove all blank files from the top of the file
-    while ($file =~ s/^\s*\n//) {};
-
-    # prepend the license text, prepending the comment string to each line.
-    # Also, separate the license header from content by two blank lines
-    $file = $shebang . $comment{$ext} . join($comment{$ext}, @license) . "\n" . $file;
-
     write_file($filename, $file);
 }
 
