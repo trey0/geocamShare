@@ -14,3 +14,9 @@ ul.jd_menu li {
 ul.jd_menu {
   height: 24px;
 }
+
+.captionHeader {
+    color: #777;
+    text-align: right;
+    padding-right: 5px;
+}

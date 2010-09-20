@@ -138,9 +138,16 @@ geocamShare.core = {
         var tw = galThumbSize[0];
         var th = galThumbSize[1];
         return ''
-            + '<div>'
-            + '  <a href="' + geocamShare.core.getViewerUrl(feature) + '"'
-            + '     title="Show high-res view">'
+            + '<div>\n'
+            + '  <a href="' + geocamShare.core.getViewerUrl(feature) + '"\n'
+            + '     target="_blank"\n'
+            + '     title="View full-res image">\n'
+	    + '  <img'
+	    + '    src="' + geocamShare.core.getIconGalleryUrl(feature)  + '"'
+	    + '    width="32"'
+	    + '    height="32"'
+	    + '    style="position: absolute; z-index: 100;"'
+	    + '  />'
             + '  <img\n'
             + '    src="' + geocamShare.core.getFeatureThumbnailUrl(feature, w0) + '"\n'
             + '    width="' + tw*scale + '"\n'
@@ -149,9 +156,9 @@ geocamShare.core = {
             + '  />\n'
             + ' </a>\n'
             + '  ' + geocamShare.core.getCaptionHtml(feature)
-            + '  <a href="' + geocamShare.core.getViewerUrl(feature) + '">\n'
-            + '    Download full-res image'
-            + '  </a>\n'
+            + '  <div style="margin-top: 10px;"><a href="' + geocamShare.core.getViewerUrl(feature) + '" target="_blank">\n'
+            + '    View full-res image'
+            + '  </a></div>\n'
             + '</div>\n';
     },
     
@@ -186,6 +193,16 @@ geocamShare.core = {
         geocamShare.core.visibleFeaturesG = visibleFeatures;
     },
     
+    getHeadingCardinal: function (yaw) {
+        var i = Math.round(yaw / 22.5);
+        i = i % 16;
+        var directions = ['N', 'NNE', 'NE', 'ENE',
+                          'E', 'ESE', 'SE', 'SSE',
+                          'S', 'SSW', 'SW', 'WSW',
+                          'W', 'WNW', 'NW', 'NNW'];
+        return directions[i];
+    },
+
     getGalleryThumbHtml: function (feature) {
         var w0 = geocamShare.core.GALLERY_THUMB_SIZE[0];
         var h0 = geocamShare.core.GALLERY_THUMB_SIZE[1];

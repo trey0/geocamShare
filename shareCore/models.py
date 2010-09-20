@@ -24,6 +24,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+import tagging
 
 from share2.shareCore.utils import mkdirP, makeUuid
 from share2.shareCore.utils.gpx import TrackLog
@@ -297,7 +298,19 @@ class Feature(models.Model):
         return dict(name=name,
                     size=getIconSize(name))
 
+    def getUserDisplayName(self, user):
+        if user.last_name == 'group':
+            return user.first_name
+        else:
+            return '%s %s' % (user.first_name.capitalize(),
+                              user.last_name.capitalize())
+            return result
+
     def getShortDict(self):
+        tagsList = tagging.utils.parse_tag_input(self.tags)
+        author = self.getCachedAuthor()
+        authorDict = dict(userName=author.username,
+                          displayName=self.getUserDisplayName(author))
         return dict(name=self.name,
                     uuid=self.uuid,
                     version=self.version,
@@ -308,9 +321,9 @@ class Feature(models.Model):
                     maxLat=self.maxLat,
                     maxLon=self.maxLon,
                     isAerial=self.isAerial,
-                    author=self.getCachedAuthor().username,
+                    author=authorDict,
                     notes=self.notes,
-                    tags=self.tags,
+                    tags=tagsList,
                     icon=self.getIconDict(),
                     type=self.__class__.__name__
                     )
