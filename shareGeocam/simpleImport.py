@@ -74,6 +74,7 @@ def importImageDirect(imagePath, attributes):
                                    roll=attributes['roll'],
                                    pitch=attributes['pitch'],
                                    yaw=checkMissing(attributes['yaw']),
+                                   yawRef='M',
                                    notes=attributes['notes'],
                                    tags=attributes['tags'],
                                    widthPixels=widthPixels,

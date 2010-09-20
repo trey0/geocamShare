@@ -103,7 +103,15 @@ geocamShare.core.getCaptionHtml = function (feature) {
         + '    <td class="captionHeader">heading</td>\n'
     if (feature.yaw != null) {
         var cardinal = geocamShare.core.getHeadingCardinal(feature.yaw);
-        caption += '    <td>' + cardinal + ' ' + Math.floor(feature.yaw) + '&nbsp;&nbsp;</td>\n';
+        var ref;
+        if (feature.yawRef == 'M') {
+            ref = '(magnetic)';
+        } else if (feature.yawRef == 'T') {
+            ref = '(true)';
+        } else {
+            ref = ''; // hm, what's the best way to handle this?
+        }
+        caption += '    <td>' + cardinal + ' ' + Math.floor(feature.yaw) + ' ' + ref + '&nbsp;&nbsp;</td>\n';
     } else {
         caption += '    <td>(unknown)</td>\n'
     }

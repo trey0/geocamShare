@@ -498,6 +498,7 @@ class Image(Placemark):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
         dct = super(Image, self).getShortDict()
         dct.update(yaw=self.yaw,
+                   yawRef=self.yawRef,
                    w=w,
                    h=h)
         return dct
