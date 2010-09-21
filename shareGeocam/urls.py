@@ -20,7 +20,6 @@ urlpatterns = patterns(
      # show logout page instead of redirecting to log in again
      {'loginRequired': False}),
 
-    (r'^gallery/(?P<page>\d+)/$', views.gallery, {'readOnly': True}),
     (r'^features.json', views.featuresJson, {'readOnly': True}),
     (r'^featuresJson.js', views.featuresJsonJs, {'readOnly': True}),
     (r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),

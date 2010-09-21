@@ -54,23 +54,6 @@ class ViewCore(ViewKml):
         query = request.REQUEST.get('q', '')
         return self.getMatchingFeaturesForQuery(query)
 
-    def getGalleryData(self, request, page):
-        pager = Pager(baseUrl=request.build_absolute_uri('..').rstrip('/'),
-                      items=self.getMatchingFeatures(request),
-                      pageSize=settings.GALLERY_PAGE_ROWS*settings.GALLERY_PAGE_COLS,
-                      pageNum=int(page))
-        pageData = pager.slice()
-        for i, item in enumerate(pageData):
-            item.row = i // settings.GALLERY_PAGE_COLS
-        return pager, pageData
-
-    def gallery(self, request, page):
-        pager, pageData = self.getGalleryData(request, page)
-        return render_to_response('gallery.html',
-                                  dict(pager = pager,
-                                       data = pageData),
-                                  context_instance=RequestContext(request))
-    
     def getFeaturesJsonText(self, request):
         obj = [f.getShortDict() for f in self.getMatchingFeatures(request)]
         if 1:
