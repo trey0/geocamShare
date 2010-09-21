@@ -224,7 +224,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     getMarker: function (feature, scale) {
         var position = new google.maps.LatLng(feature.latitude, feature.longitude);
         var iconUrl = geocamShare.core.getIconMapRotUrl(feature);
-        var iconSize = new google.maps.Size(feature.icon.rotSize[0], feature.icon.rotSize[1]);
+        var iconSize = new google.maps.Size(feature.rotatedIcon.size[0], feature.rotatedIcon.size[1]);
         var origin = new google.maps.Point(0, 0);
         var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
         var anchor = new google.maps.Point(0.5*scaledSize.width, 0.5*scaledSize.height);

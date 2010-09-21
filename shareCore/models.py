@@ -455,9 +455,7 @@ class Image(PointFeature):
         w, h = self.getThumbSize(w0)
         return mark_safe('<td style="vertical-align: top; width: %dpx; height: %dpx;"><img src="%s" width="%d" height="%d"/></td>' % (w0, h0, self.getThumbnailUrl(w0), w, h))
 
-    def getIconDict(self):
-        ret = super(Image, self).getIconDict()
-
+    def getRotatedIconDict(self):
         if self.yaw == None:
             rot = 0
         else:
@@ -467,9 +465,8 @@ class Image(PointFeature):
             rotRounded = 0
         name = self.icon
         rotName = '%s%03d' % (name, rotRounded)
-        ret.update(dict(rotName=rotName,
-                        rotSize=getIconSize(rotName)))
-        return ret
+        return dict(name=rotName,
+                    size=getIconSize(rotName))
 
     def getShortDict(self):
         w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
@@ -477,7 +474,8 @@ class Image(PointFeature):
         dct.update(yaw=self.yaw,
                    yawRef=self.yawRef,
                    w=w,
-                   h=h)
+                   h=h,
+                   rotatedIcon=self.getRotatedIconDict())
         return dct
 
     def process(self, importFile=None):

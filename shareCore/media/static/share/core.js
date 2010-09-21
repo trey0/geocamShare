@@ -179,7 +179,7 @@ geocamShare.core = {
     },
     
     getIconMapRotUrl: function (feature) {
-        return geocamShare.core.MEDIA_URL + 'share/mapr/' + feature.icon.rotName + '.png';
+        return geocamShare.core.MEDIA_URL + 'share/mapr/' + feature.rotatedIcon.name + '.png';
     },
     
     checkFeaturesInMapViewport: function (features) {
