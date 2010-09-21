@@ -39,7 +39,12 @@ class UploadTrackForm(forms.ModelForm):
         fields = ('name', 'isAerial', 'icon', 'lineColor', 'lineStyle', 'tags', 'notes', 'uuid')
 
 class EditImageForm(forms.ModelForm):
-    notes = forms.CharField(max_length=2048, required=False)
+    def __init__(self, *args, **kwargs):
+        super(EditImageForm, self).__init__(*args, **kwargs)
+
+        # change default widgets
+        self.fields['notes'].widget = forms.TextInput(attrs={'size': '50'})
+        self.fields['tags'].widget = forms.TextInput(attrs={'size': '50'})
 
     class Meta:
         model = Image

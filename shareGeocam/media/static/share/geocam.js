@@ -128,7 +128,7 @@ geocamShare.core.getCaptionHtml = function (feature) {
         } else {
             ref = ''; // hm, what's the best way to handle this?
         }
-        caption += '    <td>' + cardinal + ' ' + Math.floor(feature.yaw) + ' ' + ref + '&nbsp;&nbsp;</td>\n';
+        caption += '    <td>' + cardinal + ' ' + Math.floor(feature.yaw) + '&deg; ' + ref + '&nbsp;&nbsp;</td>\n';
     } else {
         caption += '    <td>(unknown)</td>\n'
     }

@@ -10,7 +10,7 @@
   <table style="margin-bottom: 10px;">
   {% for field in form %}
       <tr>
-        <td id="{{ field.html_name }}_label" class="mapSidebarFormField">{{ field.label_tag }}:</td>
+        <td id="{{ field.html_name }}_label" class="mapSidebarFormField">{{ field.label_tag|lower }}</td>
         <td>
           <div id="{{ field.html_name }}_error">{{ field.errors }}</div>
           <div>{{ field }}</div>

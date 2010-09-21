@@ -47,6 +47,9 @@ ul.jd_menu {
 
 .mapSidebarFormField {
   vertical-align: bottom;
+  text-align: right;
+  color: #777;
+  padding-right: 5px;
 }
 
 .loadingIcon {
