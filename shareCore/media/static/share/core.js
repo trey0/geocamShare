@@ -30,7 +30,7 @@ geocamShare.core = {
     switcherG: null,
     
     reloadFeatures: function (query) {
-        var url = geocamShare.core.SCRIPT_NAME + "gallery.json";
+        var url = geocamShare.core.SCRIPT_NAME + "features.json";
         if (query != null) {
             url += '?q=' + escape(query);
         }

@@ -21,8 +21,8 @@ urlpatterns = patterns(
      {'loginRequired': False}),
 
     (r'^gallery/(?P<page>\d+)/$', views.gallery, {'readOnly': True}),
-    (r'^gallery.json', views.galleryJson, {'readOnly': True}),
-    (r'^galleryJson.js', views.galleryJsonJs, {'readOnly': True}),
+    (r'^features.json', views.featuresJson, {'readOnly': True}),
+    (r'^featuresJson.js', views.featuresJsonJs, {'readOnly': True}),
     (r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),
 
     (r'^$', views.main, {'readOnly': True}),

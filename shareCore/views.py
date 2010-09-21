@@ -71,23 +71,23 @@ class ViewCore(ViewKml):
                                        data = pageData),
                                   context_instance=RequestContext(request))
     
-    def getGalleryJsonText(self, request):
+    def getFeaturesJsonText(self, request):
         obj = [f.getShortDict() for f in self.getMatchingFeatures(request)]
         if 1:
             return json.dumps(obj, indent=4, sort_keys=True) # pretty print for debugging
         else:
             return json.dumps(obj, separators=(',',':')) # compact
 
-    def galleryJson(self, request):
-        return HttpResponse(self.getGalleryJsonText(request), mimetype='application/json')
+    def featuresJson(self, request):
+        return HttpResponse(self.getFeaturesJsonText(request), mimetype='application/json')
 
-    def galleryJsonJs(self, request):
-        galleryJsonText = self.getGalleryJsonText(request)
-        return HttpResponse('geocamShare.core.newFeaturesG =\n%s;\ngeocamShare.core.setViewIfReady();' % galleryJsonText,
+    def featuresJsonJs(self, request):
+        featuresJsonText = self.getFeaturesJsonText(request)
+        return HttpResponse('geocamShare.core.newFeaturesG =\n%s;\ngeocamShare.core.setViewIfReady();' % featuresJsonText,
                             mimetype='text/javascript')
 
     def galleryDebug(self, request):
-        return HttpResponse('<body><pre>%s</pre></body>' % self.getGalleryJsonText(request))
+        return HttpResponse('<body><pre>%s</pre></body>' % self.getFeaturesJsonText(request))
 
     def main(self, request):
         if request.user.is_authenticated():
