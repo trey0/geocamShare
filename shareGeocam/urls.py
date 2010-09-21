@@ -55,7 +55,7 @@ urlpatterns = patterns(
      {'challenge': 'digest',
       'readOnly': True}),
 
-    (r'^edit/photo/(?P<uuid>[^/]+)/$', views.editImage),
+    (r'^edit/photo/(?P<uuid>[^/]+)/$', views.editImageWrapper),
     (r'^editWidget/photo/(?P<uuid>[^/]+)/$', views.editImage),
 
     # legacy URLs, compatible with the old version of GeoCam

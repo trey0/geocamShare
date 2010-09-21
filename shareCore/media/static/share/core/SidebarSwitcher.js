@@ -10,11 +10,12 @@ geocamShare.core.SidebarSwitcher = new Class(
 
     initialize: function (domId) {
         this.domId = domId;
+        geocamShare.core.switcherG = this;
         this.setToGallery();
     },
 
     selectFeature: function (feature) {
-        this.setToFeatureDetailWidget(feature);
+        this.setToFeatureDetail(feature);
     },
     
     unselectFeature: function (feature) {
@@ -39,14 +40,30 @@ geocamShare.core.SidebarSwitcher = new Class(
 
     domId: null,
 
+    getDefaultFeature: function () {
+        return geocamShare.core.featuresByUuidG[geocamShare.core.widgetManagerG.selectedFeatureUuid];
+    },
+
     setToGallery: function () {
         this.setWidgetForDomId(this.domId,
                                geocamShare.core.GalleryWidget.factory);
     },
 
-    setToFeatureDetailWidget: function (feature) {
+    setToFeatureDetail: function (feature) {
+        if (feature == undefined) {
+            feature = this.getDefaultFeature();
+        }
         this.setWidgetForDomId(this.domId,
                                geocamShare.core.FeatureDetailWidget.factory,
+                               [feature.uuid]);
+    },
+
+    setToFeatureEdit: function (feature) {
+        if (feature == undefined) {
+            feature = this.getDefaultFeature();
+        }
+        this.setWidgetForDomId(this.domId,
+                               geocamShare.core.FeatureEditWidget.factory,
                                [feature.uuid]);
     }
 

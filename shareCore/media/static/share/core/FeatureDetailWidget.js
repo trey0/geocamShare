@@ -29,6 +29,9 @@ geocamShare.core.FeatureDetailWidget = new Class(
             '</div>\n';
         content += geocamShare.core.getFeatureBalloonHtml(this.feature);
         $('#'+this.domId).html(content);
+
+        // rewrite featureEditLink in caption so it switches to edit view
+        $('#featureEditLink').attr('href', 'javascript:geocamShare.core.switcherG.setToFeatureEdit()');
     },
     
     highlightFeature: function (feature) {

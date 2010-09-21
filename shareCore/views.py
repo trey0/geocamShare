@@ -107,7 +107,7 @@ class ViewCore(ViewKml):
                                        accountWidget=accountWidget),
                                   context_instance=RequestContext(request))
 
-    def editImage(self, request, uuid):
+    def editImage0(self, request, uuid, template):
         img = self.defaultImageModel.objects.get(uuid = uuid)
         ajax = request.POST.has_key('ajax')
         if request.method == 'POST':
@@ -125,11 +125,16 @@ class ViewCore(ViewKml):
         else:
             form = EditImageForm(instance=img)
         return (render_to_response
-                ('editImageWrapper.html',
+                (template,
                  dict(img=img,
                       form=form),
                  context_instance = RequestContext(request)))
         
+    def editImage(self, request, uuid):
+        return self.editImage0(request, uuid, 'editImage.html')
+
+    def editImageWrapper(self, request, uuid):
+        return self.editImage0(request, uuid, 'editImageWrapper.html')
 
     def uploadImageAuth(self, request):
         return self.uploadImage(request, request.user.username)
@@ -180,9 +185,6 @@ class ViewCore(ViewKml):
                     vals.update(xmpVals)
                     
                     # extract fields from http post
-                    lat = Xmp.checkMissing(form.cleaned_data['latitude'])
-                    lon = Xmp.checkMissing(form.cleaned_data['longitude'])
-                    timestamp = form.cleaned_data['cameraTime']
                     yaw, yawRef = Xmp.normalizeYaw(form.cleaned_data['yaw'],
                                                    form.cleaned_data['yawRef'])
                     httpVals0 = dict(name=incoming.name,
@@ -190,9 +192,9 @@ class ViewCore(ViewKml):
                                      notes=form.cleaned_data['notes'],
                                      tags=form.cleaned_data['tags'],
                                      uuid=uuid,
-                                     latitude=lat,
-                                     longitude=lon,
-                                     timestamp=timestamp,
+                                     latitude=form.cleaned_data['latitude'],
+                                     longitude=form.cleaned_data['longitude'],
+                                     timestamp=form.cleaned_data['cameraTime'],
                                      yaw=yaw,
                                      yawRef=yawRef)
                     httpVals = dict([(k, v) for k, v in httpVals0.iteritems()

@@ -33,6 +33,16 @@ geocamShare.core.getViewerUrl = function (feature) {
     return geocamShare.core.SCRIPT_NAME + feature.type.toLowerCase() + "/" + feature.uuid + "/" + feature.version + "/" + name;
 }
 
+geocamShare.core.getFeatureEditUrl = function (feature, widget) {
+    var verb;
+    if (widget) {
+        verb = 'editWidget';
+    } else {
+        verb = 'edit'
+    }
+    return geocamShare.core.SCRIPT_NAME + verb + '/' + feature.type.toLowerCase() + "/" + feature.uuid + "/";
+}
+
 geocamShare.core.getCaptionHtml = function (feature) {
     var timestamp;
     if (feature.timestamp != null) {

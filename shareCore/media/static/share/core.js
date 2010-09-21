@@ -18,7 +18,6 @@ geocamShare.core = {
     // globals
     featuresG: [],
     newFeaturesG: null,
-    pageG: null,
     highlightedFeatureG: null,
     visibleFeaturesG: null,
     mapViewChangeTimeoutG: null,
@@ -28,6 +27,7 @@ geocamShare.core = {
     widgetManagerG: null,
     viewportG: "",
     viewIndexUuidG: null,
+    switcherG: null,
     
     reloadFeatures: function (query) {
         var url = geocamShare.core.SCRIPT_NAME + "gallery.json";
@@ -131,17 +131,16 @@ geocamShare.core = {
         }
     },
     
-    getFeatureBalloonHtml: function (feature) {
+    getFeatureDetailImageHtml: function (feature) {
         var w0 = geocamShare.core.DESC_THUMB_SIZE[0];
         var scale = geocamShare.core.DESC_THUMB_SIZE[0] / geocamShare.core.GALLERY_THUMB_SIZE[0];
         var galThumbSize = geocamShare.core.getFeatureThumbSize(feature);
         var tw = galThumbSize[0];
         var th = galThumbSize[1];
         return ''
-            + '<div>\n'
-            + '  <a href="' + geocamShare.core.getViewerUrl(feature) + '"\n'
-            + '     target="_blank"\n'
-            + '     title="View full-res image">\n'
+            + '<a href="' + geocamShare.core.getViewerUrl(feature) + '"\n'
+            + '   target="_blank"\n'
+            + '   title="View full-res image">\n'
 	    + '  <img'
 	    + '    src="' + geocamShare.core.getIconGalleryUrl(feature)  + '"'
 	    + '    width="32"'
@@ -154,10 +153,19 @@ geocamShare.core = {
             + '    height="' + th*scale + '"\n'
             + '    border="0"'
             + '  />\n'
-            + ' </a>\n'
+            + '</a>\n';
+    },
+
+    getFeatureBalloonHtml: function (feature) {
+        return ''
+            + '<div>\n'
+            + '  ' + geocamShare.core.getFeatureDetailImageHtml(feature)
             + '  ' + geocamShare.core.getCaptionHtml(feature)
             + '  <div style="margin-top: 10px;"><a href="' + geocamShare.core.getViewerUrl(feature) + '" target="_blank">\n'
             + '    View full-res image'
+            + '  </a></div>\n'
+            + '  <div style="margin-top: 10px;"><a id="featureEditLink" href="' + geocamShare.core.getFeatureEditUrl(feature) + '" target="_blank">\n'
+            + '    Edit photo information'
             + '  </a></div>\n'
             + '</div>\n';
     },

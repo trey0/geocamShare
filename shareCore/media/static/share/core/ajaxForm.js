@@ -6,6 +6,8 @@
 
 $extend(geocamShare.core,
 {
+    ajaxFormSuccessFnG: null,
+
     ajaxFormGetLoadingIcon: function () {
         return '<img src="' + geocamShare.core.MEDIA_URL + 'icons/loading.gif"'
 	    +'   width="24" height="24" class="loadingIcon" title="loading icon"/>'
@@ -31,6 +33,9 @@ $extend(geocamShare.core,
             $('#ajaxFormEditStatus').html('<div class="successStatus">'
                                           + 'Your changes were saved.'
                                           + '</div>');
+            if (geocamShare.core.ajaxFormSuccessFnG != undefined) {
+                geocamShare.core.ajaxFormSuccessFnG();
+            }
         } else {
             $('#ajaxFormEditStatus').html('<div class="errorStatus">Please correct the errors below.</div>');
             $.each(responseJson,
@@ -41,11 +46,14 @@ $extend(geocamShare.core,
     },
 
     ajaxFormErrorHandler: function (xhr, ajaxOptions, thrownError) {
-        $('#ajaxFormEditStatus').html('<div class="errorStatus">Oops.</div>');
-        console.log(xhr);
+        $('#ajaxFormEditStatus').html('<div class="errorStatus">Could not save changes: '
+                                      + xhr.status + ' ' + xhr.statusText + '</div>');
     },
 
-    ajaxFormInit: function (domId) {
+    ajaxFormInit: function (domId, successFn) {
+        // gross
+        geocamShare.core.ajaxFormSuccessFnG = successFn;
+
         $('#' + domId).ajaxForm({
             beforeSubmit: geocamShare.core.ajaxFormSubmitHandler,
             success: geocamShare.core.ajaxFormResponseHandler,
