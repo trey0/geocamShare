@@ -20,3 +20,46 @@ ul.jd_menu {
     text-align: right;
     padding-right: 5px;
 }
+
+.successStatus {
+  padding-bottom: 10px;
+  font-weight: bold;
+  color: #090;
+}
+
+.pendingStatus {
+  padding-bottom: 10px;
+  font-weight: bold;
+  color: #000;
+}
+
+.errorStatus {
+  padding-bottom: 10px;
+  font-weight: bold;
+  color: #c00;
+}
+
+.formError {
+  font-weight: bold;
+  color: #c00;
+  padding-top: 10px;
+}
+
+.mapSidebarFormField {
+  vertical-align: bottom;
+}
+
+.loadingIcon {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.submitButton {
+  font-size: 1.3em;
+  margin-right: 10px;
+}
+
+.cancelLink {
+  font-size: 0.8em;
+  text-align: right;
+}

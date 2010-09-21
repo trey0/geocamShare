@@ -11,7 +11,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from share2.shareCore.fields import UuidField
-from share2.shareCore.models import Track
+from share2.shareCore.models import Track, Image
 
 # the field names in this form are currently retained for backward compatibility with old versions
 # of GeoCam Mobile
@@ -37,3 +37,11 @@ class UploadTrackForm(forms.ModelForm):
     class Meta:
         model = Track
         fields = ('name', 'isAerial', 'icon', 'lineColor', 'lineStyle', 'tags', 'notes', 'uuid')
+
+class EditImageForm(forms.ModelForm):
+    notes = forms.CharField(max_length=2048, required=False)
+
+    class Meta:
+        model = Image
+        fields = ('notes', 'tags', 'latitude', 'longitude', 'yaw', 'yawRef', 'icon')
+

@@ -109,22 +109,23 @@ class ViewCore(ViewKml):
 
     def editImage(self, request, uuid):
         img = self.defaultImageModel.objects.get(uuid = uuid)
-        ajax = request.GET.has_key('ajax')
+        ajax = request.POST.has_key('ajax')
         if request.method == 'POST':
             form = EditImageForm(request.POST, instance=img)
             if form.is_valid():
                 # FIX: update map, etc!
                 form.save()
                 if ajax:
-                    return HttpResponse('success')
-        else:
-            if ajax:
-                return HttpResponse(json.dumps(form._get_errors()),
-                                    mimetype='application/json')
+                    return HttpResponse(json.dumps('success'),
+                                        mimetype='application/json')
             else:
-                form = EditImageForm(instance=img)
+                if ajax:
+                    return HttpResponse(json.dumps(form._get_errors()),
+                                        mimetype='application/json')
+        else:
+            form = EditImageForm(instance=img)
         return (render_to_response
-                ('editImage.html',
+                ('editImageWrapper.html',
                  dict(img=img,
                       form=form),
                  context_instance = RequestContext(request)))

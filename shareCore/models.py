@@ -61,8 +61,7 @@ PERMISSION_CHOICES = ((PERM_VIEW, 'view'),
                       (PERM_ADMIN, 'admin'),
                       )
 
-YAW_REF_CHOICES = (('', 'unknown'),
-                   ('T', 'true'),
+YAW_REF_CHOICES = (('T', 'true'),
                    ('M', 'magnetic'),
                    )
 DEFAULT_YAW_REF = YAW_REF_CHOICES[0][0]
@@ -402,8 +401,11 @@ class PointFeature(Feature):
 class Image(PointFeature):
     roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
     pitch = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about y in NED frame
-    yaw = models.FloatField(blank=True, null=True) # compass degrees, 0 = north, increase clockwise as viewed from above
-    yawRef = models.CharField(max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF)
+    # compass degrees, 0 = north, increase clockwise as viewed from above
+    yaw = models.FloatField(blank=True, null=True,
+                            verbose_name='Heading')
+    yawRef = models.CharField(max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF,
+                              verbose_name='Heading ref.')
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
     objects = AbstractClassManager(parentModel=PointFeature)
