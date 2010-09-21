@@ -220,6 +220,7 @@ class Feature(models.Model):
     purgeTime = models.DateTimeField(null=True, blank=True)
     workflowStatus = models.PositiveIntegerField(choices=WORKFLOW_STATUS_CHOICES,
                                                  default=DEFAULT_WORKFLOW_STATUS)
+    mtime = models.DateTimeField(null=True, blank=True)
 
     uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
                             help_text="Universally unique id used to identify this db record across servers.")
@@ -229,6 +230,10 @@ class Feature(models.Model):
 
     class Meta:
         abstract = True
+
+    def save(self, **kwargs):
+        self.mtime = datetime.datetime.now()
+        super(Feature, self).save(**kwargs)
 
     def deleteFiles(self):
         shutil.rmtree(self.getDir(), ignore_errors=True)
