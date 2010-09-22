@@ -105,19 +105,8 @@ geocamShare.core.GalleryWidget = new Class(
         // get the page that this feature appears on among the
         // visible features -- we use this to set the page before
         // we try to highlight the feature in the gallery
-        var index = feature.index;
-        var visibleIndex = 0;
-        var i = 0;
-        $.each(visibleFeatures,
-               function (uuid, feature) {
-                   if (feature.index >= index) {
-                       visibleIndex = i;
-                       return false; // (breaks .each)
-                   }
-                   i++;
-               });
         const pageSize = geocamShare.core.GALLERY_PAGE_ROWS*geocamShare.core.GALLERY_PAGE_COLS;
-        return Math.floor(visibleIndex / pageSize) + 1;
+        return Math.floor(feature.visibleIndex / pageSize) + 1;
     },
 
     setPage: function (pageNum) {

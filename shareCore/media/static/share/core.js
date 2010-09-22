@@ -192,6 +192,12 @@ geocamShare.core = {
         if (geocamShare.core.visibleFeaturesG != null
             && geocamShare.core.featureListsEqual(geocamShare.core.visibleFeaturesG, visibleFeatures)) return;
         
+        // renumber visibleIndex values
+        $.each(visibleFeatures,
+               function (i, feature) {
+                   feature.visibleIndex = i;
+               });
+
         fhtml = (visibleFeatures.length) + ' of '
 	    + (features.length) + ' features in view';
         $('#featuresOutOfView').html(fhtml);
@@ -449,10 +455,6 @@ geocamShare.core = {
     
     setViewIfReady: function () {
         if (geocamShare.core.mapG != null && geocamShare.core.mapG.isReady && geocamShare.core.newFeaturesG != null) {
-            $.each(geocamShare.core.newFeaturesG,
-                   function (i, feature) {
-                       feature.index = i;
-                   });
             var oldFeatures = geocamShare.core.featuresG;
             geocamShare.core.featuresG = geocamShare.core.newFeaturesG;
             geocamShare.core.featuresByUuidG = geocamShare.core.uuidMap(geocamShare.core.featuresG);

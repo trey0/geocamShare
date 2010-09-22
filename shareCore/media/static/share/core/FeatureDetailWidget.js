@@ -16,7 +16,7 @@ geocamShare.core.FeatureDetailWidget = new Class(
         this.feature = geocamShare.core.featuresByUuidG[uuid];
 
         var pagerHtml = geocamShare.core.getPagerHtml(geocamShare.core.visibleFeaturesG.length,
-                                                      this.feature.index + 1,
+                                                      this.feature.visibleIndex + 1,
                                                       function (pageNum) {
                                                           var featureIndex = pageNum-1;
                                                           var uuid = geocamShare.core.visibleFeaturesG[featureIndex].uuid;
