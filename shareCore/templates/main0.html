@@ -36,15 +36,8 @@
 {% endblock %}
 
 {% block jsSetVars %}
-  geocamShare.core.SCRIPT_NAME = "{{ settings.SCRIPT_NAME }}";
-  geocamShare.core.MEDIA_URL = "{{ settings.MEDIA_URL }}";
-  geocamShare.core.DATA_URL = "{{ settings.DATA_URL }}";
   geocamShare.core.SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
-  geocamShare.core.GALLERY_PAGE_COLS = {{ settings.GALLERY_PAGE_COLS }};
-  geocamShare.core.GALLERY_PAGE_ROWS = {{ settings.GALLERY_PAGE_ROWS }};
-  geocamShare.core.GALLERY_THUMB_SIZE = {{ settings.GALLERY_THUMB_SIZE }};
-  geocamShare.core.DESC_THUMB_SIZE = {{ settings.DESC_THUMB_SIZE }};
-  geocamShare.core.MAP_BACKEND = "{{ settings.MAP_BACKEND }}";
+  $extend(geocamShare.core, {{ exportSettings|safe }});
 {% endblock %}
 
 {% block jsInit %}

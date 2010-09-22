@@ -72,6 +72,19 @@ class ViewCore(ViewKml):
     def galleryDebug(self, request):
         return HttpResponse('<body><pre>%s</pre></body>' % self.getFeaturesJsonText(request))
 
+    def getExportSettings(self):
+        exportedVars = ['SCRIPT_NAME',
+                        'MEDIA_URL',
+                        'DATA_URL',
+                        'GALLERY_PAGE_COLS',
+                        'GALLERY_PAGE_ROWS',
+                        'GALLERY_THUMB_SIZE',
+                        'DESC_THUMB_SIZE',
+                        'MAP_BACKEND'];
+        exportDict = dict(((f, getattr(settings, f))
+                           for f in exportedVars))
+        return json.dumps(exportDict)
+
     def main(self, request):
         if request.user.is_authenticated():
             accountWidget = ('<b>%(username)s</b> <a href="%(SCRIPT_NAME)saccounts/logout/">logout</a>'
@@ -87,7 +100,8 @@ class ViewCore(ViewKml):
         return render_to_response('main.html',
                                   dict(query=request.session.get('q', ''),
                                        viewport=request.session.get('v', ''),
-                                       accountWidget=accountWidget),
+                                       accountWidget=accountWidget,
+                                       exportSettings=self.getExportSettings()),
                                   context_instance=RequestContext(request))
 
     def editImage0(self, request, uuid, template):
