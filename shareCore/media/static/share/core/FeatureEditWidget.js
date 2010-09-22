@@ -6,6 +6,8 @@
 
 geocamShare.core.FeatureEditWidget = new Class(
 {
+    Extends: geocamShare.core.Widget,
+
     domId: null,
     feature: null,
 
