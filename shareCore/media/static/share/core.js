@@ -145,7 +145,7 @@ geocamShare.core = {
 	    + '    src="' + geocamShare.core.getIconGalleryUrl(feature)  + '"'
 	    + '    width="32"'
 	    + '    height="32"'
-	    + '    style="position: absolute; z-index: 100;"'
+	    + '    style="border-width: 0px; position: absolute; z-index: 100;"'
 	    + '  />'
             + '  <img\n'
             + '    src="' + geocamShare.core.getFeatureThumbnailUrl(feature, w0) + '"\n'
