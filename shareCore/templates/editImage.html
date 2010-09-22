@@ -18,11 +18,17 @@
       </tr>
   {% endfor %}
   </table>
-  <input class="submitButton"
-         type="submit"
-         name="submit"
-         value="Save Changes"/>
+  <div>
+    <input class="submitButton"
+           type="submit"
+           name="submit"
+           value="Save Changes"/>
+    <a id="editImageCancel"
+       class="cancelLink"
+       href="javascript:geocamShare.core.switcherG.setToFeatureDetail()">
+     Cancel</a>
+  </div>
 </form>
-<a id="editImageCancel" class="cancelLink" href="javascript:geocamShare.core.switcherG.setToFeatureDetail()">Cancel</a>
+
 
 
