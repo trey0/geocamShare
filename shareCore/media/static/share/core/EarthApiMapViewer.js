@@ -71,20 +71,27 @@ geocamShare.core.EarthApiMapViewer = new Class(
         }
     },
     
-    getVisibleFeatures: function (features) {
+    getFilteredFeatures: function (features) {
         var self = this;
-        var globeBounds = self.getViewBounds();
+        var bounds = self.getViewBounds();
         
-        var visibleFeatures = [];
+        var inViewportFeatures = [];
+        var inViewportOrNoPositionFeatures = [];
         $.each(features,
                function (i, feature) {
                    var placemark = feature.mapObject;
-                   if (self.featureIntersectsBounds(feature, globeBounds)) {
-                       visibleFeatures.push(feature);
+                   if (self.getFeatureHasPosition(feature)) {
+                       if (self.featureIntersectsBounds(feature, bounds)) {
+                           inViewportFeatures.push(feature);                           
+                           inViewportOrNoPositionFeatures.push(feature);
+                       }
+                   } else {
+                       inViewportOrNoPositionFeatures.push(feature);
                    }
                });
         
-        return visibleFeatures;
+        return {'inViewport': inViewportFeatures,
+                'inViewportOrNoPosition': inViewportOrNoPositionFeatures};
     },
     
     zoomToFit: function () {
@@ -121,10 +128,8 @@ geocamShare.core.EarthApiMapViewer = new Class(
     },
     
     featureIntersectsBounds: function (feature, bounds) {
+        // FIX: support features with extent!
         var lat = feature.latitude;
-	if (lat == null) {
-	    return true; // non-geotagged features are always "inside bounds"
-	}
         var lon = feature.longitude;
         return ((bounds.getSouth() <= lat) && (lat <= bounds.getNorth())
                 && (bounds.getWest() <= lon) && (lon <= bounds.getEast()));

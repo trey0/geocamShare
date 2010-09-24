@@ -183,11 +183,8 @@ geocamShare.core = {
     },
     
     checkFeaturesInMapViewport: function (features) {
-        if (geocamShare.core.mapG.boundsAreSet) {
-            geocamShare.core.setSessionVars({'v': geocamShare.core.mapG.getViewport()});
-        }
-
-        visibleFeatures = geocamShare.core.mapG.getVisibleFeatures(features);
+        var filteredFeatures = geocamShare.core.mapG.getFilteredFeatures(features);
+        var visibleFeatures = filteredFeatures.inViewportOrNoPosition;
 
         if (geocamShare.core.visibleFeaturesG != null
             && geocamShare.core.featureListsEqual(geocamShare.core.visibleFeaturesG, visibleFeatures)) return;
@@ -198,8 +195,12 @@ geocamShare.core = {
                    feature.visibleIndex = i;
                });
 
-        fhtml = (visibleFeatures.length) + ' of '
-	    + (features.length) + ' features in view';
+        var numFeatures = features.length;
+        var numInViewport = filteredFeatures.inViewport.length;
+        var numNoPosition = filteredFeatures.inViewportOrNoPosition.length - numInViewport;
+        var numFeaturesWithPosition = numFeatures - numNoPosition;
+        fhtml = numInViewport + ' of '
+	    + numFeaturesWithPosition + ' features in map view';
         $('#featuresOutOfView').html(fhtml);
         
         geocamShare.core.widgetManagerG.notifyFeaturesInMapViewport(visibleFeatures);
@@ -348,13 +349,22 @@ geocamShare.core = {
         return geocamShare.core.wrapKml(kml);
     },
     
+    handleMapViewChange0: function () {
+        if (geocamShare.core.mapG.boundsAreSet) {
+            geocamShare.core.setSessionVars({'v': geocamShare.core.mapG.getViewport()});
+        }
+	geocamShare.core.checkFeaturesInMapViewport(geocamShare.core.featuresG);
+    },
+
     handleMapViewChange: function () {
+        // this is a guarding wrapper around handleMapViewChange0(), which does the real work
+
         if (geocamShare.core.mapViewChangeTimeoutG != null) {
 	    // avoid handling the same move many times -- clear the old timeout first
 	    clearTimeout(geocamShare.core.mapViewChangeTimeoutG);
         }
         geocamShare.core.mapViewChangeTimeoutG = setTimeout(function () {
-	    geocamShare.core.checkFeaturesInMapViewport(geocamShare.core.featuresG);
+            geocamShare.core.handleMapViewChange0();
 	}, 250);
     },
     

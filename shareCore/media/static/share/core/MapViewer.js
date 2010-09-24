@@ -38,6 +38,10 @@ geocamShare.core.MapViewer = new Class({
     getVisibleFeatures: function (features) {
 	// get the subset of features which are visible within the current map viewport
 	return features;
+    },
+
+    getFeatureHasPosition: function (feature) {
+        return (feature.latitude != null) || (feature.minLat != null);
     }
 });
 

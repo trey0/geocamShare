@@ -86,18 +86,25 @@ geocamShare.core.MapsApiMapViewer = new Class(
         this.gmap.setZoom(parseInt(v[2]));
     },
     
-    getVisibleFeatures: function (features) {
+    getFilteredFeatures: function (features) {
         var bounds = this.gmap.getBounds();
         
-        var visibleFeatures = [];
+        var inViewportFeatures = [];
+        var inViewportOrNoPositionFeatures = [];
         var self = this;
         $.each(features,
                function (i, feature) {
-                   if (self.featureIntersectsBounds(feature, bounds)) {
-                       visibleFeatures.push(feature);
+                   if (self.getFeatureHasPosition(feature)) {
+                       if (self.featureIntersectsBounds(feature, bounds)) {
+                           inViewportFeatures.push(feature);                           
+                           inViewportOrNoPositionFeatures.push(feature);
+                       }
+                   } else {
+                       inViewportOrNoPositionFeatures.push(feature);
                    }
                });
-        return visibleFeatures;
+        return {'inViewport': inViewportFeatures,
+                'inViewportOrNoPosition': inViewportOrNoPositionFeatures};
     },
     
     highlightFeature: function(feature) {
@@ -144,7 +151,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
             ibounds.extend(new google.maps.LatLng(feature.maxLat, feature.maxLon));
             return ibounds.intersects(bounds);
         } else {
-            return true;
+            throw 'huh? got feature with no position';
         }
     },
     
