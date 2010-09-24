@@ -193,3 +193,6 @@ THUMB_SIZES = [GALLERY_THUMB_SIZE, DESC_THUMB_SIZE]
 
 # MAP_BACKEND possible values: 'earth', 'maps', 'none'.
 MAP_BACKEND = 'maps'
+
+# enable/disable clustering of markers (if supported by the current MAP_BACKEND)
+USE_MARKER_CLUSTERING = True

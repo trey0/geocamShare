@@ -44,8 +44,12 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
 
     updateFeatures: function (oldFeatures, newFeatures, diff) {
+        if (geocamShare.core.USE_MARKER_CLUSTERING) {
+            this.markerClusterer = new MarkerClusterer(this.gmap, [],
+                                                       {gridSize: 25});
+        }
+
         var self = this;
-        
         $.each(diff.featuresToDelete,
                function (i, feature) {
                    self.removeFeatureFromMap(feature);
@@ -244,11 +248,19 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     addToMap: function (marker) {
-        marker.setMap(this.gmap);
+        if (geocamShare.core.USE_MARKER_CLUSTERING) {
+            this.markerClusterer.addMarker(marker);
+        } else {
+            marker.setMap(this.gmap);
+        }
     },
     
     removeFromMap: function (marker) {
-        marker.setMap(null);
+        if (geocamShare.core.USE_MARKER_CLUSTERING) {
+            this.markerClusterer.removeMarker(marker);
+        } else {
+            marker.setMap(null);
+        }
     },
     
     getMarkerBounds: function () {
