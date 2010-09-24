@@ -39,7 +39,7 @@ geocamShare.core.EarthApiMapViewer = new Class(
                                     });
     },
     
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
+    updateFeatures: function (newFeatures, diff) {
         var self = this;
         
         $.each(diff.featuresToDelete,

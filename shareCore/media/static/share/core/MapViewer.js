@@ -15,7 +15,7 @@ geocamShare.core.MapViewer = new Class({
 	geocamShare.core.setViewIfReady();
     },
     
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
+    updateFeatures: function (newFeatures, diff) {
 	// add or delete features when we get an update
     },
     

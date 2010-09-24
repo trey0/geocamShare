@@ -29,12 +29,12 @@ $extend(geocamShare.core,
     },
 
     ajaxFormResponseHandler: function (responseJson, statusText, xhr) {
-        if (responseJson == 'success') {
+        if (responseJson[0] == 'success') {
             $('#ajaxFormEditStatus').html('<div class="successStatus">'
                                           + 'Your changes were saved.'
                                           + '</div>');
             if (geocamShare.core.ajaxFormSuccessFnG != undefined) {
-                geocamShare.core.ajaxFormSuccessFnG();
+                geocamShare.core.ajaxFormSuccessFnG(responseJson[1]);
             }
         } else {
             $('#ajaxFormEditStatus').html('<div class="errorStatus">Please correct the errors below.</div>');

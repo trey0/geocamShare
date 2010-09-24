@@ -38,17 +38,18 @@ geocamShare.core.MapsApiMapViewer = new Class(
             this.setViewport(geocamShare.core.viewportG);
             this.boundsAreSet = true;
         }
-        this.isReady = true;
-        
-        geocamShare.core.setViewIfReady();
-    },
 
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
         if (geocamShare.core.USE_MARKER_CLUSTERING) {
             this.markerClusterer = new MarkerClusterer(this.gmap, [],
                                                        {gridSize: 25});
         }
 
+        this.isReady = true;
+        
+        geocamShare.core.setViewIfReady();
+    },
+
+    updateFeatures: function (newFeatures, diff) {
         var self = this;
         $.each(diff.featuresToDelete,
                function (i, feature) {

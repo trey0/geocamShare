@@ -112,9 +112,9 @@ class ViewCore(ViewKml):
             form = EditImageForm(request.POST, instance=img)
             if form.is_valid():
                 # FIX: update map, etc!
-                form.save()
+                updatedObject = form.save()
                 if ajax:
-                    return HttpResponse(json.dumps('success'),
+                    return HttpResponse(json.dumps(['success', updatedObject.getShortDict()]),
                                         mimetype='application/json')
             else:
                 if ajax:
