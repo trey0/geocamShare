@@ -25,7 +25,7 @@ geocamShare.core.GalleryWidget = new Class(
         }
     },
 
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
+    updateFeatures: function (newFeatures, diff) {
         // wait for notifyFeaturesInMapViewport()
     },
 
@@ -143,19 +143,19 @@ geocamShare.core.GalleryWidget = new Class(
                     $("td#" + feature.uuid).hover(
                         function(uuid) {
                             return function() {
-                                geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, true);
+                                geocamShare.core.widgetManagerG.setHighlightedFeature(uuid);
                             }
                         }(feature.uuid),
                         function(uuid) {
                             return function() {
-                                geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, false);
+                                geocamShare.core.widgetManagerG.clearHighlightedFeature();
                             }
                         }(feature.uuid)
                     );
                     $("td#" + feature.uuid).click(
                         function(uuid) {
                             return function() {
-                                geocamShare.core.widgetManagerG.setFeatureSelected(uuid, true);
+                                geocamShare.core.widgetManagerG.setSelectedFeature(uuid);
                             }
                         }(feature.uuid)
                     );

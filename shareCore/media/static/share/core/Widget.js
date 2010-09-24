@@ -11,7 +11,7 @@ geocamShare.core.Widget = new Class(
     initialize: function (domId) {
     },
     
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
+    updateFeatures: function (newFeatures, diff) {
     },
     
     notifyLoading: function () {

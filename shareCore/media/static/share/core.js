@@ -60,6 +60,9 @@ geocamShare.core = {
 
     runSearch: function (query) {
         geocamShare.core.queryG = query;
+
+        geocamShare.core.widgetManagerG.clearHighlightedFeature();
+        geocamShare.core.widgetManagerG.clearSelectedFeature();
         geocamShare.core.widgetManagerG.notifyLoading();
         geocamShare.core.reloadFeatures(query);
         geocamShare.core.setSessionVars({'q': query});

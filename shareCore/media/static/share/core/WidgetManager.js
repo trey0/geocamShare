@@ -15,10 +15,10 @@ geocamShare.core.WidgetManager = new Class(
         this.activeWidgets[domId] = widgetFactory.apply(null, [domId].concat(widgetFactoryArgs));
     },
     
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
+    updateFeatures: function (newFeatures, diff) {
         $.each(this.activeWidgets,
                function (domId, widget) {
-                   widget.updateFeatures(oldFeatures, newFeatures, diff);
+                   widget.updateFeatures(newFeatures, diff);
                });
     },
 
@@ -64,20 +64,6 @@ geocamShare.core.WidgetManager = new Class(
                });
     },
 
-    setFeatureSelected: function (uuid, isSelected) {
-        $.each(this.activeWidgets,
-               function (domId, widget) {
-                   widget.setFeatureSelected(uuid, isSelected);
-               });
-    },
-    
-    setFeatureHighlighted: function (uuid, isHighlighted) {
-        $.each(this.activeWidgets,
-               function (domId, widget) {
-                   widget.setFeatureHighlighted(uuid, isHighlighted);
-               });
-    },
-    
     /**********************************************************************
      * guard logic for top-level manager
      **********************************************************************/
@@ -86,49 +72,41 @@ geocamShare.core.WidgetManager = new Class(
     
     selectedFeatureUuid: null,
     
-    setFeatureHighlighted: function (uuid, isHighlighted) {
-        if (isHighlighted) {
-            if (this.highlightedFeatureUuid == uuid) {
-                // do nothing
-            } else {
-                if (this.highlightedFeatureUuid != null) {
-                    this.unhighlightFeature(geocamShare.core.featuresByUuidG[this.highlightedFeatureUuid]);
-                }
-                this.highlightFeature(geocamShare.core.featuresByUuidG[uuid]);
-                this.highlightedFeatureUuid = uuid;
-
-                geocamShare.core.viewIndexUuidG = uuid;
-            }
+    setHighlightedFeature: function (uuid) {
+        if (this.highlightedFeatureUuid == uuid) {
+            // do nothing
         } else {
-            if (this.highlightedFeatureUuid == uuid) {
-                this.unhighlightFeature(geocamShare.core.featuresByUuidG[uuid]);
-                this.highlightedFeatureUuid = null;
-            } else {
-                // do nothing
-            }
+            this.clearHighlightedFeature();
+            this.highlightFeature(geocamShare.core.featuresByUuidG[uuid]);
+            this.highlightedFeatureUuid = uuid;
+            
+            geocamShare.core.viewIndexUuidG = uuid;
         }
     },
     
-    setFeatureSelected: function (uuid, isSelected) {
-        if (isSelected) {
-            if (this.selectedFeatureUuid == uuid) {
-                // do nothing
-            } else {
-                if (uuid != null) {
-                    this.unselectFeature(geocamShare.core.featuresByUuidG[this.selectedFeatureUuid]);
-                }
-                this.selectFeature(geocamShare.core.featuresByUuidG[uuid]);
-                this.selectedFeatureUuid = uuid;
+    clearHighlightedFeature: function () {
+        if (this.highlightedFeatureUuid != null) {
+            this.unhighlightFeature(geocamShare.core.featuresByUuidG[this.highlightedFeatureUuid]);
+            this.highlightedFeatureUuid = null;
+        }
+    },
 
-                geocamShare.core.viewIndexUuidG = uuid;
-            }
+    setSelectedFeature: function (uuid) {
+        if (this.selectedFeatureUuid == uuid) {
+            // do nothing
         } else {
-            if (this.selectedFeatureUuid == uuid) {
-                this.unselectFeature(geocamShare.core.featuresByUuidG[uuid]);
-                this.selectedFeatureUuid = null;
-            } else {
-                // do nothing
-            }
+            this.clearSelectedFeature();
+            this.selectFeature(geocamShare.core.featuresByUuidG[uuid]);
+            this.selectedFeatureUuid = uuid;
+            
+            geocamShare.core.viewIndexUuidG = uuid;
+        }
+    },
+
+    clearSelectedFeature: function () {
+        if (this.selectedFeatureUuid != null) {
+            this.unselectFeature(geocamShare.core.featuresByUuidG[this.selectFeatureUuid]);
+            this.selectedFeatureUuid = null;
         }
     }
 });

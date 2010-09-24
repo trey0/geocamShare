@@ -153,20 +153,20 @@ geocamShare.core.EarthApiMapViewer = new Class(
                    google.earth.addEventListener(placemark, 'mouseover',
                                                  function (uuid) {
                                                      return function(event) {
-                                                         geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, true);
+                                                         geocamShare.core.widgetManagerG.setHighlightedFeature(uuid);
                                                      }
                                                  }(feature.uuid));
                    google.earth.addEventListener(placemark, 'mouseout',
                                                  function (uuid) {
                                                      return function(event) {
-                                                         geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, false);
+                                                         geocamShare.core.widgetManagerG.clearHighlightedFeature();
                                                      }
                                                  }(feature.uuid));
                    google.earth.addEventListener(placemark, 'click',
                                                  function (uuid) {
                                                      return function(event) {
                                                          event.preventDefault();
-                                                         geocamShare.core.widgetManagerG.setFeatureSelected(uuid, true);
+                                                         geocamShare.core.widgetManagerG.setSelectedFeature(uuid);
                                                      }
                                                  }(feature.uuid));
                });

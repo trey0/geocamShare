@@ -27,7 +27,7 @@ geocamShare.core.SidebarSwitcher = new Class(
         this.parent(); // pass event on to gallery
     },
 
-    updateFeatures: function (oldFeatures, newFeatures, diff) {
+    updateFeatures: function (newFeatures, diff) {
         // todo: if in detail view and selected feature is no longer
         // present, switch to gallery view
 

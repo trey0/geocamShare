@@ -191,21 +191,21 @@ geocamShare.core.MapsApiMapViewer = new Class(
                  (marker, 'mouseover',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, true);
+                          geocamShare.core.widgetManagerG.setHighlightedFeature(uuid);
                       }
                   }(feature.uuid));
                  google.maps.event.addListener
                  (marker, 'mouseout',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.widgetManagerG.setFeatureHighlighted(uuid, false);
+                          geocamShare.core.widgetManagerG.clearHighlightedFeature();
                       }
                   }(feature.uuid));
                  google.maps.event.addListener
                  (marker, 'click',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.widgetManagerG.setFeatureSelected(uuid, true);
+                          geocamShare.core.widgetManagerG.setSelectedFeature(uuid);
                       }
                   }(feature.uuid));
              });
