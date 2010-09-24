@@ -50,21 +50,37 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
 
     updateFeatures: function (newFeatures, diff) {
-        var self = this;
-        $.each(diff.featuresToDelete,
-               function (i, feature) {
-                   self.removeFeatureFromMap(feature);
-               });
-        
-        if (diff.featuresToAdd.length > 0) {
-            $.each(diff.featuresToAdd,
-                   function (i, feature) {
-                       self.addFeature(feature);
-                   });
-        }
-        this.setListeners(diff.featuresToAdd);
-        
+        this.setListeners();
+
         if (diff.featuresToDelete.length > 0 || diff.featuresToAdd.length > 0) {
+            if (geocamShare.core.USE_MARKER_CLUSTERING) {
+                // the MarkerClusterer removeMarker() operation is very slow,
+                // so we're better off clearing the markers and then adding them
+                // all back
+                var self = this;
+                this.markerClusterer.clearMarkers();
+                var markersToAdd = [];
+                $.each(newFeatures,
+                       function (i, feature) {
+                           self.initializeMarkers(feature);
+                           markersToAdd.push(feature.mapObject.normal);
+                       });
+                this.markerClusterer.addMarkers(markersToAdd);
+            } else {
+                var self = this;
+                $.each(diff.featuresToDelete,
+                       function (i, feature) {
+                           self.removeFeatureFromMap(feature);
+                       });
+                
+                if (diff.featuresToAdd.length > 0) {
+                    $.each(diff.featuresToAdd,
+                           function (i, feature) {
+                               self.addFeature(feature);
+                           });
+                }
+            }
+            
             if (!this.boundsAreSet) {
                 this.zoomToFit();
             }
@@ -160,7 +176,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
         }
     },
     
-    addMarker: function (feature) {
+    initializeMarkers: function (feature) {
         var self = this;
         
         var iconUrl = geocamShare.core.getIconMapUrl(feature);
@@ -193,8 +209,11 @@ geocamShare.core.MapsApiMapViewer = new Class(
                       }
                   }(feature.uuid));
              });
-        
-        self.unhighlightFeature(feature); // add to map in 'normal' state
+    },
+
+    addMarker: function (feature) {
+        this.initializeMarkers(feature);
+        this.unhighlightFeature(feature); // add to map in 'normal' state
     },
     
     addTrack: function (feature) {
@@ -292,7 +311,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
         // this.showBalloonForFeature(feature);
     },
     
-    setListeners: function(features) {
+    setListeners: function () {
         var self = this;
         if (!this.mainListenerInitialized) {
             google.maps.event.addListener(this.gmap, 'bounds_changed', geocamShare.core.handleMapViewChange);
