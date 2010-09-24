@@ -32,8 +32,11 @@ geocamShare.core.FeatureDetailWidget = new Class(
         content += geocamShare.core.getFeatureBalloonHtml(this.feature);
         $('#'+this.domId).html(content);
 
-        // rewrite featureEditLink in caption so it switches to edit view
-        $('#featureEditLink').attr('href', 'javascript:geocamShare.core.switcherG.setToFeatureEdit()');
+        // set ajax handler for edit link, replaces default behavior of opening a new web page
+        $('#featureEditLink').click(function () {
+            geocamShare.core.switcherG.setToFeatureEdit();
+            return false;
+        });
     },
     
     highlightFeature: function (feature) {
