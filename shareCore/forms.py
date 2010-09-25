@@ -17,7 +17,7 @@ from share2.shareCore.models import Track, Image
 # of GeoCam Mobile
 class UploadImageForm(forms.Form):
     photo = forms.FileField(required=True)
-    cameraTime = forms.DateTimeField(required=False)
+    cameraTime = forms.CharField(required=False)
     longitude = forms.FloatField(required=False)
     latitude = forms.FloatField(required=False)
     roll = forms.FloatField(required=False)
@@ -28,6 +28,7 @@ class UploadImageForm(forms.Form):
     notes = forms.CharField(max_length=2048, required=False)
     importFileMtimeUtc = forms.DateTimeField(required=False, initial=datetime.datetime.utcfromtimestamp(0))
     uuid = UuidField(required=False)
+    folder = forms.CharField(max_length=32, required=False)
 
 class UploadTrackForm(forms.ModelForm):
     trackUploadProtocolVersion = forms.CharField(required=False, initial='1.0', label='Track upload protocol version')

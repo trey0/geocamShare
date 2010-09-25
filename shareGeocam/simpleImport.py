@@ -27,7 +27,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from share2.shareCore.models import Feature, Folder
 from share2.shareGeocam.models import Photo
 from share2.shareCore.utils import mkdirP, UploadClient
-from share2.shareCore.TimeUtils import parseUploadTime
+from share2.shareCore import TimeUtils
 
 DEFAULT_IMPORT_DIR = os.path.join(settings.CHECKOUT_DIR, 'importData', 'guiberson')
 
@@ -38,54 +38,27 @@ def checkMissing(val):
         return val
 
 def importImageDirect(imagePath, attributes):
-    im = PIL.Image.open(imagePath, 'r')
-    widthPixels, heightPixels = im.size
-    del im
-
-    lat = attributes['latitude']
-    lon = attributes['longitude']
-    folder = Folder.objects.get(name=attributes['folder'])
-    tz = pytz.timezone(folder.timeZone)
-    timestampLocal = parseUploadTime(attributes['cameraTime']).replace(tzinfo=tz)
-    timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
-
-    tagsList = tagging.utils.parse_tag_input(attributes['tags'])
-    icon = settings.ICONS[0] # default
-    for t in tagsList:
-        if t in settings.ICONS_DICT:
-            icon = t
-            break
-
     try:
-        user = User.objects.get(username=attributes['userName'])
+        author = User.objects.get(username=attributes['userName'])
     except ObjectDoesNotExist:
         print 'ERROR: No Django user "%s"; specify an existing user with the --user option, or create the user' % attributes['userName']
         sys.exit(1)
+    attributes['author'] = author
 
-    img, created = (Photo.objects.get_or_create
-                    (name=os.path.basename(imagePath),
-                     author=user,
-                     timestamp=timestampUtc,
-                     defaults=dict(latitude=lat,
-                                   longitude=lon,
-                                   roll=attributes['roll'],
-                                   pitch=attributes['pitch'],
-                                   yaw=checkMissing(attributes['yaw']),
-                                   yawRef='M',
-                                   notes=attributes['notes'],
-                                   tags=attributes['tags'],
-                                   widthPixels=widthPixels,
-                                   heightPixels=heightPixels,
-                                   folder=folder,
-                                   icon=icon,
-                                   )))
+    name = os.path.basename(imagePath)
+    attributes['name'] = name
 
-    if created:
-        print 'processing', unicode(img)
-        img.process(importFile=imagePath)
-        img.save()
+    matchingPhotos = Photo.objects.filter(name=name,
+                                          author=author)
+
+    if matchingPhotos:
+        print 'skipping already imported', unicode(matchingPhotos[0])
     else:
-        print 'skipping already imported', unicode(img)
+        photo = Photo()
+        photo.readImportVals(storePath=imagePath, uploadImageFormData=attributes)
+        photo.process(importFile=imagePath)
+        photo.save()
+        print 'processed', unicode(photo)
 
 def importDir(opts, dir, uploadClient):
     dir = os.path.realpath(dir)
@@ -130,7 +103,7 @@ def importDir(opts, dir, uploadClient):
 
         # make up a consistent bogus uuid field so we can test incremental upload.
         # real clients should always make a stronger uuid to avoid collisions!
-        bogusUuid = uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, opts.user, timeStr))
+        bogusUuid = str(uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, opts.user, timeStr)))
         
         # map to field names in upload form
         attributes = dict(name=name,
@@ -196,7 +169,7 @@ def main():
                       action='store_true', default=False,
                       help='Use share v2 secure upload. Implies -u.')
     parser.add_option('--url',
-                      default='http://localhost' + settings.SCRIPT_NAME,
+                      default='http://localhost:8000' + settings.SCRIPT_NAME,
                       help='Server url for client upload [%default]')
     parser.add_option('--user',
                       default=getpass.getuser(),

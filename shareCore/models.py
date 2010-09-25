@@ -16,6 +16,7 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
+import pytz
 import PIL.Image
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -26,10 +27,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 import tagging
 
-from share2.shareCore.utils import mkdirP, makeUuid
+from share2.shareCore.utils import mkdirP, makeUuid, Xmp
 from share2.shareCore.utils.gpx import TrackLog
 from share2.shareCore.ExtrasField import ExtrasField
 from share2.shareCore.utils.icons import getIconSize
+from share2.shareCore.TimeUtils import parseUploadTime
 from share2.shareCore.managers import AbstractClassManager, LeafClassManager
 
 ICON_CHOICES = [(i,i) for i in settings.ICONS]
@@ -518,6 +520,100 @@ class Image(PointFeature):
            captionHtml=captionHtml,
            dw=dw,
            dh=dh))
+
+    def getXmpVals(self, storePath):
+        xmp = Xmp(storePath)
+        xmpVals = xmp.getDict()
+        return xmpVals
+
+    def getUploadImageFormVals(self, formData):
+        yaw, yawRef = Xmp.normalizeYaw(formData.get('yaw', None),
+                                       formData.get('yawRef', None))
+
+        folderMatches = Folder.objects.filter(name=formData['folder'])
+        if folderMatches:
+            folder = folderMatches[0]
+        else:
+            folder = Folder.objects.get(id=1)
+
+        tz = pytz.timezone(folder.timeZone)
+        timestampLocal = parseUploadTime(formData['cameraTime']).replace(tzinfo=tz)
+        timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
+
+        formVals0 = dict(uuid=formData['uuid'],
+                         name=formData['name'],
+                         author=formData['author'],
+                         notes=formData['notes'],
+                         tags=formData['tags'],
+                         latitude=formData['latitude'],
+                         longitude=formData['longitude'],
+                         timestamp=timestampUtc,
+                         folder=folder,
+                         yaw=yaw,
+                         yawRef=yawRef)
+        formVals = dict([(k, v) for k, v in formVals0.iteritems()
+                         if Xmp.checkMissing(v) != None])
+        return formVals
+
+    @staticmethod
+    def makeTagsString(tagsList):
+        tagsList = list(set(tagsList))
+        tagsList.sort()
+        
+        # modeled on tagging.utils.edit_string_for_tags
+        names = []
+        useCommas = False
+        for tag in tagsList:
+            if ' ' in tag:
+                names.append('"%s"' % tag)
+            else:
+                names.append(tag)
+            if ',' in tag:
+                useCommas = True
+        if useCommas:
+            return ', '.join(names)
+        else:
+            return ' '.join(names)
+
+    def processVals(self, vals):
+        if vals.has_key('tags'):
+            tagsList = tagging.utils.parse_tag_input(vals['tags'])
+        else:
+            tagsList = []
+
+        # find any '#foo' hashtags in notes and add them to the tags field
+        if vals.has_key('notes'):
+            for hashtag in re.finditer('\#([\w0-9_]+)', vals['notes']):
+                tagsList.append(hashtag.group(1))
+            vals['tags'] = self.makeTagsString(tagsList)
+
+        # if one of the tags is the name of an icon, use that icon
+        for t in tagsList:
+            if t in settings.ICONS_DICT:
+                vals['icon'] = t
+                break
+
+    def getImportVals(self, storePath=None, uploadImageFormData=None):
+        vals = {}
+
+        if storePath != None:
+            xmpVals = self.getXmpVals(storePath)
+            print >>sys.stderr, 'getImportVals: exif/xmp data:', xmpVals
+            vals.update(xmpVals)
+
+        if uploadImageFormData != None:
+            formVals = self.getUploadImageFormVals(uploadImageFormData)
+            print >>sys.stderr, 'getImportVals: UploadImageForm data:', formVals
+            vals.update(formVals)
+
+        self.processVals(vals)
+
+        return vals
+
+    def readImportVals(self, *args, **kwargs):
+        vals = self.getImportVals(*args, **kwargs)
+        for k, v in vals.iteritems():
+            setattr(self, k, v)
 
     def getKmlAdvanced(self):
         # FIX: fix this up and rename it to getKml()

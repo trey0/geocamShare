@@ -133,11 +133,17 @@ class Xmp:
         lat = self.checkMissing(self.getDegMin('exif:GPSLatitude', 'NS'))
         lon = self.checkMissing(self.getDegMin('exif:GPSLongitude', 'EW'))
         yaw, yawRef = self.getYaw()
+        widthPixels = int(self.get('tiff:ImageWidth'))
+        heightPixels = int(self.get('tiff:ImageLength'))
+
         vals0 = dict(timestamp=timestamp,
                      latitude=lat,
                      longitude=lon,
                      yaw=yaw,
-                     yawRef=yawRef)
+                     yawRef=yawRef,
+                     widthPixels=widthPixels,
+                     heightPixels=heightPixels)
+
         return dict([(k,v) for k, v in vals0.iteritems()
                      if self.checkMissing(v) != None])
 

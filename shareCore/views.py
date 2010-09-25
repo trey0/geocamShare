@@ -28,7 +28,7 @@ except ImportError:
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from share2.shareCore.utils import makeUuid, mkdirP, Xmp
+from share2.shareCore.utils import makeUuid, mkdirP
 from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
@@ -156,7 +156,9 @@ class ViewCore(ViewKml):
                 print >>sys.stderr, 'upload: saved image data to temp file:', tempStorePath
 
                 # create image db record
-                uuid = form.cleaned_data['uuid'] or makeUuid()
+                uuid = form.cleaned_data.setdefault('uuid', makeUuid())
+                form.cleaned_data['name'] = incoming.name
+                form.cleaned_data['author'] = author
                 uuidMatches = self.defaultImageModel.objects.filter(uuid=uuid)
                 sameUuid = (uuidMatches.count() > 0)
                 if sameUuid:
@@ -169,50 +171,9 @@ class ViewCore(ViewKml):
                     newVersion = img.version + 1
                 else:
                     # create Image db record
-                    img = self.defaultImageModel(status=settings.STATUS_PENDING,
-                                                version=0
-                                                )
-
-                    # defaults
-                    vals = dict(timestamp=datetime.datetime.now())
-
-                    # extract fields from exif or xmp headers
-                    xmp = Xmp(tempStorePath)
-                    xmpVals = xmp.getDict()
-                    print >>sys.stderr, 'upload: exif/xmp data:', xmpVals
-                    vals.update(xmpVals)
-                    
-                    # extract fields from http post
-                    yaw, yawRef = Xmp.normalizeYaw(form.cleaned_data['yaw'],
-                                                   form.cleaned_data['yawRef'])
-                    httpVals0 = dict(name=incoming.name,
-                                     author=author,
-                                     notes=form.cleaned_data['notes'],
-                                     tags=form.cleaned_data['tags'],
-                                     uuid=uuid,
-                                     latitude=form.cleaned_data['latitude'],
-                                     longitude=form.cleaned_data['longitude'],
-                                     timestamp=form.cleaned_data['cameraTime'],
-                                     yaw=yaw,
-                                     yawRef=yawRef)
-                    httpVals = dict([(k, v) for k, v in httpVals0.iteritems()
-                                     if Xmp.checkMissing(v) != None])
-                    print >>sys.stderr, 'upload: form data:', httpVals
-                    vals.update(httpVals)
-
-                    # post process some fields
-                    icon = settings.ICONS[0] # default
-                    if vals.has_key('tags'):
-                        tagsList = tagging.utils.parse_tag_input(vals['tags'])
-                        for t in tagsList:
-                            if t in settings.ICONS_DICT:
-                                icon = t
-                                break
-                    vals['icon'] = icon
-
-                    # copy extracted fields to img
-                    for k, v in vals.iteritems():
-                        setattr(img, k, v)
+                    img = self.defaultImageModel()
+                    img.readImportVals(storePath=tempStorePath,
+                                       uploadImageFormData=form.cleaned_data)
 
                     # set version
                     newVersion = 0
