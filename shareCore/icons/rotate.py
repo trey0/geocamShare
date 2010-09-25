@@ -6,12 +6,20 @@
 # __END_LICENSE__
 
 import PIL.Image as Image
+from PIL import ImageChops
 import os
 import re
 from glob import glob
 
 REQ_SIZE = (48, 48)
 ICON_SIZE_CACHE = {}
+
+def getbbox(im, threshold):
+    '''like Image.getbbox(), but instead of cropping everything that is exactly 0,
+    crops everything with the alpha channel below @threshold'''
+    a = im.split()[-1]
+    thresholded = ImageChops.add(a, ImageChops.constant(im, 0), 1.0, -threshold)
+    return a.getbbox()
 
 def rotateAntialias(im, angle, reqSize=REQ_SIZE):
     '''x = rotateAntialias(im, angle) is like x = im.rotate(angle) but
@@ -31,6 +39,7 @@ def rotateAntialias(im, angle, reqSize=REQ_SIZE):
     r = im.resize((outSize[0]*2, outSize[1]*2), filter)
     r = r.rotate(angle, Image.BICUBIC, expand=1)
     r = r.resize((r.size[0]//2, r.size[1]//2), Image.ANTIALIAS)
+    r = r.crop(getbbox(r, 128))
     return r
 
 def copyThumbnails(inDir, outDir, nameTransform=None, reqSize=REQ_SIZE):
