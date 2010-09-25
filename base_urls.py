@@ -20,5 +20,6 @@ if settings.USE_STATIC_SERVE:
     urltuple += (
         (r'^media/(?P<path>.*)$', 'django.views.static.serve',
          dict(document_root=settings.MEDIA_ROOT,
-              show_indexes=True)),
+              show_indexes=True,
+              readOnly=True)),
         )

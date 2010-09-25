@@ -14,7 +14,6 @@ urlpatterns = patterns(
 
     (r'^accounts/login/$', 'django.contrib.auth.views.login',
      {'loginRequired': False, # avoid redirect loop
-      'sslRequired': True
       }),
     (r'^accounts/logout/$', 'django.contrib.auth.views.logout',
      # show logout page instead of redirecting to log in again
@@ -34,14 +33,12 @@ urlpatterns = patterns(
     (r'^upload/$', views.uploadImageAuth),
     # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
     (r'^upload-m/$', views.uploadImageAuth,
-     {'sslRequired': True,
-      'challenge': 'basic'}),
+     {'challenge': 'basic'}),
 
     (r'^track/upload/$', views.uploadTrackAuth),
     # alternate URL that accepts http basic authentication, used by newer versions of GeoCam Mobile
     (r'^track/upload-m/$', views.uploadTrackAuth,
-     {'sslRequired': True,
-      'challenge': 'basic'}),
+     {'challenge': 'basic'}),
 
     (r'^track/view/(?P<uuid>[^/]+)/?$', views.viewTrack, {'readOnly': True}),
 
@@ -68,8 +65,10 @@ if settings.USE_STATIC_SERVE:
     urlpatterns += patterns('',
         (r'^data/(?P<path>.*)$', 'django.views.static.serve',
          {'document_root':settings.DATA_DIR,
-          'show_indexes':True}),
+          'show_indexes':True,
+          'readOnly': True}),
         (r'^favicon.ico$', 'django.views.generic.simple.redirect_to',
-         {'url': settings.MEDIA_URL + 'share/camera.ico'}
+         {'url': settings.MEDIA_URL + 'share/camera.ico',
+          'readOnly': True}
          ),
         )

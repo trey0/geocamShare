@@ -55,7 +55,7 @@ class SecurityRedirectMiddleware(object):
     SECURITY_REDIRECT_DEFAULT_CHALLENGE = 'django'
     # 'django' auth type always accepted -- leave it out of the list
     SECURITY_REDIRECT_ACCEPT_AUTH_TYPES = ['digest', 'basic']
-    SECURITY_REDIRECT_REQUIRE_SSL_FOR_BASIC_AUTH = True
+    SECURITY_REDIRECT_REQUIRE_SSL_FOR_CREDENTIALS = True
 
     def __init__(self):
         if 'digest' in self._getSetting('SECURITY_REDIRECT_ACCEPT_AUTH_TYPES'):
@@ -71,7 +71,7 @@ class SecurityRedirectMiddleware(object):
     # http://djangosnippets.org/snippets/243/
     def _basicAuthenticate(self, request):
         # require SSL for basic auth -- avoid clients sending passwords in cleartext
-        if not requestIsSecure(request) and self._getSetting('SECURITY_REDIRECT_REQUIRE_SSL_FOR_BASIC_AUTH'):
+        if not requestIsSecure(request) and self._getSetting('SECURITY_REDIRECT_REQUIRE_SSL_FOR_CREDENTIALS'):
             return False
         
         if 'HTTP_AUTHORIZATION' not in request.META:
@@ -108,7 +108,7 @@ class SecurityRedirectMiddleware(object):
         loginUrlWithoutScriptName = '/' + settings.LOGIN_URL[len(settings.SCRIPT_NAME):]
         loginTuple = resolve(loginUrlWithoutScriptName)
         loginViewKwargs = loginTuple[2]
-        sslRequired = loginViewKwargs.get('sslRequired', self._getSetting('SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT'))
+        sslRequired = loginViewKwargs.get('sslRequired', self._getSetting('SECURITY_REDIRECT_REQUIRE_SSL_FOR_CREDENTIALS'))
         if sslRequired and not requestIsSecure(request):
             # ssl required for login -- redirect to https and then back
             loginUrl = re.sub('^http:', 'https:', request.build_absolute_uri(settings.LOGIN_URL))
