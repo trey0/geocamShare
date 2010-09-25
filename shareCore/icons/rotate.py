@@ -12,7 +12,6 @@ import re
 from glob import glob
 
 REQ_SIZE = (48, 48)
-ICON_SIZE_CACHE = {}
 
 def getbbox(im, threshold):
     '''like Image.getbbox(), but instead of cropping everything that is exactly 0,
@@ -70,13 +69,3 @@ def generateAllDirections(imPath, outputDir):
         outPath = getOutPath(imPath, outputDir, angle)
         # PIL rotates counter-clockwise, angle is clockwise compass direction
         rotateAntialias(im, -angle).save(outPath)
-
-def cacheIconSize(dir):
-    paths = glob('%s/*' % dir)
-    for p in paths:
-        iconPrefix = os.path.splitext(os.path.basename(p))[0]
-        im = Image.open(p)
-        ICON_SIZE_CACHE[iconPrefix] = list(im.size)
-
-def getIconSize(iconPrefix):
-    return ICON_SIZE_CACHE[iconPrefix]

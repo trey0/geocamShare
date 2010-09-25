@@ -32,7 +32,7 @@ from share2.shareCore.utils import makeUuid, mkdirP
 from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
-from share2.shareCore.utils.icons import cacheIconSize
+from share2.shareCore.icons import cacheIconSize
 from share2.shareCore.kml.ViewKml import ViewKml
 from share2.shareCore.middleware import requestIsSecure
 

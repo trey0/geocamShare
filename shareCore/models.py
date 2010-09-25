@@ -30,7 +30,7 @@ import tagging
 from share2.shareCore.utils import mkdirP, makeUuid, Xmp
 from share2.shareCore.utils.gpx import TrackLog
 from share2.shareCore.ExtrasField import ExtrasField
-from share2.shareCore.utils.icons import getIconSize
+from share2.shareCore.icons import getIconSize
 from share2.shareCore.TimeUtils import parseUploadTime
 from share2.shareCore.managers import AbstractClassManager, LeafClassManager
 
