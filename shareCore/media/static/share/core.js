@@ -49,13 +49,28 @@ geocamShare.core = {
         if (query != null) {
             url += '?q=' + escape(query);
         }
-        $.getJSON(url,
-	          function (features) {
-                      geocamShare.core.newFeaturesG = features;
-                      geocamShare.core.setViewIfReady();
-                  });
+        $.getJSON(url, geocamShare.core.handleNewFeatures);
 
         return false;
+    },
+
+    handleNewFeatures: function (response) {
+        if (response.error == null) {
+            geocamShare.core.newFeaturesG = response.result;
+            geocamShare.core.setViewIfReady();
+        } else {
+            geocamShare.core.showError('invalid search query', response.error.message);
+        }
+    },
+
+    showError: function (shortMessage, longMessage) {
+        $('#errorMessage').html('<span style="background-color: #ff7; padding: 0.7em; padding-top: 0.3em; padding-bottom: 0.3em;">' + shortMessage + ' <a href="." id="clearError" style="margin-left: 0.5em;">ok</span></span>');
+        $('#clearError').click(function () {
+            $('#errorMessage').html('')
+            return false;
+        });
+
+        $(geocamShare.core).trigger('error', [shortMessage, longMessage]);
     },
 
     runSearch: function (query) {

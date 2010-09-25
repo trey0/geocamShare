@@ -35,6 +35,7 @@ from share2.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageFo
 from share2.shareCore.icons import cacheIconSize
 from share2.shareCore.kml.ViewKml import ViewKml
 from share2.shareCore.middleware import requestIsSecure
+from share2.shareCore import search
 
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
@@ -54,19 +55,33 @@ class ViewCore(ViewKml):
         query = request.REQUEST.get('q', '')
         return self.getMatchingFeaturesForQuery(query)
 
-    def getFeaturesJsonText(self, request):
-        obj = [f.getShortDict() for f in self.getMatchingFeatures(request)]
+    def dumps(self, obj):
         if 1:
             return json.dumps(obj, indent=4, sort_keys=True) # pretty print for debugging
         else:
             return json.dumps(obj, separators=(',',':')) # compact
 
+    def getFeaturesJsonText(self, request):
+        try:
+            matches = self.getMatchingFeatures(request)
+            errorMessage = None
+        except search.BadQuery, e:
+            errorMessage = e.message # FIX ME
+
+        if errorMessage:
+            response = {'error': {'code': -32099,
+                                  'message': errorMessage}}
+        else:
+            response = {'result': [f.getShortDict() for f in matches]}
+        return self.dumps(response)
+
     def featuresJson(self, request):
-        return HttpResponse(self.getFeaturesJsonText(request), mimetype='application/json')
+        return HttpResponse(self.getFeaturesJsonText(request),
+                            mimetype='application/json')
 
     def featuresJsonJs(self, request):
-        featuresJsonText = self.getFeaturesJsonText(request)
-        return HttpResponse('geocamShare.core.newFeaturesG =\n%s;\ngeocamShare.core.setViewIfReady();' % featuresJsonText,
+        response = self.getFeaturesJsonText(request)
+        return HttpResponse('geocamShare.core.handleNewFeatures(%s);\n' % response,
                             mimetype='text/javascript')
 
     def galleryDebug(self, request):
@@ -114,11 +129,14 @@ class ViewCore(ViewKml):
                 # FIX: update map, etc!
                 updatedObject = form.save()
                 if ajax:
-                    return HttpResponse(json.dumps(['success', updatedObject.getShortDict()]),
+                    return HttpResponse(json.dumps({'result': updatedObject.getShortDict()}),
                                         mimetype='application/json')
             else:
                 if ajax:
-                    return HttpResponse(json.dumps(form._get_errors()),
+                    return HttpResponse(json.dumps({'error': {'code': -32099,
+                                                              'message': 'invalid value in form field',
+                                                              'data': form._get_errors()}
+                                                    }),
                                         mimetype='application/json')
         else:
             form = EditImageForm(instance=img)

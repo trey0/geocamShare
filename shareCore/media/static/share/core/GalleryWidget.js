@@ -23,6 +23,10 @@ geocamShare.core.GalleryWidget = new Class(
         } else {
             $("#geocamShare_core_gallery").html('Loading...');
         }
+
+        $(geocamShare.core).bind("error", function (object, shortMessage, longMessage) {
+            $("#geocamShare_core_gallery").html(longMessage);
+        });
     },
 
     updateFeatures: function (newFeatures, diff) {
