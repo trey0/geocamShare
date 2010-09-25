@@ -21,7 +21,7 @@ geocamShare.core.GalleryWidget = new Class(
         if (geocamShare.core.visibleFeaturesG != null) {
             this.notifyFeaturesInMapViewport(geocamShare.core.visibleFeaturesG);
         } else {
-            $("#geocamShare_core_gallery").html('Loading...');
+            $("#geocamShare_core_gallery").html(geocamShare.core.getPendingStatusHtml('Loading...'));
         }
 
         $(geocamShare.core).bind("error", function (object, shortMessage, longMessage) {
@@ -34,7 +34,7 @@ geocamShare.core.GalleryWidget = new Class(
     },
 
     notifyLoading: function () {
-        $("#geocamShare_core_gallery").html('Searching...');
+        $("#geocamShare_core_gallery").html(geocamShare.core.getPendingStatusHtml('Searching...'));
     },
 
     notifyFeaturesInMapViewport: function (visibleFeatures) {

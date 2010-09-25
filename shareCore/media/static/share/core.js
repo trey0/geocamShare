@@ -511,5 +511,17 @@ geocamShare.core = {
             geocamShare.core.newFeaturesG = null;
 	    geocamShare.core.setView(oldFeatures, geocamShare.core.featuresG);
         }
+    },
+
+    getLoadingIcon: function () {
+        return '<img src="' + geocamShare.core.MEDIA_URL + 'icons/loading.gif"'
+	    +'   width="24" height="24" class="loadingIcon" title="loading icon"/>'
+    },
+
+    getPendingStatusHtml: function (message) {
+        return '<div style="margin: 10px;">'
+            + geocamShare.core.getLoadingIcon()
+            + '<span style="vertical-align: middle;">' + message + '</span>'
+            + '</div>';
     }
 };

@@ -21,7 +21,7 @@ geocamShare.core.FeatureEditWidget = new Class(
               function (data) { self.formLoadedHandler(data) });
 
         var content = '<div style="margin: 10px;">'
-            + geocamShare.core.ajaxFormGetLoadingIcon()
+            + geocamShare.core.getLoadingIcon()
             + '<span style="vertical-align: middle;">Loading edit form</span>'
             + '</div>';
         $('#' + this.domId).html(content);

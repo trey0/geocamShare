@@ -8,11 +8,6 @@ $extend(geocamShare.core,
 {
     ajaxFormSuccessFnG: null,
 
-    ajaxFormGetLoadingIcon: function () {
-        return '<img src="' + geocamShare.core.MEDIA_URL + 'icons/loading.gif"'
-	    +'   width="24" height="24" class="loadingIcon" title="loading icon"/>'
-    },
-
     ajaxFormSubmitHandler: function (formData, jqForm, options) {
         // clear old errors
         var fields = jqForm.serializeArray();
@@ -23,7 +18,7 @@ $extend(geocamShare.core,
 
         // notify user save is in progress
         $('#ajaxFormEditStatus').html('<div class="pendingStatus">'
-			              + geocamShare.core.ajaxFormGetLoadingIcon()
+			              + geocamShare.core.getLoadingIcon()
                                       + '<span style="vertical-align: middle;">Saving your changes.</span>'
 			              + '</div>');
     },
