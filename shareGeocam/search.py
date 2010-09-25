@@ -5,10 +5,10 @@
 # __END_LICENSE__
 
 from share2.shareCore.search import SearchCore
-from share2.shareCore.models import Feature
+from share2.shareCore.models import PointFeature
 
 class SearchGeocam(SearchCore):
-    getAllFeatures = Feature.objects.all
+    getAllFeatures = PointFeature.objects.all
     fields = ('name', 'user', 'notes', 'tags', 'uuid')
     timeField = 'timestamp' # FIX: handle features with non-zero time extent
     # pairs (user-facing-field-name, django-field-name)
