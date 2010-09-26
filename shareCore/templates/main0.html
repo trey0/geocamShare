@@ -30,6 +30,8 @@
   <script src="{{ MEDIA_URL }}share/core/FeatureDetailWidget.js" type="text/javascript"></script>
   <script src="{{ MEDIA_URL }}share/core/FeatureEditWidget.js" type="text/javascript"></script>
   <script src="{{ MEDIA_URL }}share/core/ajaxForm.js" type="text/javascript"></script>
+  {% block extraScripts %}
+  {% endblock %}
 
   {% if query %}
     <script src="{{ settings.SCRIPT_NAME }}featuresJson.js?q={{ query|urlencode }}&forceReload={% now "ymdHis" %}" type="text/javascript"></script>
@@ -39,8 +41,7 @@
 {% endblock %}
 
 {% block jsSetVars %}
-  geocamShare.core.SERVER_ROOT_URL = "{{ SERVER_ROOT_URL }}";
-  $extend(geocamShare.core, {{ exportSettings|safe }});
+  geocamShare.core.settings = {{ exportSettings|safe }};
 {% endblock %}
 
 {% block jsInit %}

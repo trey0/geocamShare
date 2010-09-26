@@ -39,7 +39,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
             this.boundsAreSet = true;
         }
 
-        if (geocamShare.core.USE_MARKER_CLUSTERING) {
+        if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
             this.markerClusterer = new MarkerClusterer(this.gmap, [],
                                                        {gridSize: 25});
         }
@@ -58,7 +58,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
         this.setListeners();
 
         if (diff.featuresToDelete.length > 0 || diff.featuresToAdd.length > 0) {
-            if (geocamShare.core.USE_MARKER_CLUSTERING) {
+            if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
                 // the MarkerClusterer removeMarker() operation is very slow,
                 // so we're better off clearing the markers and then adding them
                 // all back
@@ -273,7 +273,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     addToMap: function (marker) {
-        if (geocamShare.core.USE_MARKER_CLUSTERING) {
+        if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
             this.markerClusterer.addMarker(marker);
         } else {
             marker.setMap(this.gmap);
@@ -281,7 +281,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     removeFromMap: function (marker) {
-        if (geocamShare.core.USE_MARKER_CLUSTERING) {
+        if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
             this.markerClusterer.removeMarker(marker);
         } else {
             marker.setMap(null);

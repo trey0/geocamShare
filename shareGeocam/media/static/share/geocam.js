@@ -11,7 +11,7 @@ geocamShare.core.isImage = function (feature) {
 }
 
 geocamShare.core.getDirUrl = function (feature) {
-    ret = geocamShare.core.DATA_URL + feature.dateText + "/" + feature.author.userName + "/" + feature.uuid + "/" + feature.version + "/";
+    ret = geocamShare.core.settings.DATA_URL + feature.dateText + "/" + feature.author.userName + "/" + feature.uuid + "/" + feature.version + "/";
     return ret;
 }
 
@@ -30,7 +30,7 @@ geocamShare.core.getViewerUrl = function (feature) {
             name = "untitled";
         }
     }
-    return geocamShare.core.SCRIPT_NAME + feature.type.toLowerCase() + "/" + feature.uuid + "/" + feature.version + "/" + name;
+    return geocamShare.core.settings.SCRIPT_NAME + feature.type.toLowerCase() + "/" + feature.uuid + "/" + feature.version + "/" + name;
 }
 
 geocamShare.core.getFeatureEditUrl = function (feature, widget) {
@@ -40,7 +40,7 @@ geocamShare.core.getFeatureEditUrl = function (feature, widget) {
     } else {
         verb = 'edit'
     }
-    return geocamShare.core.SCRIPT_NAME + verb + '/' + feature.type.toLowerCase() + "/" + feature.uuid + "/";
+    return geocamShare.core.settings.SCRIPT_NAME + verb + '/' + feature.type.toLowerCase() + "/" + feature.uuid + "/";
 }
 
 geocamShare.core.getCaptionHtml = function (feature) {

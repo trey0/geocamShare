@@ -7,14 +7,6 @@
 var geocamShare = {};
 
 geocamShare.core = {
-
-    // these variables will be initialized to constant values derived from django settings
-    MAP_BACKEND: null,
-    SCRIPT_NAME: null,
-    SERVER_ROOT_URL: null,
-    MEDIA_URL: null,
-    DATA_URL: null,
-
     // module variables
     featuresG: [],
     newFeaturesG: null,
@@ -47,7 +39,7 @@ geocamShare.core = {
     },
 
     reloadFeatures: function (query) {
-        var url = geocamShare.core.SCRIPT_NAME + "features.json";
+        var url = geocamShare.core.settings.SCRIPT_NAME + "features.json";
         if (query != null) {
             url += '?q=' + escape(query);
         }
@@ -101,9 +93,9 @@ geocamShare.core = {
     init: function () {
         // fetch JSON features and start map loading in parallel
         var mapFactory;
-        if (geocamShare.core.MAP_BACKEND == "earth") {
+        if (geocamShare.core.settings.MAP_BACKEND == "earth") {
             mapFactory = geocamShare.core.EarthApiMapViewer.factory;
-        } else if (geocamShare.core.MAP_BACKEND == "maps") {
+        } else if (geocamShare.core.settings.MAP_BACKEND == "maps") {
             mapFactory = geocamShare.core.MapsApiMapViewer.factory;
         } else {
             mapFactory = geocamShare.core.StubMapViewer.factory;
@@ -170,7 +162,7 @@ geocamShare.core = {
     getFeatureThumbnailUrl: function (feature, width) {
         if (feature.type == "Track") {
             // FIX: should have thumbnails generated so we can respect width argument
-            return geocamShare.core.MEDIA_URL + "share/gpsTrack.png";
+            return geocamShare.core.settings.MEDIA_URL + "share/gpsTrack.png";
         } else {
             // for images
             return geocamShare.core.getThumbnailUrl(feature, width);
@@ -186,8 +178,8 @@ geocamShare.core = {
     },
     
     getFeatureDetailImageHtml: function (feature) {
-        var w0 = geocamShare.core.DESC_THUMB_SIZE[0];
-        var scale = geocamShare.core.DESC_THUMB_SIZE[0] / geocamShare.core.GALLERY_THUMB_SIZE[0];
+        var w0 = geocamShare.core.settings.DESC_THUMB_SIZE[0];
+        var scale = geocamShare.core.settings.DESC_THUMB_SIZE[0] / geocamShare.core.settings.GALLERY_THUMB_SIZE[0];
         var galThumbSize = geocamShare.core.getFeatureThumbSize(feature);
         var tw = galThumbSize[0];
         var th = galThumbSize[1];
@@ -225,15 +217,15 @@ geocamShare.core = {
     },
     
     getIconGalleryUrl: function (feature) {
-        return geocamShare.core.MEDIA_URL + 'share/map/' + feature.icon.name + '.png';
+        return geocamShare.core.settings.MEDIA_URL + 'share/map/' + feature.icon.name + '.png';
     },
     
     getIconMapUrl: function (feature) {
-        return geocamShare.core.MEDIA_URL + 'share/map/' + feature.icon.name + 'Point.png';
+        return geocamShare.core.settings.MEDIA_URL + 'share/map/' + feature.icon.name + 'Point.png';
     },
     
     getIconMapRotUrl: function (feature) {
-        return geocamShare.core.MEDIA_URL + 'share/mapr/' + feature.rotatedIcon.name + '.png';
+        return geocamShare.core.settings.MEDIA_URL + 'share/mapr/' + feature.rotatedIcon.name + '.png';
     },
     
     checkFeaturesInMapViewport: function (features) {
@@ -273,8 +265,8 @@ geocamShare.core = {
     },
 
     getGalleryThumbHtml: function (feature) {
-        var w0 = geocamShare.core.GALLERY_THUMB_SIZE[0];
-        var h0 = geocamShare.core.GALLERY_THUMB_SIZE[1];
+        var w0 = geocamShare.core.settings.GALLERY_THUMB_SIZE[0];
+        var h0 = geocamShare.core.settings.GALLERY_THUMB_SIZE[1];
         var galThumbSize = geocamShare.core.getFeatureThumbSize(feature);
         var tw = galThumbSize[0];
         var th = galThumbSize[1];
@@ -501,7 +493,7 @@ geocamShare.core = {
     },
     
     setSessionVars: function (varMap) {
-        var url = geocamShare.core.SCRIPT_NAME + 'setVars';
+        var url = geocamShare.core.settings.SCRIPT_NAME + 'setVars';
         var sep = '?';
         $.each(varMap,
                function (key, val) {
@@ -528,7 +520,7 @@ geocamShare.core = {
     },
 
     getLoadingIcon: function () {
-        return '<img src="' + geocamShare.core.MEDIA_URL + 'icons/loading.gif"'
+        return '<img src="' + geocamShare.core.settings.MEDIA_URL + 'icons/loading.gif"'
 	    +'   width="24" height="24" class="loadingIcon" title="loading icon"/>'
     },
 

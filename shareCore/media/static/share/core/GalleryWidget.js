@@ -64,12 +64,12 @@ geocamShare.core.GalleryWidget = new Class(
     },
     
     getNumPages: function (numFeatures) {
-        const pageSize = geocamShare.core.GALLERY_PAGE_ROWS*geocamShare.core.GALLERY_PAGE_COLS;
+        const pageSize = geocamShare.core.settings.GALLERY_PAGE_ROWS*geocamShare.core.settings.GALLERY_PAGE_COLS;
         return Math.ceil(numFeatures / pageSize);
     },
 
     getIndex: function (page, row, col) {
-        return ((page-1)*geocamShare.core.GALLERY_PAGE_ROWS + row)*geocamShare.core.GALLERY_PAGE_COLS + col;
+        return ((page-1)*geocamShare.core.settings.GALLERY_PAGE_ROWS + row)*geocamShare.core.settings.GALLERY_PAGE_COLS + col;
     },
 
     getGalleryHtml: function (features, pageNum) {
@@ -83,9 +83,9 @@ geocamShare.core.GalleryWidget = new Class(
            });
         //html += '<div style="float: right;">Hide</div>';
         html += '</td></tr>';
-        for (var r=0; r < geocamShare.core.GALLERY_PAGE_ROWS; r++) {
+        for (var r=0; r < geocamShare.core.settings.GALLERY_PAGE_ROWS; r++) {
 	    html += "<tr>";
-	    for (var c=0; c < geocamShare.core.GALLERY_PAGE_COLS; c++) {
+	    for (var c=0; c < geocamShare.core.settings.GALLERY_PAGE_COLS; c++) {
 	        var i = this.getIndex(pageNum, r, c);
 	        if (i < features.length) {
 		    var feature = features[i];
@@ -102,7 +102,7 @@ geocamShare.core.GalleryWidget = new Class(
         // get the page that this feature appears on among the
         // visible features -- we use this to set the page before
         // we try to highlight the feature in the gallery
-        const pageSize = geocamShare.core.GALLERY_PAGE_ROWS*geocamShare.core.GALLERY_PAGE_COLS;
+        const pageSize = geocamShare.core.settings.GALLERY_PAGE_ROWS*geocamShare.core.settings.GALLERY_PAGE_COLS;
         return Math.floor(feature.visibleIndex / pageSize) + 1;
     },
 
@@ -132,7 +132,7 @@ geocamShare.core.GalleryWidget = new Class(
             $("#geocamShare_core_gallery").html(this.getGalleryHtml(visibleFeatures, pageNum));
             
             // set gallery listeners
-            const pageSize = geocamShare.core.GALLERY_PAGE_ROWS*geocamShare.core.GALLERY_PAGE_COLS;
+            const pageSize = geocamShare.core.settings.GALLERY_PAGE_ROWS*geocamShare.core.settings.GALLERY_PAGE_COLS;
             for (var j=0; j < pageSize; j++) {
                 var i = (pageNum-1)*pageSize + j;
                 if (i < visibleFeatures.length) {
