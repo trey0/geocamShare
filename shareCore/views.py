@@ -61,31 +61,36 @@ class ViewCore(ViewKml):
         else:
             return json.dumps(obj, separators=(',',':')) # compact
 
-    def getFeaturesJsonText(self, request):
+    def getFeaturesGeoJson(self, request):
         try:
             matches = self.getMatchingFeatures(request)
             errorMessage = None
         except search.BadQuery, e:
-            errorMessage = e.message # FIX ME
-
+            errorMessage = e.message
+        
         if errorMessage:
             response = {'error': {'code': -32099,
                                   'message': errorMessage}}
         else:
-            response = {'result': [f.getShortDict() for f in matches]}
+            gjFeatures = [f.getGeoJson() for f in matches]
+            featureCollection = dict(type='FeatureCollection',
+                                     crs=dict(type='name',
+                                              properties=dict(name='urn:ogc:def:crs:OGC:1.3:CRS84')),
+                                     features=gjFeatures)
+            response = dict(result=featureCollection)
         return self.dumps(response)
 
     def featuresJson(self, request):
-        return HttpResponse(self.getFeaturesJsonText(request),
+        return HttpResponse(self.getFeaturesGeoJson(request),
                             mimetype='application/json')
 
     def featuresJsonJs(self, request):
-        response = self.getFeaturesJsonText(request)
+        response = self.getFeaturesGeoJson(request)
         return HttpResponse('geocamShare.core.handleNewFeatures(%s);\n' % response,
                             mimetype='text/javascript')
 
     def galleryDebug(self, request):
-        return HttpResponse('<body><pre>%s</pre></body>' % self.getFeaturesJsonText(request))
+        return HttpResponse('<body><pre>%s</pre></body>' % self.getFeaturesGeoJson(request))
 
     def getExportSettings(self):
         exportedVars = ['SCRIPT_NAME',
@@ -129,7 +134,7 @@ class ViewCore(ViewKml):
                 # FIX: update map, etc!
                 updatedObject = form.save()
                 if ajax:
-                    return HttpResponse(json.dumps({'result': updatedObject.getShortDict()}),
+                    return HttpResponse(json.dumps({'result': updatedObject.getGeoJson()}),
                                         mimetype='application/json')
             else:
                 if ajax:

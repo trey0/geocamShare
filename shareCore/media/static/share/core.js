@@ -23,10 +23,30 @@ geocamShare.core = {
     highlightedFeatureUuid: null,
     selectedFeatureUuid: null,
     
+    parseFeature: function (feature) {
+        // note: destructive
+
+        feature.properties.uuid = feature.id;
+        if (feature.geometry.type == "Point") {
+            var coords = feature.geometry.coordinates;
+            feature.properties.longitude = coords[0];
+            feature.properties.latitude = coords[1];
+        } else {
+            var bbox = feature.bbox;
+            var dims = feature.bbox.length / 2;
+            feature.properties.minLon = bbox[0];
+            feature.properties.minLat = bbox[1];
+            feature.properties.maxLon = bbox[dims];
+            feature.properties.maxLat = bbox[dims+1];
+        }
+        result = new geocamShare.core[feature.properties.subtype](feature.properties);
+        return result;
+    },
+
     updateFeature: function (feature) {
         // update one feature whose meta-data has changed
 
-        feature = new geocamShare.core[feature.type](feature);
+        feature = geocamShare.core.parseFeature(feature);
 
         var oldFeature = geocamShare.core.featuresByUuidG[feature.uuid];
         if (oldFeature.visibleIndex != null) {
@@ -52,11 +72,11 @@ geocamShare.core = {
 
     handleNewFeatures: function (response) {
         if (response.error == null) {
-            var jsonFeatures = response.result;
+            var jsonFeatures = response.result.features;
             var parsedFeatures = [];
             $.each(jsonFeatures,
                    function (i, feature) {
-                       parsedFeatures.push(new geocamShare.core[feature.type](feature));
+                       parsedFeatures.push(geocamShare.core.parseFeature(feature));
                    });
             geocamShare.core.newFeaturesG = parsedFeatures;
             geocamShare.core.setViewIfReady();

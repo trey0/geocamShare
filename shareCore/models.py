@@ -293,21 +293,26 @@ class Feature(models.Model):
                               user.last_name.capitalize())
             return result
 
-    def getShortDict(self):
+    def getProperties(self):
         tagsList = tagging.utils.parse_tag_input(self.tags)
         author = self.getCachedAuthor()
         authorDict = dict(userName=author.username,
                           displayName=self.getUserDisplayName(author))
         return dict(name=self.name,
-                    uuid=self.uuid,
                     version=self.version,
                     isAerial=self.isAerial,
                     author=authorDict,
                     notes=self.notes,
                     tags=tagsList,
                     icon=self.getIconDict(),
-                    type=self.__class__.__name__
+                    subtype=self.__class__.__name__
                     )
+
+    def getGeoJson(self):
+        return dict(type='Feature',
+                    id=self.uuid,
+                    geometry=self.getGeometry(),
+                    properties=self.getProperties())
 
     def getDirUrl(self):
         return '/'.join([settings.DATA_URL] + list(self.getDirSuffix()))
@@ -360,15 +365,6 @@ class PointFeature(Feature):
     def getLocalTimeHumanReadable(self):
         return self.getLocalTime().strftime('%Y-%m-%d %H:%M:%S (%z)')
 
-    def getShortDict(self):
-        w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
-        dct = super(PointFeature, self).getShortDict()
-        dct.update(latitude=self.latitude,
-                   longitude=self.longitude,
-                   timestamp=self.localTime.isoformat(),
-                   dateText=self.localTime.strftime('%Y%m%d'))
-        return dct
-
     def getBalloonHtml(self, request):
         return ''
 
@@ -399,6 +395,16 @@ class PointFeature(Feature):
            yaw=self.yaw,
            lon=self.longitude,
            lat=self.latitude))
+    
+    def getProperties(self):
+        result = super(PointFeature, self).getProperties()
+        result.update(timestamp=self.localTime.isoformat(),
+                      dateText=self.localTime.strftime('%Y%m%d'))
+        return result
+
+    def getGeometry(self):
+        return dict(type='Point',
+                    coordinates=[self.longitude, self.latitude])
 
 class Image(PointFeature):
     roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
@@ -469,16 +475,6 @@ class Image(PointFeature):
         rotName = '%s%03d' % (name, rotRounded)
         return dict(name=rotName,
                     size=getIconSize(rotName))
-
-    def getShortDict(self):
-        w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
-        dct = super(Image, self).getShortDict()
-        dct.update(yaw=self.yaw,
-                   yawRef=self.yawRef,
-                   w=w,
-                   h=h,
-                   rotatedIcon=self.getRotatedIconDict())
-        return dct
 
     def process(self, importFile=None):
         self.status = settings.STATUS_ACTIVE
@@ -651,6 +647,14 @@ class Image(PointFeature):
 </PhotoOverlay>
 """ % dict())
 
+    def getProperties(self):
+        result = super(Image, self).getProperties()
+        w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
+        result.update(w=w,
+                      h=h,
+                      rotatedIcon=self.getRotatedIconDict())
+        return result
+
 class ExtentFeature(Feature):
     minTime = models.DateTimeField(blank=True, verbose_name='start time')
     maxTime = models.DateTimeField(blank=True, verbose_name='end time')
@@ -671,15 +675,11 @@ class ExtentFeature(Feature):
         return self.maxTime
     timestamp = property(getTimestamp)
 
-    def getShortDict(self):
-        dct = super(ExtentFeature, self).getShortDict()
-        dct.update(minTime=self.utcToLocalTime(self.minTime).isoformat(),
-                   maxTime=self.utcToLocalTime(self.maxTime).isoformat(),
-                   minLat=self.minLat,
-                   minLon=self.minLon,
-                   maxLat=self.maxLat,
-                   maxLon=self.maxLon)
-        return dct
+    def getProperties(self):
+        result = super(ExtentFeature, self).getProperties()
+        result.update(minTime=self.utcToLocalTime(self.minTime).isoformat(),
+                      maxTime=self.utcToLocalTime(self.maxTime).isoformat())
+        return result
 
     class Meta:
         abstract = True
@@ -698,11 +698,6 @@ class Track(ExtentFeature):
     gpx = models.TextField(help_text='If this track was imported as a GPX log, we keep the original GPX here in case there are important fields that are not currently captured in our GeoJSON format.')
     objects = LeafClassManager(parentModel=ExtentFeature)
 
-    def getShortDict(self):
-        dct = super(Track, self).getShortDict()
-        dct.update(geometry=json.loads(self.json))
-        return dct
-
     def process(self):
         self.status = settings.STATUS_ACTIVE
         self.processed = True
@@ -713,6 +708,14 @@ class Track(ExtentFeature):
         self.minTime, self.maxTime = rng.minTime, rng.maxTime
         self.minLon, self.minLat, self.maxLon, self.maxLat = data.getBbox().asList()
         self.json = data.geoJsonString()
+
+    def getGeometry(self):
+        return json.loads(self.json)
+
+    def getGeoJson(self):
+        result = super(Track, self).getGeoJson()
+        result['bbox'] = [self.minLon, self.minLat, self.maxLon, self.maxLat]
+        return result
 
 class Snapshot(models.Model):
     imgUuid = models.CharField(max_length=48)

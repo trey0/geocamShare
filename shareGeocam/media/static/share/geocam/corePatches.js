@@ -7,7 +7,7 @@
 // can override stuff from shareCore.js here
 
 geocamShare.core.isImage = function (feature) {
-    return feature.type == "Photo";
+    return feature.subtype == "Photo";
 }
 
 geocamShare.core.getDirUrl = function (feature) {
@@ -18,15 +18,15 @@ geocamShare.core.getDirUrl = function (feature) {
 geocamShare.core.Feature.prototype.getViewerUrl = function () {
     var name = this.name;
     if (name == "") {
-        if (this.type == "Photo") {
+        if (this.subtype == "Photo") {
             name = "untitled.jpg";
-        } else if (this.type == "Track") {
+        } else if (this.subtype == "Track") {
             name = "untitled.json";
         } else {
             name = "untitled";
         }
     }
-    return geocamShare.core.settings.SCRIPT_NAME + this.type.toLowerCase() + "/" + this.uuid + "/" + this.version + "/" + name;
+    return geocamShare.core.settings.SCRIPT_NAME + this.subtype.toLowerCase() + "/" + this.uuid + "/" + this.version + "/" + name;
 }
 
 geocamShare.core.Feature.prototype.getEditUrl = function (widget) {
@@ -36,7 +36,7 @@ geocamShare.core.Feature.prototype.getEditUrl = function (widget) {
     } else {
         verb = 'edit'
     }
-    return geocamShare.core.settings.SCRIPT_NAME + verb + '/' + this.type.toLowerCase() + "/" + this.uuid + "/";
+    return geocamShare.core.settings.SCRIPT_NAME + verb + '/' + this.subtype.toLowerCase() + "/" + this.uuid + "/";
 }
 
 geocamShare.core.Feature.prototype.getCaptionHtml = function () {
