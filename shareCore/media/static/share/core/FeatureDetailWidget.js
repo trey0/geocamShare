@@ -34,7 +34,7 @@ geocamShare.core.FeatureDetailWidget = new Class(
 
         // set ajax handler for edit link, replaces default behavior of opening a new web page
         $('#featureEditLink').click(function () {
-            geocamShare.core.switcherG.setToFeatureEdit();
+            geocamShare.core.setToFeatureEdit();
             return false;
         });
     }

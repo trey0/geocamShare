@@ -27,7 +27,6 @@ geocamShare.core = {
     widgetManagerG: null,
     viewportG: "",
     viewIndexUuidG: null,
-    switcherG: null,
     
     highlightedFeatureUuid: null,
     selectedFeatureUuid: null,
@@ -592,5 +591,13 @@ geocamShare.core = {
 
     notifyFeaturesInMapViewport: function (features) {
         $(geocamShare.core).trigger("notifyFeaturesInMapViewport", arguments);
+    },
+
+    setToFeatureDetail: function () {
+        $(geocamShare.core).trigger("setToFeatureDetail", arguments);
+    },
+
+    setToFeatureEdit: function () {
+        $(geocamShare.core).trigger("setToFeatureEdit", arguments);
     }
 };

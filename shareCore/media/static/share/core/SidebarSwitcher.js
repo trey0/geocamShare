@@ -10,13 +10,14 @@ geocamShare.core.SidebarSwitcher = new Class(
 
     initialize: function (domId) {
         this.domId = domId;
-        geocamShare.core.switcherG = this;
         this.setToGallery();
 
         geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
         geocamShare.core.bindEvent(geocamShare.core, this, "unselectFeature");
         geocamShare.core.bindEvent(geocamShare.core, this, "notifyLoading");
         geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
+        geocamShare.core.bindEvent(geocamShare.core, this, "setToFeatureDetail");
+        geocamShare.core.bindEvent(geocamShare.core, this, "setToFeatureEdit");
     },
 
     selectFeature: function (feature) {

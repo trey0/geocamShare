@@ -45,14 +45,14 @@ geocamShare.core.FeatureEditWidget = new Class(
                              geocamShare.core.getFeatureEditUrl(this.feature, true));
 
         $('#editImageCancel').click(function () {
-            geocamShare.core.switcherG.setToFeatureDetail();
+            geocamShare.core.setToFeatureDetail();
             return false;
         });
 
         geocamShare.core.ajaxFormInit('editImage',
                                       function (updatedFeature) {
                                           geocamShare.core.updateFeature(updatedFeature);
-                                          geocamShare.core.switcherG.setToFeatureDetail();
+                                          geocamShare.core.setToFeatureDetail();
                                       });
     }
 
