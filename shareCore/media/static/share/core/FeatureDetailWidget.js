@@ -29,7 +29,7 @@ geocamShare.core.FeatureDetailWidget = new Class(
             '  <a href="javascript:geocamShare.core.clearSelectedFeature()">view all</a>\n' +
             '</span>\n' +
             '</div>\n';
-        content += geocamShare.core.getFeatureBalloonHtml(this.feature);
+        content += this.feature.getBalloonHtml();
         $('#'+this.domId).html(content);
 
         // set ajax handler for edit link, replaces default behavior of opening a new web page

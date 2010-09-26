@@ -4,4 +4,13 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.geocam = {};
+geocamShare.core.Image = new Class(
+{
+    Extends: geocamShare.core.PointFeature,
+
+    getThumbSize: function () {
+        return [this.w, this.h];
+    }
+
+});
+

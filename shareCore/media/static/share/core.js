@@ -26,6 +26,8 @@ geocamShare.core = {
     updateFeature: function (feature) {
         // update one feature whose meta-data has changed
 
+        feature = new geocamShare.core[feature.type](feature);
+
         var oldFeature = geocamShare.core.featuresByUuidG[feature.uuid];
         if (oldFeature.visibleIndex != null) {
             feature.visibleIndex = oldFeature.visibleIndex;
@@ -50,7 +52,13 @@ geocamShare.core = {
 
     handleNewFeatures: function (response) {
         if (response.error == null) {
-            geocamShare.core.newFeaturesG = response.result;
+            var jsonFeatures = response.result;
+            var parsedFeatures = [];
+            $.each(jsonFeatures,
+                   function (i, feature) {
+                       parsedFeatures.push(new geocamShare.core[feature.type](feature));
+                   });
+            geocamShare.core.newFeaturesG = parsedFeatures;
             geocamShare.core.setViewIfReady();
         } else {
             geocamShare.core.showError('invalid search query', response.error.message);
@@ -159,75 +167,6 @@ geocamShare.core = {
         return diff;
     },
     
-    getFeatureThumbnailUrl: function (feature, width) {
-        if (feature.type == "Track") {
-            // FIX: should have thumbnails generated so we can respect width argument
-            return geocamShare.core.settings.MEDIA_URL + "share/gpsTrack.png";
-        } else {
-            // for images
-            return geocamShare.core.getThumbnailUrl(feature, width);
-        }
-    },
-    
-    getFeatureThumbSize: function (feature) {
-        if (feature.type == "Track") {
-            return [160, 120];
-        } else {
-            return [feature.w, feature.h];
-        }
-    },
-    
-    getFeatureDetailImageHtml: function (feature) {
-        var w0 = geocamShare.core.settings.DESC_THUMB_SIZE[0];
-        var scale = geocamShare.core.settings.DESC_THUMB_SIZE[0] / geocamShare.core.settings.GALLERY_THUMB_SIZE[0];
-        var galThumbSize = geocamShare.core.getFeatureThumbSize(feature);
-        var tw = galThumbSize[0];
-        var th = galThumbSize[1];
-        return ''
-            + '<a href="' + geocamShare.core.getViewerUrl(feature) + '"\n'
-            + '   target="_blank"\n'
-            + '   title="View full-res image">\n'
-	    + '  <img'
-	    + '    src="' + geocamShare.core.getIconGalleryUrl(feature)  + '"'
-	    + '    width="32"'
-	    + '    height="32"'
-	    + '    style="border-width: 0px; position: absolute; z-index: 100;"'
-	    + '  />'
-            + '  <img\n'
-            + '    src="' + geocamShare.core.getFeatureThumbnailUrl(feature, w0) + '"\n'
-            + '    width="' + tw*scale + '"\n'
-            + '    height="' + th*scale + '"\n'
-            + '    border="0"'
-            + '  />\n'
-            + '</a>\n';
-    },
-
-    getFeatureBalloonHtml: function (feature) {
-        return ''
-            + '<div>\n'
-            + '  ' + geocamShare.core.getFeatureDetailImageHtml(feature)
-            + '  ' + geocamShare.core.getCaptionHtml(feature)
-            + '  <div style="margin-top: 10px;"><a href="' + geocamShare.core.getViewerUrl(feature) + '" target="_blank">\n'
-            + '    View full-res image'
-            + '  </a></div>\n'
-            + '  <div style="margin-top: 10px;"><a id="featureEditLink" href="' + geocamShare.core.getFeatureEditUrl(feature) + '" target="_blank">\n'
-            + '    Edit photo information'
-            + '  </a></div>\n'
-            + '</div>\n';
-    },
-    
-    getIconGalleryUrl: function (feature) {
-        return geocamShare.core.settings.MEDIA_URL + 'share/map/' + feature.icon.name + '.png';
-    },
-    
-    getIconMapUrl: function (feature) {
-        return geocamShare.core.settings.MEDIA_URL + 'share/map/' + feature.icon.name + 'Point.png';
-    },
-    
-    getIconMapRotUrl: function (feature) {
-        return geocamShare.core.settings.MEDIA_URL + 'share/mapr/' + feature.rotatedIcon.name + '.png';
-    },
-    
     checkFeaturesInMapViewport: function (features) {
         var filteredFeatures = geocamShare.core.mapG.getFilteredFeatures(features);
         var visibleFeatures = filteredFeatures.inViewportOrNoPosition;
@@ -264,116 +203,8 @@ geocamShare.core = {
         return directions[i];
     },
 
-    getGalleryThumbHtml: function (feature) {
-        var w0 = geocamShare.core.settings.GALLERY_THUMB_SIZE[0];
-        var h0 = geocamShare.core.settings.GALLERY_THUMB_SIZE[1];
-        var galThumbSize = geocamShare.core.getFeatureThumbSize(feature);
-        var tw = galThumbSize[0];
-        var th = galThumbSize[1];
-        return "<td"
-	    + " id=\"" + feature.uuid + "\""
-	    + " style=\""
-	    + " vertical-align: top;"
-	    + " width: " + (w0+10) + "px;"
-	    + " height: " + (h0+10) + "px;"
-	    + " margin: 0px 0px 0px 0px;"
-	    + " border: 0px 0px 0px 0px;"
-	    + " padding: 0px 0px 0px 0px;"
-	    + "\">"
-	    + "<div"
-	    + " style=\""
-	    + " width: " + tw + "px;"
-	    + " height: " + th + "px;"
-	    + " margin: 0px 0px 0px 0px;"
-	    + " border: 0px 0px 0px 0px;"
-	    + " padding: 5px 5px 5px 5px;"
-	    + "\">"
-	    + "<img"
-	    + " src=\"" + geocamShare.core.getIconGalleryUrl(feature)  + "\""
-	    + " width=\"16\""
-	    + " height=\"16\""
-	    + " style=\"position: absolute; z-index: 100;\""
-	    + "/>"
-	    + "<img"
-	    + " src=\"" + geocamShare.core.getFeatureThumbnailUrl(feature, w0) + "\""
-	    + " width=\"" + tw + "\""
-	    + " height=\"" + th + "\""
-	    + "/>"
-	    + "</div>"
-	    + "</td>";
-    },
-    
     getHostUrl: function (noHostUrl) {
         return window.location.protocol + '//' + window.location.host;
-    },
-    
-    getImageKml: function (feature) {
-        var iconUrl = geocamShare.core.getHostUrl() + geocamShare.core.getIconMapUrl(feature);
-        return ''
-	    + '<Placemark id="' + feature.uuid + '">\n'
-	    + '  <Style>\n'
-	    + '    <IconStyle>\n'
-	    + '      <Icon>\n'
-	    + '        <href>' + iconUrl + '</href>\n'
-	    + '      </Icon>\n'
-	    + '      <heading>' + feature.yaw + '</heading>\n'
-	    + '    </IconStyle>\n'
-	    + '  </Style>\n'
-	    + '  <Point>\n'
-	    + '    <coordinates>' + feature.longitude + ',' + feature.latitude + '</coordinates>\n'
-	    + '  </Point>\n'
-	    + '</Placemark>\n';
-    },
-    
-    getTrackLine: function (track) {
-        result = ''
-            + '    <LineString>\n'
-            + '      <coordinates>\n';
-        for (var i=0; i < track.length; i++) {
-            var pt = track[i];
-            result += '        ' + pt[0] + ',' + pt[1] + ',' + pt[2] + '\n'
-        }
-        result += ''
-            + '      </coordinates>\n'
-            + '    </LineString>\n';
-        return result;
-    },
-    
-    getTrackKml: function (feature) {
-        var iconUrl = geocamShare.core.getHostUrl() + geocamShare.core.getIconMapUrl(feature);
-        result = ''
-	    + '<Placemark id="' + feature.uuid + '">\n'
-	    + '  <Style>\n'
-	    + '    <IconStyle>\n'
-	    + '      <Icon>\n'
-	    + '        <href>' + iconUrl + '</href>'
-	    + '      </Icon>\n'
-	    + '    </IconStyle>\n'
-	    + '    <LineStyle>\n'
-	    + '      <color>ff0000ff</color>\n'
-	    + '      <width>4</width>\n'
-	    + '    </LineStyle>\n'
-	    + '  </Style>\n'
-	    + '  <MultiGeometry>\n';
-        var coords = feature.geometry.geometry;
-        for (var i=0; i < coords.length; i++) {
-            result += geocamShare.core.getTrackLine(coords[i]);
-        }
-        result += ''
-            + '  </MultiGeometry>\n'
-	    + '</Placemark>\n';
-        
-        return result;
-    },
-    
-    getFeatureKml: function (feature) {
-        if (geocamShare.core.isImage(feature)) {
-            return geocamShare.core.getImageKml(feature);
-        } else if (feature.type == "Track") {
-            return geocamShare.core.getTrackKml(feature);
-        } else {
-            return "";
-        }
     },
     
     wrapKml: function (text) {
@@ -388,7 +219,7 @@ geocamShare.core = {
 	    + '  <Document id="allFeatures">\n';
         $.each(features,
                function (uuid, feature) {
-                   kml += geocamShare.core.getFeatureKml(feature);
+                   kml += feature.getKml();
                })
             kml += ''
 	    + '  </Document>\n';

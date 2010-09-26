@@ -146,7 +146,7 @@ geocamShare.core.EarthApiMapViewer = new Class(
         var placemark = feature.mapObject;
         balloon.setFeature(placemark);
         
-        balloon.setContentString(geocamShare.core.getFeatureBalloonHtml(feature));
+        balloon.setContentString(feature.getBalloonHtml());
         this.ge.setBalloon(balloon);
     },
     

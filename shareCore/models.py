@@ -373,7 +373,7 @@ class PointFeature(Feature):
         return ''
 
     def getKml(self, request=None):
-        if self.lon == None:
+        if self.longitude == None:
             return ''
         relIconUrl = '%sshare/map/%sPoint.png' % (settings.MEDIA_URL, self.icon)
         iconUrl = request.build_absolute_uri(relIconUrl)

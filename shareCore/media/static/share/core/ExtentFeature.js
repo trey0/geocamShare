@@ -4,4 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.geocam = {};
+geocamShare.core.ExtentFeature = new Class(
+{
+    Extends: geocamShare.core.Feature
+    
+});
+

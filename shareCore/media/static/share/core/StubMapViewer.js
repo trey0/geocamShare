@@ -16,7 +16,7 @@ geocamShare.core.StubMapViewer = new Class(
     },
 
     selectFeature: function (feature) {
-        $('#' + this.domId).html(geocamShare.core.getFeatureBalloonHtml(feature));
+        $('#' + this.domId).html(feature.getBalloonHtml());
     },
     
     unselectFeature: function (feature) {

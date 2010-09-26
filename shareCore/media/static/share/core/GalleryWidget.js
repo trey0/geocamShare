@@ -54,7 +54,7 @@ geocamShare.core.GalleryWidget = new Class(
         $("td#" + feature.uuid + " div").css({backgroundColor: 'red'});
 	
         // add the rest of the preview data
-        $("#geocamShare_core_galleryCaption").html(geocamShare.core.getCaptionHtml(feature));
+        $("#geocamShare_core_galleryCaption").html(feature.getCaptionHtml());
     },
     
     unhighlightFeature: function (feature) {
@@ -89,7 +89,7 @@ geocamShare.core.GalleryWidget = new Class(
 	        var i = this.getIndex(pageNum, r, c);
 	        if (i < features.length) {
 		    var feature = features[i];
-		    html += geocamShare.core.getGalleryThumbHtml(feature);
+		    html += feature.getGalleryThumbHtml();
 	        }
 	    }
 	    html += "</tr>";

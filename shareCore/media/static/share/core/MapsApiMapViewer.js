@@ -184,7 +184,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     initializeMarkers: function (feature) {
         var self = this;
         
-        var iconUrl = geocamShare.core.getIconMapUrl(feature);
+        var iconUrl = feature.getIconMapUrl();
         feature.mapObject = {normal: self.getMarker(feature, 0.7),
                              highlight: self.getMarker(feature, 1.0)};
         
@@ -259,7 +259,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     
     getMarker: function (feature, scale) {
         var position = new google.maps.LatLng(feature.latitude, feature.longitude);
-        var iconUrl = geocamShare.core.getIconMapRotUrl(feature);
+        var iconUrl = feature.getIconMapRotUrl();
         var iconSize = new google.maps.Size(feature.rotatedIcon.size[0], feature.rotatedIcon.size[1]);
         var origin = new google.maps.Point(0, 0);
         var scaledSize = new google.maps.Size(scale*iconSize.width, scale*iconSize.height);
@@ -308,7 +308,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
         if (this.balloon != null) {
             this.balloon.close();
         }
-        this.balloon = new google.maps.InfoWindow({content: geocamShare.core.getFeatureBalloonHtml(feature)});
+        this.balloon = new google.maps.InfoWindow({content: feature.getBalloonHtml()});
         this.balloon.open(this.gmap, feature.mapObject.current);
     },
 

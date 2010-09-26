@@ -17,7 +17,7 @@ geocamShare.core.FeatureEditWidget = new Class(
         this.feature = geocamShare.core.featuresByUuidG[uuid];
 
         var self = this;
-        $.get(geocamShare.core.getFeatureEditUrl(this.feature, true),
+        $.get(this.feature.getEditUrl(true),
               function (data) { self.formLoadedHandler(data) });
 
         var content = '<div style="margin: 10px;">'
@@ -33,7 +33,7 @@ geocamShare.core.FeatureEditWidget = new Class(
         var content = ''
             + '<div>\n'
             + '  <div style="margin-bottom: 10px;">\n'
-            + '    ' + geocamShare.core.getFeatureDetailImageHtml(this.feature)
+            + '    ' + this.feature.getDetailImageHtml()
             + '  </div>\n'
             + '  ' + formHtml
             + '</div>\n'
@@ -42,7 +42,7 @@ geocamShare.core.FeatureEditWidget = new Class(
 
         // connect formHtml elements to handlers
         $('#editImage').attr('action',
-                             geocamShare.core.getFeatureEditUrl(this.feature, true));
+                             this.feature.getEditUrl(true));
 
         $('#editImageCancel').click(function () {
             geocamShare.core.setToFeatureDetail();

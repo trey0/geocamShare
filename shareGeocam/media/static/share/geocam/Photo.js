@@ -4,4 +4,13 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.geocam = {};
+geocamShare.geocam.Photo = new Class(
+{
+    Extends: geocamShare.core.Image,
+
+    getThumbnailUrl: function (width) {
+        return geocamShare.core.getDirUrl(this) + "th" + width + ".jpg";
+    }
+
+});
+
