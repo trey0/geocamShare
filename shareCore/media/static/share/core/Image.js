@@ -8,8 +8,8 @@ geocamShare.core.Image = new Class(
 {
     Extends: geocamShare.core.PointFeature,
 
-    getThumbSize: function () {
-        return [this.w, this.h];
+    getSizePixels: function () {
+        return this.sizePixels;
     }
 
 });

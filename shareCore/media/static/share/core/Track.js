@@ -12,8 +12,8 @@ geocamShare.core.Track = new Class(
         return geocamShare.core.settings.MEDIA_URL + "share/gpsTrack.png";
     },
 
-    getThumbSize: function () {
-        return [160, 120];
+    getSizePixels: function () {
+        return [320, 240]; // size of gpsTrack.png bogus thumbnail
     },
 
     getLine: function () {

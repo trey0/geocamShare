@@ -649,9 +649,7 @@ class Image(PointFeature):
 
     def getProperties(self):
         result = super(Image, self).getProperties()
-        w, h = self.getThumbSize(settings.GALLERY_THUMB_SIZE[0])
-        result.update(w=w,
-                      h=h,
+        result.update(sizePixels=[self.widthPixels, self.heightPixels],
                       rotatedIcon=self.getRotatedIconDict())
         return result
 
