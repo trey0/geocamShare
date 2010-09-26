@@ -30,7 +30,6 @@ geocamShare.core.SidebarSwitcher = new Class(
 
     notifyLoading: function () {
         this.setToGallery();
-        this.parent(); // pass event on to gallery
     },
 
     updateFeatures: function (newFeatures, diff) {
