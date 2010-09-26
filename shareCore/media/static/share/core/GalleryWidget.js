@@ -27,10 +27,11 @@ geocamShare.core.GalleryWidget = new Class(
         $(geocamShare.core).bind("error", function (object, shortMessage, longMessage) {
             $("#geocamShare_core_gallery").html(longMessage);
         });
-    },
 
-    updateFeatures: function (newFeatures, diff) {
-        // wait for notifyFeaturesInMapViewport()
+        geocamShare.core.bindEvent(geocamShare.core, this, "highlightFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "unhighlightFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "notifyLoading");
+        geocamShare.core.bindEvent(geocamShare.core, this, "notifyFeaturesInMapViewport");
     },
 
     notifyLoading: function () {
@@ -60,14 +61,6 @@ geocamShare.core.GalleryWidget = new Class(
         $("td#" + feature.uuid + " div").css({backgroundColor: ''});
 	
         $("#geocamShare_core_galleryCaption").html('');
-    },
-    
-    selectFeature: function (feature) {
-        // currently a no-op
-    },
-    
-    unselectFeature: function (feature) {
-        // currently a no-op
     },
     
     getNumPages: function (numFeatures) {
@@ -147,19 +140,19 @@ geocamShare.core.GalleryWidget = new Class(
                     $("td#" + feature.uuid).hover(
                         function(uuid) {
                             return function() {
-                                geocamShare.core.widgetManagerG.setHighlightedFeature(uuid);
+                                geocamShare.core.setHighlightedFeature(uuid);
                             }
                         }(feature.uuid),
                         function(uuid) {
                             return function() {
-                                geocamShare.core.widgetManagerG.clearHighlightedFeature();
+                                geocamShare.core.clearHighlightedFeature();
                             }
                         }(feature.uuid)
                     );
                     $("td#" + feature.uuid).click(
                         function(uuid) {
                             return function() {
-                                geocamShare.core.widgetManagerG.setSelectedFeature(uuid);
+                                geocamShare.core.setSelectedFeature(uuid);
                             }
                         }(feature.uuid)
                     );

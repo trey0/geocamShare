@@ -20,13 +20,13 @@ geocamShare.core.FeatureDetailWidget = new Class(
                                                       function (pageNum) {
                                                           var featureIndex = pageNum-1;
                                                           var uuid = geocamShare.core.visibleFeaturesG[featureIndex].uuid;
-                                                          return 'javascript:geocamShare.core.widgetManagerG.setSelectedFeature(\''+uuid+'\')';
+                                                          return 'javascript:geocamShare.core.setSelectedFeature(\''+uuid+'\')';
                                                       });
         var content =
             '<div style="margin-bottom: 5px;">\n' +
             '<span>' +  pagerHtml + '</span>\n' +
             '<span style="float: right;">\n' +
-            '  <a href="javascript:geocamShare.core.widgetManagerG.clearSelectedFeature()">view all</a>\n' +
+            '  <a href="javascript:geocamShare.core.clearSelectedFeature()">view all</a>\n' +
             '</span>\n' +
             '</div>\n';
         content += geocamShare.core.getFeatureBalloonHtml(this.feature);
@@ -37,16 +37,7 @@ geocamShare.core.FeatureDetailWidget = new Class(
             geocamShare.core.switcherG.setToFeatureEdit();
             return false;
         });
-    },
-    
-    highlightFeature: function (feature) {
-        // todo: may want to show highlighting if uuid matches
-    },
-    
-    unhighlightFeature: function (feature) {
-        // todo: may want to remove highlighting
     }
-    
 });
 
 geocamShare.core.FeatureDetailWidget.factory = function (domId, uuid) {

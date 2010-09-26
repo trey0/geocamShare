@@ -29,7 +29,7 @@ $extend(geocamShare.core,
                                           + 'Your changes were saved.'
                                           + '</div>');
             if (geocamShare.core.ajaxFormSuccessFnG != undefined) {
-                geocamShare.core.ajaxFormSuccessFnG(responseJson[1]);
+                geocamShare.core.ajaxFormSuccessFnG(responseJson.result);
             }
         } else {
             $('#ajaxFormEditStatus').html('<div class="errorStatus">Please correct the errors below.</div>');

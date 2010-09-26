@@ -40,9 +40,14 @@ geocamShare.core.FeatureEditWidget = new Class(
 
         $('#' + this.domId).html(content);
 
-        // fix default form post url since we are using ajax
+        // connect formHtml elements to handlers
         $('#editImage').attr('action',
                              geocamShare.core.getFeatureEditUrl(this.feature, true));
+
+        $('#editImageCancel').click(function () {
+            geocamShare.core.switcherG.setToFeatureDetail();
+            return false;
+        });
 
         geocamShare.core.ajaxFormInit('editImage',
                                       function (updatedFeature) {

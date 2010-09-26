@@ -44,6 +44,11 @@ geocamShare.core.MapsApiMapViewer = new Class(
                                                        {gridSize: 25});
         }
 
+        geocamShare.core.bindEvent(geocamShare.core, this, "highlightFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "unhighlightFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
+
         this.isReady = true;
         
         geocamShare.core.setViewIfReady();
@@ -191,21 +196,21 @@ geocamShare.core.MapsApiMapViewer = new Class(
                  (marker, 'mouseover',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.widgetManagerG.setHighlightedFeature(uuid);
+                          geocamShare.core.setHighlightedFeature(uuid);
                       }
                   }(feature.uuid));
                  google.maps.event.addListener
                  (marker, 'mouseout',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.widgetManagerG.clearHighlightedFeature();
+                          geocamShare.core.clearHighlightedFeature();
                       }
                   }(feature.uuid));
                  google.maps.event.addListener
                  (marker, 'click',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.widgetManagerG.setSelectedFeature(uuid);
+                          geocamShare.core.setSelectedFeature(uuid);
                       }
                   }(feature.uuid));
              });

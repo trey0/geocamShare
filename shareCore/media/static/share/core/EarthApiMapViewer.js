@@ -123,6 +123,11 @@ geocamShare.core.EarthApiMapViewer = new Class(
         
         this.gex = new GEarthExtensions(this.ge);
         
+        geocamShare.core.bindEvent(geocamShare.core, this, "highlightFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "unhighlightFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
+
         this.isReady = true;
         geocamShare.core.setViewIfReady();
     },
@@ -153,20 +158,20 @@ geocamShare.core.EarthApiMapViewer = new Class(
                    google.earth.addEventListener(placemark, 'mouseover',
                                                  function (uuid) {
                                                      return function(event) {
-                                                         geocamShare.core.widgetManagerG.setHighlightedFeature(uuid);
+                                                         geocamShare.core.setHighlightedFeature(uuid);
                                                      }
                                                  }(feature.uuid));
                    google.earth.addEventListener(placemark, 'mouseout',
                                                  function (uuid) {
                                                      return function(event) {
-                                                         geocamShare.core.widgetManagerG.clearHighlightedFeature();
+                                                         geocamShare.core.clearHighlightedFeature();
                                                      }
                                                  }(feature.uuid));
                    google.earth.addEventListener(placemark, 'click',
                                                  function (uuid) {
                                                      return function(event) {
                                                          event.preventDefault();
-                                                         geocamShare.core.widgetManagerG.setSelectedFeature(uuid);
+                                                         geocamShare.core.setSelectedFeature(uuid);
                                                      }
                                                  }(feature.uuid));
                });

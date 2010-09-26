@@ -12,6 +12,11 @@ geocamShare.core.SidebarSwitcher = new Class(
         this.domId = domId;
         geocamShare.core.switcherG = this;
         this.setToGallery();
+
+        geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "unselectFeature");
+        geocamShare.core.bindEvent(geocamShare.core, this, "notifyLoading");
+        geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
     },
 
     selectFeature: function (feature) {
@@ -30,8 +35,6 @@ geocamShare.core.SidebarSwitcher = new Class(
     updateFeatures: function (newFeatures, diff) {
         // todo: if in detail view and selected feature is no longer
         // present, switch to gallery view
-
-        this.parent(); // pass event on to subwidget
     },
     
     /**********************************************************************
@@ -41,7 +44,7 @@ geocamShare.core.SidebarSwitcher = new Class(
     domId: null,
 
     getDefaultFeature: function () {
-        return geocamShare.core.featuresByUuidG[geocamShare.core.widgetManagerG.selectedFeatureUuid];
+        return geocamShare.core.featuresByUuidG[geocamShare.core.selectedFeatureUuid];
     },
 
     setToGallery: function () {

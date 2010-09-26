@@ -15,7 +15,7 @@ geocamShare.core = {
     MEDIA_URL: null,
     DATA_URL: null,
 
-    // globals
+    // module variables
     featuresG: [],
     newFeaturesG: null,
     highlightedFeatureG: null,
@@ -29,6 +29,9 @@ geocamShare.core = {
     viewIndexUuidG: null,
     switcherG: null,
     
+    highlightedFeatureUuid: null,
+    selectedFeatureUuid: null,
+    
     updateFeature: function (feature) {
         // update one feature whose meta-data has changed
 
@@ -41,7 +44,7 @@ geocamShare.core = {
 
         var diff = {featuresToDelete: [oldFeature],
                     featuresToAdd: [feature]};
-        geocamShare.core.widgetManagerG.updateFeatures(geocamShare.core.featuresG, diff);
+        geocamShare.core.updateFeatures(geocamShare.core.featuresG, diff);
     },
 
     reloadFeatures: function (query) {
@@ -76,14 +79,26 @@ geocamShare.core = {
     runSearch: function (query) {
         geocamShare.core.queryG = query;
 
-        geocamShare.core.widgetManagerG.clearHighlightedFeature();
-        geocamShare.core.widgetManagerG.clearSelectedFeature();
-        geocamShare.core.widgetManagerG.notifyLoading();
+        geocamShare.core.clearHighlightedFeature();
+        geocamShare.core.clearSelectedFeature();
+        geocamShare.core.notifyLoading();
         geocamShare.core.reloadFeatures(query);
         geocamShare.core.setSessionVars({'q': query});
         return false;
     },
     
+    bindEvent: function (src, trg, eventName, funcName) {
+        if (funcName == null) {
+            funcName = eventName;
+        }
+        
+        var func = trg[funcName];
+        $(src).bind(eventName, function () {
+            Array.shift(arguments);
+            func.apply(trg, arguments);
+        });
+    },
+
     init: function () {
         // fetch JSON features and start map loading in parallel
         var mapFactory;
@@ -243,7 +258,7 @@ geocamShare.core = {
 	    + numFeaturesWithPosition + ' features in map view';
         $('#featuresOutOfView').html(fhtml);
         
-        geocamShare.core.widgetManagerG.notifyFeaturesInMapViewport(visibleFeatures);
+        geocamShare.core.notifyFeaturesInMapViewport(visibleFeatures);
 
         geocamShare.core.visibleFeaturesG = visibleFeatures;
     },
@@ -499,7 +514,7 @@ geocamShare.core = {
     
     setView: function (oldFeatures, newFeatures) {
         var diff = geocamShare.core.diffFeatures(oldFeatures, newFeatures);
-        geocamShare.core.widgetManagerG.updateFeatures(newFeatures, diff);
+        geocamShare.core.updateFeatures(newFeatures, diff);
         geocamShare.core.handleMapViewChange();
     },
     
@@ -523,5 +538,59 @@ geocamShare.core = {
             + geocamShare.core.getLoadingIcon()
             + '<span style="vertical-align: middle;">' + message + '</span>'
             + '</div>';
+    },
+
+    setHighlightedFeature: function (uuid) {
+        if (geocamShare.core.highlightedFeatureUuid == uuid) {
+            // do nothing
+        } else {
+            geocamShare.core.clearHighlightedFeature();
+            var feature = geocamShare.core.featuresByUuidG[uuid];
+            $(geocamShare.core).trigger("highlightFeature", [feature]);
+            geocamShare.core.highlightedFeatureUuid = uuid;
+            
+            geocamShare.core.viewIndexUuidG = uuid;
+        }
+    },
+    
+    clearHighlightedFeature: function () {
+        if (geocamShare.core.highlightedFeatureUuid != null) {
+            var feature = geocamShare.core.featuresByUuidG[geocamShare.core.highlightedFeatureUuid];
+            $(geocamShare.core).trigger("unhighlightFeature", [feature]);
+            geocamShare.core.highlightedFeatureUuid = null;
+        }
+    },
+
+    setSelectedFeature: function (uuid) {
+        if (geocamShare.core.selectedFeatureUuid == uuid) {
+            // do nothing
+        } else {
+            geocamShare.core.clearSelectedFeature();
+            var feature = geocamShare.core.featuresByUuidG[uuid];
+            $(geocamShare.core).trigger("selectFeature", [feature]);
+            geocamShare.core.selectedFeatureUuid = uuid;
+            
+            geocamShare.core.viewIndexUuidG = uuid;
+        }
+    },
+
+    clearSelectedFeature: function () {
+        if (geocamShare.core.selectedFeatureUuid != null) {
+            var feature = geocamShare.core.featuresByUuidG[geocamShare.core.selectFeatureUuid];
+            $(geocamShare.core).trigger("unselectFeature", [feature]);
+            geocamShare.core.selectedFeatureUuid = null;
+        }
+    },
+
+    updateFeatures: function (newFeatures, diff) {
+        $(geocamShare.core).trigger("updateFeatures", arguments);
+    },
+
+    notifyLoading: function () {
+        $(geocamShare.core).trigger("notifyLoading", arguments);
+    },
+
+    notifyFeaturesInMapViewport: function (features) {
+        $(geocamShare.core).trigger("notifyFeaturesInMapViewport", arguments);
     }
 };

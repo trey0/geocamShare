@@ -9,27 +9,6 @@ geocamShare.core.Widget = new Class(
     // functions to implement in derived classes
     
     initialize: function (domId) {
-    },
-    
-    updateFeatures: function (newFeatures, diff) {
-    },
-    
-    notifyLoading: function () {
-    },
-    
-    notifyFeaturesInMapViewport: function (visibleFeatures) {
-    },
-    
-    highlightFeature: function (feature) {
-    },
-    
-    unhighlightFeature: function (feature) {
-    },
-    
-    selectFeature: function (feature) {
-    },
-    
-    unselectFeature: function (feature) {
     }
     
 });
