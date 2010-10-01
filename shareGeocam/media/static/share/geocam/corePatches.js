@@ -4,8 +4,6 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-// can override stuff from shareCore.js here
-
 geocamShare.core.isImage = function (feature) {
     return feature.subtype == "Photo";
 }
@@ -110,6 +108,23 @@ geocamShare.core.Feature.prototype.getCaptionHtml = function () {
     }
     caption += '  </tr>\n';
 
+    // altitude
+    caption += ''
+        + '  <tr>\n'
+        + '    <td class="captionHeader">altitude</td>\n';
+    if (this.altitude != null) {
+        var ref;
+        if (this.altitudeRef == null) {
+            ref = 'unknown';
+        } else {
+            ref = this.altitudeRef;
+        }
+        caption += '    <td>' + this.altitude + ' meters (ref. ' + ref + ')&nbsp;&nbsp;</td>\n'
+    } else {
+        caption += '    <td>(unknown)</td>\n'
+    }
+    caption += '  </tr>\n';
+
     // heading
     caption += ''
         + '  <tr>\n'
@@ -117,14 +132,12 @@ geocamShare.core.Feature.prototype.getCaptionHtml = function () {
     if (this.yaw != null) {
         var cardinal = geocamShare.core.getHeadingCardinal(this.yaw);
         var ref;
-        if (this.yawRef == 'M') {
-            ref = '(magnetic)';
-        } else if (this.yawRef == 'T') {
-            ref = '(true)';
+        if (this.yawRef == null) {
+            ref = 'unknown';
         } else {
-            ref = ''; // hm, what's the best way to handle this?
+            ref = this.yawRef;
         }
-        caption += '    <td>' + cardinal + ' ' + Math.floor(this.yaw) + '&deg; ' + ref + '&nbsp;&nbsp;</td>\n';
+        caption += '    <td>' + cardinal + ' ' + Math.floor(this.yaw) + '&deg; (ref. ' + ref + ')&nbsp;&nbsp;</td>\n';
     } else {
         caption += '    <td>(unknown)</td>\n'
     }

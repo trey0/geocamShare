@@ -63,10 +63,22 @@ PERMISSION_CHOICES = ((PERM_VIEW, 'view'),
                       (PERM_ADMIN, 'admin'),
                       )
 
-YAW_REF_CHOICES = (('T', 'true'),
+YAW_REF_CHOICES = (('', 'unknown'),
+                   ('T', 'true'),
                    ('M', 'magnetic'),
                    )
+YAW_REF_LOOKUP = dict(YAW_REF_CHOICES)
+YAW_REF_LOOKUP[''] = None
 DEFAULT_YAW_REF = YAW_REF_CHOICES[0][0]
+
+ALTITUDE_REF_CHOICES = (('', 'unknown'),
+                        ('S', 'sea level'),
+                        ('E', 'ellipsoid wgs84'),
+                        ('G', 'ground surface'),
+                        )
+ALTITUDE_REF_LOOKUP = dict(ALTITUDE_REF_CHOICES)
+ALTITUDE_REF_LOOKUP[''] = None
+DEFAULT_ALTITUDE_REF = ALTITUDE_REF_CHOICES[0][0]
 
 WF_NEEDS_EDITS = 0
 WF_SUBMITTED_FOR_VALIDATION = 1
@@ -308,11 +320,16 @@ class Feature(models.Model):
                     subtype=self.__class__.__name__
                     )
 
+    def cleanDict(self, d):
+        return dict(((k, v)
+                     for k, v in d.iteritems()
+                     if v not in (None, '')))
+
     def getGeoJson(self):
         return dict(type='Feature',
                     id=self.uuid,
                     geometry=self.getGeometry(),
-                    properties=self.getProperties())
+                    properties=self.cleanDict(self.getProperties()))
 
     def getDirUrl(self):
         return '/'.join([settings.DATA_URL] + list(self.getDirSuffix()))
@@ -346,6 +363,10 @@ class Change(models.Model):
 class PointFeature(Feature):
     latitude = models.FloatField(blank=True, null=True) # WGS84 degrees
     longitude = models.FloatField(blank=True, null=True) # WGS84 degrees
+    altitude = models.FloatField(blank=True, null=True)
+    altitudeRef = models.CharField(blank=True, max_length=1,
+                                   choices=ALTITUDE_REF_CHOICES, default=DEFAULT_ALTITUDE_REF,
+                                   verbose_name='Altitude ref.')
     timestamp = models.DateTimeField(blank=True)
     objects = AbstractClassManager(parentModel=Feature)
     
@@ -399,7 +420,9 @@ class PointFeature(Feature):
     def getProperties(self):
         result = super(PointFeature, self).getProperties()
         result.update(timestamp=self.localTime.isoformat(),
-                      dateText=self.localTime.strftime('%Y%m%d'))
+                      dateText=self.localTime.strftime('%Y%m%d'),
+                      altitude=self.altitude,
+                      altitudeRef=ALTITUDE_REF_LOOKUP[self.altitudeRef])
         return result
 
     def getGeometry(self):
@@ -412,7 +435,7 @@ class Image(PointFeature):
     # compass degrees, 0 = north, increase clockwise as viewed from above
     yaw = models.FloatField(blank=True, null=True,
                             verbose_name='Heading')
-    yawRef = models.CharField(max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF,
+    yawRef = models.CharField(blank=True, max_length=1, choices=YAW_REF_CHOICES, default=DEFAULT_YAW_REF,
                               verbose_name='Heading ref.')
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
@@ -525,6 +548,8 @@ class Image(PointFeature):
     def getUploadImageFormVals(self, formData):
         yaw, yawRef = Xmp.normalizeYaw(formData.get('yaw', None),
                                        formData.get('yawRef', None))
+        altitude, altitudeRef = Xmp.normalizeYaw(formData.get('altitude', None),
+                                                 formData.get('altitudeRef', None))
 
         folderMatches = Folder.objects.filter(name=formData['folder'])
         if folderMatches:
@@ -543,6 +568,8 @@ class Image(PointFeature):
                          tags=formData['tags'],
                          latitude=formData['latitude'],
                          longitude=formData['longitude'],
+                         altitude=formData['altitude'],
+                         altitudeRef=formData['altitudeRef'],
                          timestamp=timestampUtc,
                          folder=folder,
                          yaw=yaw,
@@ -650,7 +677,11 @@ class Image(PointFeature):
     def getProperties(self):
         result = super(Image, self).getProperties()
         result.update(sizePixels=[self.widthPixels, self.heightPixels],
-                      rotatedIcon=self.getRotatedIconDict())
+                      rotatedIcon=self.getRotatedIconDict(),
+                      roll=self.roll,
+                      pitch=self.pitch,
+                      yaw=self.yaw,
+                      yawRef=YAW_REF_LOOKUP[self.yawRef])
         return result
 
 class ExtentFeature(Feature):

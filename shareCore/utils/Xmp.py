@@ -120,6 +120,33 @@ class Xmp:
         return self.normalizeYaw(yawStr, yawRefStr)
 
     @staticmethod
+    def normalizeAltitude(altitude, altitudeRef):
+        '''Assumes yaw is a float, a string representation of a float, or None.
+        Values 0 and -999 get mapped to None.'''
+
+        if altitude != None and not isinstance(altitude, float):
+            altitude = float(altitude)
+        altitude = Xmp.checkMissing(altitude)
+
+        altitudeRef = Xmp.checkMissing(altitudeRef)
+
+        if altitude != None and abs(altitude) > 20000:
+            # Ricoh Caplio sometimes outputs huge bogus altitude values
+            altitude = None
+
+        if altitude == None:
+            return (altitude, '')
+
+        # to do: possible transforms here
+
+        return (altitude, altitudeRef)
+
+    def getAltitude(self):
+        altitudeStr = self.get('exif:GPSAltitude', None)
+        altitudeRefStr = 'S' # EXIF always uses sea-level as reference
+        return self.normalizeAltitude(altitudeStr, altitudeRefStr)
+
+    @staticmethod
     def checkMissing(val):
         if val in (0, -999, ''):
             return None
@@ -133,6 +160,7 @@ class Xmp:
         lat = self.checkMissing(self.getDegMin('exif:GPSLatitude', 'NS'))
         lon = self.checkMissing(self.getDegMin('exif:GPSLongitude', 'EW'))
         yaw, yawRef = self.getYaw()
+        altitude, altitudeRef = self.getAltitude()
         widthPixels = int(self.get('tiff:ImageWidth'))
         heightPixels = int(self.get('tiff:ImageLength'))
 
@@ -141,6 +169,8 @@ class Xmp:
                      longitude=lon,
                      yaw=yaw,
                      yawRef=yawRef,
+                     altitude=altitude,
+                     altitudeRef=altitudeRef,
                      widthPixels=widthPixels,
                      heightPixels=heightPixels)
 

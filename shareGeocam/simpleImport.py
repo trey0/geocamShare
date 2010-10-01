@@ -29,8 +29,6 @@ from share2.shareGeocam.models import Photo
 from share2.shareCore.utils import mkdirP, UploadClient
 from share2.shareCore import TimeUtils
 
-DEFAULT_IMPORT_DIR = os.path.join(settings.CHECKOUT_DIR, 'importData', 'guiberson')
-
 def checkMissing(val):
     if val == -999:
         return None
@@ -111,6 +109,8 @@ def importDir(opts, dir, uploadClient):
                           cameraTime=timeStr,
                           latitude=lat,
                           longitude=lon,
+                          altitude=None,
+                          altitudeRef=None,
                           roll=None,
                           pitch=None,
                           yaw=compass,
