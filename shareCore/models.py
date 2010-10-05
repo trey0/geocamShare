@@ -287,7 +287,9 @@ class Feature(models.Model):
     def getDirSuffix(self, version=None):
         if version == None:
             version = self.version
-        return (self.getDateText(), self.getCachedAuthor().username, self.uuid, str(version))
+        idStr = str(self.id) + 'p'
+        idList = [idStr[i:(i+2)] for i in xrange(0, len(idStr), 2)]
+        return [self.__class__.__name__.lower()] + idList + [str(version)]
 
     def getDir(self, version=None):
         return os.path.join(settings.DATA_DIR, *self.getDirSuffix(version))
@@ -317,6 +319,7 @@ class Feature(models.Model):
                     notes=self.notes,
                     tags=tagsList,
                     icon=self.getIconDict(),
+                    localId=self.id,
                     subtype=self.__class__.__name__
                     )
 

@@ -46,7 +46,7 @@ class ViewCore(ViewKml):
     defaultImageModel = None
 
     def getMatchingFeaturesForQuery(self, query):
-        features = self.search.getAllFeatures()
+        features = self.search.allFeatures
         if query:
             features = self.search.searchFeatures(features, query)
         return features
@@ -201,15 +201,8 @@ class ViewCore(ViewKml):
                     # set version
                     newVersion = 0
 
-                # move the image data to its permanent location
-                storePath = img.getImagePath(version=newVersion)
-                storeDir = os.path.dirname(storePath)
-                mkdirP(storeDir)
-                shutil.move(tempStorePath, storePath)
-                print >>sys.stderr, 'upload: moved image data to:', storePath
-
                 # check the new image file on disk to get the dimensions
-                im = PIL.Image.open(storePath, 'r')
+                im = PIL.Image.open(tempStorePath, 'r')
                 newRes = im.size
                 del im
                     
@@ -221,8 +214,6 @@ class ViewCore(ViewKml):
                         img.processed = False
                     else:
                         print >>sys.stderr, 'upload: ignoring dupe, but telling the client it was received so it stops trying'
-                        # delete dupe data
-                        shutil.rmtree(storeDir)
                 else:
                     img.widthPixels, img.heightPixels = newRes
 
@@ -231,8 +222,14 @@ class ViewCore(ViewKml):
                     # (better to do this part in the background, but we
                     # don't have that set up yet)
                     img.version = newVersion
-                    img.process()
+                    # make sure the image gets an id if it doesn't already have one --
+                    # the id will be used in process() to calculate the storage path
                     img.save()
+                    img.process(importFile=tempStorePath)
+                    img.save()
+
+                # after import by process(), can delete redundant temp copy
+                os.unlink(tempStorePath)
 
                 print >>sys.stderr, 'upload image end'
 

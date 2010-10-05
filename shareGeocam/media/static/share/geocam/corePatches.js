@@ -9,7 +9,15 @@ geocamShare.core.isImage = function (feature) {
 }
 
 geocamShare.core.getDirUrl = function (feature) {
-    ret = geocamShare.core.settings.DATA_URL + feature.dateText + "/" + feature.author.userName + "/" + feature.uuid + "/" + feature.version + "/";
+    ret = geocamShare.core.settings.DATA_URL + feature.subtype.toLowerCase() + '/';
+    var idStr = feature.localId + 'p';
+    for (var i = 0; i < idStr.length; i += 2) {
+        if (i > 0) {
+            ret += '/';
+        }
+        ret += idStr.substr(i, 2);
+    }
+    ret += "/" + feature.version + "/";
     return ret;
 }
 

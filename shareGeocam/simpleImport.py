@@ -54,7 +54,6 @@ def importImageDirect(imagePath, attributes):
     else:
         photo = Photo()
         photo.readImportVals(storePath=imagePath, uploadImageFormData=attributes)
-        photo.process(importFile=imagePath)
         photo.save()
         print 'processed', unicode(photo)
 
