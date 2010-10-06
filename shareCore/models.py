@@ -571,11 +571,17 @@ class Image(PointFeature):
             timestampLocal = parseUploadTime(timestampStr).replace(tzinfo=tz)
             timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
+        # special case: remove 'default' tag inserted by older versions of GeoCam Mobile
+        tagsOrig = formData.get('tags', None)
+        tagsList = [t for t in tagging.utils.parse_tag_input(tagsOrig)
+                    if t != 'default']
+        tagsStr = self.makeTagsString(tagsList)
+
         formVals0 = dict(uuid=formData.get('uuid', None),
                          name=formData.get('name', None),
                          author=formData.get('author', None),
                          notes=formData.get('notes', None),
-                         tags=formData.get('tags', None),
+                         tags=tagsStr,
                          latitude=formData.get('latitude', None),
                          longitude=formData.get('longitude', None),
                          altitude=formData.get('altitude', None),
