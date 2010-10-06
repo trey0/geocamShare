@@ -57,7 +57,7 @@ geocamShare.core.Feature.prototype.getCaptionHtml = function () {
         + '<table>\n';
 
     // notes
-    if (this.notes == '') {
+    if (this.notes == null) {
         caption += ''
             + '  <tr>\n'
             + '    <td colspan="2" style="font-size: 1.5em; color: #999;">(no notes)</td>\n'
