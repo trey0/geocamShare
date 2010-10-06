@@ -16,6 +16,7 @@ import csv
 import re
 import uuid
 import getpass
+import stat
 
 import PIL
 import pytz
@@ -55,7 +56,12 @@ def importImageDirect(imagePath, attributes):
         photo = Photo()
         photo.readImportVals(storePath=imagePath, uploadImageFormData=attributes)
         photo.save()
+        photo.process(importFile=imagePath)
+        photo.save()
         print 'processed', unicode(photo)
+
+def getBogusUuid(name, userName, timeStr):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, userName, timeStr)))    
 
 def importDir(opts, dir, uploadClient):
     dir = os.path.realpath(dir)
@@ -71,59 +77,87 @@ def importDir(opts, dir, uploadClient):
         folder, created = Folder.objects.get_or_create(name=folderName,
                                                        defaults=dict(timeZone=timeZone))
 
+    photosToUpload = []
+
     csvFiles = glob.glob('%s/*.csv' % dir)
-    if not csvFiles:
-        print >>sys.stderr, "warning: can't import dir %s, no *.csv files found" % dir
-        return
-    csvName = csvFiles[0]
-    reader = csv.reader(file(csvName, 'r'))
-    firstLine = True
-    i = 0
-    for row in reader:
-        if firstLine:
-            firstLine = False
-            continue
-        if opts.number != 0 and i >= opts.number:
-            break
-        allText = ' '.join(row)
-        if opts.match and not re.search(opts.match, allText):
-            continue
-        latStr, lonStr, compassStr, timeStr, name, notes, tagsStr, creatorName = row
-        tags = [t.strip() for t in tagsStr.split(',')]
-        tags = [t for t in tags if t != 'default']
-        tags.append(creatorName)
-        tagsDb = ', '.join(tags)
-        lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
-        if lat == -999:
-            lat, lon = None, None
-        imagePath = os.path.join(dir, 'photos', name)
+    if csvFiles:
+        csvName = csvFiles[0]
+        reader = csv.reader(file(csvName, 'r'))
+        firstLine = True
+        i = 0
+        for row in reader:
+            if firstLine:
+                firstLine = False
+                continue
+            if opts.number != 0 and i >= opts.number:
+                break
+            allText = ' '.join(row)
+            if opts.match and not re.search(opts.match, allText):
+                continue
+            latStr, lonStr, compassStr, timeStr, name, notes, tagsStr, creatorName = row
+            tags = [t.strip() for t in tagsStr.split(',')]
+            tags = [t for t in tags if t != 'default']
+            tags.append(creatorName)
+            tagsDb = ', '.join(tags)
+            lat, lon, compass = float(latStr), float(lonStr), float(compassStr)
+            if lat == -999:
+                lat, lon = None, None
+            imagePath = os.path.join(dir, 'photos', name)
 
-        # make up a consistent bogus uuid field so we can test incremental upload.
-        # real clients should always make a stronger uuid to avoid collisions!
-        bogusUuid = str(uuid.uuid3(uuid.NAMESPACE_DNS, '%s-%s-%s' % (name, opts.user, timeStr)))
-        
-        # map to field names in upload form
-        attributes = dict(name=name,
-                          userName=opts.user,
-                          cameraTime=timeStr,
-                          latitude=lat,
-                          longitude=lon,
-                          altitude=None,
-                          altitudeRef=None,
-                          roll=None,
-                          pitch=None,
-                          yaw=compass,
-                          notes=notes,
-                          tags=tagsDb,
-                          uuid=bogusUuid,
-                          folder=folderName)
-        if uploadClient:
-            print 'uploading', os.path.basename(imagePath)
-            uploadClient.uploadImage(imagePath, attributes, downsampleFactor=int(opts.downsample))
+            # make up a consistent bogus uuid field so we can test incremental upload.
+            # real clients should always make a stronger uuid to avoid collisions!
+            bogusUuid = getBogusUuid(name, opts.user, timeStr)
+
+            # map to field names in upload form
+            attributes = dict(name=name,
+                              userName=opts.user,
+                              cameraTime=timeStr,
+                              latitude=lat,
+                              longitude=lon,
+                              altitude=None,
+                              altitudeRef=None,
+                              roll=None,
+                              pitch=None,
+                              yaw=compass,
+                              notes=notes,
+                              tags=tagsDb,
+                              uuid=bogusUuid,
+                              folder=folderName)
+
+            photosToUpload.append(dict(imagePath=imagePath,
+                                       attributes=attributes))
+            i += 1
+    else:
+        images = []
+        for ext in ('.jpg', '.jpeg', '.JPG'):
+            images += glob.glob('%s/*%s' % (dir, ext))
+        if images:
+            if opts.match:
+                print >>sys.stderr, "warning: can't import dir %s -- can't match tags unless we have a .csv" % dir
+                images = []
+            if opts.number != 0:
+                images = images[:opts.number]
+            for img in images:
+                name = os.path.basename(img)
+                timeStr = os.stat(img)[stat.ST_MTIME]
+                bogusUuid = getBogusUuid(name, opts.user, timeStr)
+
+                attributes = dict(name=name,
+                                  userName=opts.user,
+                                  uuid=bogusUuid,
+                                  folder=os.path.basename(os.path.dirname(img)))
+                
+                photosToUpload.append(dict(imagePath=img,
+                                           attributes=attributes))
         else:
-            importImageDirect(imagePath, attributes)
+            print >>sys.stderr, "warning: can't import dir %s -- no *.csv, no images" % dir
 
-        i += 1
+    for p in photosToUpload:
+        if uploadClient:
+            print 'uploading', os.path.basename(p['imagePath'])
+            uploadClient.uploadImage(p['imagePath'], p['attributes'], downsampleFactor=int(opts.downsample))
+        else:
+            importImageDirect(p['imagePath'], p['attributes'])
 
 def doit(opts, importDirs):
     if opts.downsample != '1':
@@ -157,7 +191,7 @@ def main():
                       help='Clean database before import')
     parser.add_option('-m', '--match',
                       default=None,
-                      help='Import only photos matching specified pattern')
+                      help='Import only photos with tags matching pattern')
     parser.add_option('-n', '--number',
                       default=0,
                       help='Limit number of photos to import')
