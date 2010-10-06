@@ -554,10 +554,13 @@ class Image(PointFeature):
         altitude, altitudeRef = Xmp.normalizeYaw(formData.get('altitude', None),
                                                  formData.get('altitudeRef', None))
 
-        folderMatches = Folder.objects.filter(name=formData['folder'])
-        if folderMatches:
-            folder = folderMatches[0]
-        else:
+        folderName = formData.get('folder', None)
+        folder = None
+        if folderName:
+            folderMatches = Folder.objects.filter(name=folderName)
+            if folderMatches:
+                folder = folderMatches[0]
+        if folder == None:
             folder = Folder.objects.get(id=1)
 
         tz = pytz.timezone(folder.timeZone)
@@ -565,18 +568,18 @@ class Image(PointFeature):
         if timestampStr == None:
             timestampUtc = None
         else:
-            timestampLocal = parseUploadTime(formData['cameraTime']).replace(tzinfo=tz)
+            timestampLocal = parseUploadTime(timestampStr).replace(tzinfo=tz)
             timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
-        formVals0 = dict(uuid=formData['uuid'],
-                         name=formData['name'],
-                         author=formData['author'],
-                         notes=formData['notes'],
-                         tags=formData['tags'],
-                         latitude=formData['latitude'],
-                         longitude=formData['longitude'],
-                         altitude=formData['altitude'],
-                         altitudeRef=formData['altitudeRef'],
+        formVals0 = dict(uuid=formData.get('uuid', None),
+                         name=formData.get('name', None),
+                         author=formData.get('author', None),
+                         notes=formData.get('notes', None),
+                         tags=formData.get('tags', None),
+                         latitude=formData.get('latitude', None),
+                         longitude=formData.get('longitude', None),
+                         altitude=formData.get('altitude', None),
+                         altitudeRef=formData.get('altitudeRef', None),
                          timestamp=timestampUtc,
                          folder=folder,
                          yaw=yaw,
