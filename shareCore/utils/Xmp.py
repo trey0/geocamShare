@@ -125,7 +125,7 @@ class Xmp:
         Values 0 and -999 get mapped to None.'''
 
         if altitude != None and not isinstance(altitude, float):
-            altitude = float(altitude)
+            altitude = Xmp.getRational(altitude)
         altitude = Xmp.checkMissing(altitude)
 
         altitudeRef = Xmp.checkMissing(altitudeRef)
@@ -153,10 +153,18 @@ class Xmp:
         else:
             return val
 
-    def getDict(self):
-        t = iso8601.parse_date(self.get('exif:DateTimeOriginal'),
+    def getTime(self, field):
+        timeStr = self.get('exif:DateTimeOriginal', None)
+        import sys
+        print >>sys.stderr, 'timeStr:', timeStr
+        if timeStr == None:
+            return None
+        t = iso8601.parse_date(timeStr,
                                default_timezone=pytz.timezone(settings.TIME_ZONE))
-        timestamp = t.replace(tzinfo=None) - t.utcoffset() # normalize to utc
+        return t.replace(tzinfo=None) - t.utcoffset() # normalize to utc
+        
+    def getDict(self):
+        timestamp = self.getTime('exif:DateTimeOriginal')
         lat = self.checkMissing(self.getDegMin('exif:GPSLatitude', 'NS'))
         lon = self.checkMissing(self.getDegMin('exif:GPSLongitude', 'EW'))
         yaw, yawRef = self.getYaw()

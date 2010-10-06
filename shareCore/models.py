@@ -561,8 +561,12 @@ class Image(PointFeature):
             folder = Folder.objects.get(id=1)
 
         tz = pytz.timezone(folder.timeZone)
-        timestampLocal = parseUploadTime(formData['cameraTime']).replace(tzinfo=tz)
-        timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
+        timestampStr = Xmp.checkMissing(formData.get('cameraTime', None))
+        if timestampStr == None:
+            timestampUtc = None
+        else:
+            timestampLocal = parseUploadTime(formData['cameraTime']).replace(tzinfo=tz)
+            timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
         formVals0 = dict(uuid=formData['uuid'],
                          name=formData['name'],
