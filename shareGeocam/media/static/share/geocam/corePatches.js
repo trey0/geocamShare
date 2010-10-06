@@ -32,7 +32,7 @@ geocamShare.core.Feature.prototype.getViewerUrl = function () {
             name = "untitled";
         }
     }
-    return geocamShare.core.settings.SCRIPT_NAME + this.subtype.toLowerCase() + "/" + this.uuid + "/" + this.version + "/" + name;
+    return geocamShare.core.settings.SCRIPT_NAME + this.subtype.toLowerCase() + "/" + this.localId + "/" + name;
 }
 
 geocamShare.core.Feature.prototype.getEditUrl = function (widget) {

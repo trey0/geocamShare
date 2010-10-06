@@ -25,9 +25,9 @@ urlpatterns = patterns(
 
     (r'^$', views.main, {'readOnly': True}),
 
-    (r'^photo/(?P<uuid>[^/]+)/(?P<version>[\d+])/(?:[^/]+)$', views.viewPhoto,
+    (r'^photo/(?P<id>[^/]+)/(?:[^/]+)?$', views.viewPhoto,
      {'readOnly': True}),
-    (r'^track/(?P<uuid>[^/]+)/(?P<version>[\d+])/(?:[^/]+)$', views.viewTrack,
+    (r'^track/(?P<id>[^/]+)/(?:[^/]+)?$', views.viewTrack,
      {'readOnly': True}),
 
     (r'^upload/$', views.uploadImageAuth),

@@ -317,13 +317,13 @@ class ViewCore(ViewKml):
         print >>sys.stderr, 'upload image end'
         return resp
 
-    def viewTrack(self, request, uuid, version):
-        track = Track.objects.get(uuid=uuid)
+    def viewTrack(self, request, id):
+        track = Track.objects.get(id=id)
         return HttpResponse(track.json, mimetype='application/json')
 
-    def viewPhoto(self, request, uuid, version):
+    def viewPhoto(self, request, id):
         # this is not very efficient
-        img = Image.objects.get(uuid=uuid)
+        img = Image.objects.get(id=id)
         imgData = file(img.getImagePath(), 'r').read()
         return HttpResponse(imgData, mimetype='image/jpeg')
 
