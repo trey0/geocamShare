@@ -13,11 +13,13 @@ import rdflib
 from rdflib.Graph import Graph
 import iso8601
 import pytz
+import PIL
 
 from django.conf import settings
 
 class Xmp:
     def __init__(self, fname):
+        self.fname = fname
         self.graph = Graph()
         if os.path.splitext(fname)[1].lower() in ('.jpg', '.jpeg', '.png'):
             self.parseImageHeader(fname)
@@ -44,7 +46,11 @@ class Xmp:
 
     def _getPredicate(self, field):
         prefix, attr = field.split(':',1)
-        return rdflib.URIRef(self.graph.namespace_manager.store.namespace(prefix) + attr)
+        nsuri = self.graph.namespace_manager.store.namespace(prefix)
+        if nsuri == None:
+            return None
+        else:
+            return rdflib.URIRef(nsuri + attr)
 
     def get(self, field, dflt='ERROR'):
         subject = rdflib.URIRef('')
@@ -155,8 +161,6 @@ class Xmp:
 
     def getTime(self, field):
         timeStr = self.get('exif:DateTimeOriginal', None)
-        import sys
-        print >>sys.stderr, 'timeStr:', timeStr
         if timeStr == None:
             return None
         t = iso8601.parse_date(timeStr,
@@ -169,8 +173,15 @@ class Xmp:
         lon = self.checkMissing(self.getDegMin('exif:GPSLongitude', 'EW'))
         yaw, yawRef = self.getYaw()
         altitude, altitudeRef = self.getAltitude()
-        widthPixels = int(self.get('tiff:ImageWidth'))
-        heightPixels = int(self.get('tiff:ImageLength'))
+
+        widthStr = self.get('tiff:ImageWidth', None)
+        heightStr = self.get('tiff:ImageLength', None)
+        if widthStr != None and heightStr != None:
+            widthPixels, heightPixels = int(widthStr), int(heightStr)
+        else:
+            im = PIL.Image.open(self.fname)
+            widthPixels, heightPixels = im.size
+            del im
 
         vals0 = dict(timestamp=timestamp,
                      latitude=lat,
