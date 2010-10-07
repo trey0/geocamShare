@@ -568,7 +568,9 @@ class Image(PointFeature):
         if timestampStr == None:
             timestampUtc = None
         else:
-            timestampLocal = parseUploadTime(timestampStr).replace(tzinfo=tz)
+            timestampLocal = parseUploadTime(timestampStr)
+            if timestampLocal.tzinfo == None:
+                timestampLocal = tz.localize(timestampLocal)
             timestampUtc = timestampLocal.astimezone(pytz.utc).replace(tzinfo=None)
 
         # special case: remove 'default' tag inserted by older versions of GeoCam Mobile
