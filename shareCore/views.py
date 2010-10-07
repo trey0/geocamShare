@@ -46,9 +46,8 @@ class ViewCore(ViewKml):
     defaultImageModel = None
 
     def getMatchingFeaturesForQuery(self, query):
-        features = self.search.getAllFeatures()
-        if query:
-            features = self.search.searchFeatures(features, query)
+        allFeatures = self.search.getAllFeatures()
+        features = self.search.searchFeatures(allFeatures, query)
         return features
 
     def getMatchingFeatures(self, request):
