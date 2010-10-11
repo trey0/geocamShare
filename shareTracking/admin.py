@@ -4,10 +4,9 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from base_urls import *
+from django.contrib import admin
 
-urltuple = urltuple + (
-    ('', include('share2.shareGeocam.urls')),
-    (r'^tracking/', include('share2.shareTracking.urls')),
-)
-urlpatterns = patterns('', *urltuple)
+from share2.shareTracking.models import *
+
+admin.site.register(Resource)
+admin.site.register(ResourcePosition)

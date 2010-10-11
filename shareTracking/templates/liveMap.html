@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+  html { height: 100% }
+  body { height: 100%; margin: 0px; padding: 0px }
+  #map_canvas { height: 100% }
+</style>
+<script type="text/javascript"
+    src="http://maps.google.com/maps/api/js?sensor=false">
+</script>
+<script type="text/javascript"
+    src="{{ settings.MEDIA_URL }}external/jquery.min.js">
+</script>
+<script type="text/javascript">
+  var mapG = null;
+  var markersByIdG = {};
+
+  function handleResourcePositionsResponse(response) {
+    if (response.result != null) {
+      $.each(response.result.features,
+             function (i, feature) {
+               var pos = new google.maps.LatLng(feature.geometry.coordinates[1],
+                                                feature.geometry.coordinates[0]);
+               var marker = markersByIdG[feature.id];
+               if (marker == null) {
+                 marker = new google.maps.Marker({
+                   position: pos,
+                   title: feature.properties.name});
+                 marker.setMap(mapG);
+                 markersByIdG[feature.id] = marker;
+               }
+               if (!pos.equals(marker.position)) {
+                 marker.setPosition(pos);
+               }
+             });
+    }
+  }
+
+  function updateResourcePositions() {
+    console.log('updateResourcePositions');
+    $.getJSON("{{ settings.SCRIPT_NAME }}tracking/resources.json",
+              handleResourcePositionsResponse);
+  }
+
+  function updateResourcePositionsLoop() {
+    updateResourcePositions();
+    setTimeout(updateResourcePositionsLoop, 1000);
+  }
+
+  function initialize() {
+    var latlng = new google.maps.LatLng(37.385715, -122.083986);
+    var myOptions = {
+      zoom: 13,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    mapG = new google.maps.Map(document.getElementById("map_canvas"),
+        myOptions);
+    updateResourcePositionsLoop();
+  }
+
+</script>
+</head>
+<body onload="initialize()">
+  <div id="map_canvas" style="width:100%; height:100%"></div>
+</body>
+</html>

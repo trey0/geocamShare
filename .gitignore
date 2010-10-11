@@ -10,5 +10,6 @@ sourceme
 sourceme.sh
 *--gds.*
 *--geocam.*
+*--tracking.*
 gigapan
 django.wsgi
