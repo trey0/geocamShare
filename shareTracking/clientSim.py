@@ -41,6 +41,7 @@ def getBogusUuid(name):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, name))
 
 def getPoissonSample(c):
+    '''Get a sample from the Poisson distribution with density c'''
     x = 0
     t = 0
     while 1:

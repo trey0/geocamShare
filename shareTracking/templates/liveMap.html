@@ -16,6 +16,7 @@
 <script type="text/javascript">
   var mapG = null;
   var markersByIdG = {};
+  var markerCountG = 0;
 
   function handleResourcePositionsResponse(response) {
     if (response.result != null) {
@@ -25,11 +26,20 @@
                                                 feature.geometry.coordinates[0]);
                var marker = markersByIdG[feature.id];
                if (marker == null) {
+                 if (markerCountG < 26) {
+                   var letter = String.fromCharCode(65 + markerCountG);
+                   var icon = 'http://maps.google.com/mapfiles/marker' + letter + '.png';
+                 } else {
+                   var icon = 'http://maps.google.com/mapfiles/marker.png';
+                 }
                  marker = new google.maps.Marker({
                    position: pos,
-                   title: feature.properties.name});
+                   title: feature.properties.name,
+                   icon: icon
+                   });
                  marker.setMap(mapG);
                  markersByIdG[feature.id] = marker;
+                 markerCountG++;
                }
                if (!pos.equals(marker.position)) {
                  marker.setPosition(pos);
