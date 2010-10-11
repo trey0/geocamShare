@@ -1,3 +1,5 @@
+// __NO_RELICENSE__
+
 (function(){function d(a){return function(b){this[a]=b}}function e(a){return function(){return this[a]}}var h;
 function i(a,b,c){this.extend(i,google.maps.OverlayView);this.b=a;this.a=[];this.l=[];this.X=[53,56,66,78,90];this.h=[];this.z=false;c=c||{};this.f=c.gridSize||60;this.T=c.maxZoom||null;this.h=c.styles||[];this.S=c.imagePath||this.M;this.R=c.imageExtension||this.L;this.K=true;if(c.zoomOnClick!=undefined)this.K=c.zoomOnClick;this.p=false;if(c.averageCenter!=undefined)this.p=c.averageCenter;j(this);this.setMap(a);this.G=this.b.getZoom();var f=this;google.maps.event.addListener(this.b,"zoom_changed",
 function(){var g=f.b.mapTypes[f.b.getMapTypeId()].maxZoom,l=f.b.getZoom();if(!(l<0||l>g))if(f.G!=l){f.G=f.b.getZoom();f.m()}});google.maps.event.addListener(this.b,"idle",function(){f.j()});b&&b.length&&this.B(b,false)}h=i.prototype;h.M="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/images/m";h.L="png";h.extend=function(a,b){return function(c){for(property in c.prototype)this.prototype[property]=c.prototype[property];return this}.apply(a,[b])};
