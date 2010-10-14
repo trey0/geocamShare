@@ -11,6 +11,7 @@ import pytz
 
 class Resource(models.Model):
     name = models.CharField(max_length=32)
+    userName = models.CharField(max_length=32)
     uuid = models.CharField(max_length=128)
 
 class ResourcePosition(models.Model):
@@ -27,7 +28,7 @@ class ResourcePosition(models.Model):
         timezone = pytz.timezone(settings.TIME_ZONE)
         localTime = timezone.localize(self.timestamp)
         return dict(subtype='ResourcePosition',
-                    name=self.resource.name,
+                    userName=self.resource.userName,
                     timestamp=localTime.isoformat())
 
     def getGeoJson(self):
@@ -39,7 +40,7 @@ class ResourcePosition(models.Model):
     def __unicode__(self):
         return ('%s %s %s %s %s'
                 % (self.__class__.__name__,
-                   self.resource.name,
+                   self.resource.userName,
                    self.timestamp,
                    self.latitude,
                    self.longitude))

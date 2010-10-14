@@ -58,11 +58,11 @@ def postPosition(request):
 
         # create or update Resource
         properties = featureDict['properties']
-        featureName = properties['name']
+        featureUserName = properties['userName']
         resource, created = Resource.objects.get_or_create(uuid=featureDict['id'],
-                                                           defaults=dict(name=featureName))
-        if resource.name != featureName:
-            resource.name = featureName
+                                                           defaults=dict(userName=featureUserName))
+        if resource.userName != featureUserName:
+            resource.userName = featureUserName
             resource.save()
 
         # create or update ResourcePosition

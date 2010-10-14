@@ -77,8 +77,8 @@ class ResourceClient(object):
         self.turnDistanceMeters = opts.turnDistance * 1000.0
         self.url = opts.url
 
-        self.name = 'clientSim%s' % i
-        self.uuid = getBogusUuid(self.name)
+        self.userName = 'clientSim%s' % i
+        self.uuid = getBogusUuid(self.userName)
 
         now = time.time()
         self.lastUpdated = now
@@ -87,7 +87,7 @@ class ResourceClient(object):
         self.pos = self.disc.getRandomPos()
 
     def __str__(self):
-        return '%s %s %s %s' % (self.__class__.__name__, self.name, self.pos[0], self.pos[1])
+        return '%s %s %s %s' % (self.__class__.__name__, self.userName, self.pos[0], self.pos[1])
 
     def randomMove(self, dt):
         numTurns = getPoissonSample((dt * self.speedMetersPerSecond) / self.turnDistanceMeters)
@@ -114,7 +114,7 @@ class ResourceClient(object):
                     coordinates=self.pos)
 
     def getProperties(self):
-        return dict(name=self.name,
+        return dict(userName=self.userName,
                     timestamp=datetime.datetime.now().replace(microsecond=0).isoformat() + 'Z')
 
     def getGeoJsonDict(self):
