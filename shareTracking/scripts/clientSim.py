@@ -11,6 +11,8 @@ import uuid
 import time
 import datetime
 import sys
+import base64
+import getpass
 
 from django.conf import settings
 import pyproj
@@ -76,8 +78,12 @@ class ResourceClient(object):
         self.minPeriodSeconds = opts.period
         self.turnDistanceMeters = opts.turnDistance * 1000.0
         self.url = opts.url
+        if self.url != '' and not self.url.endswith('/'):
+            self.url += '/'
 
         self.userName = 'clientSim%s' % i
+        self.authUser = opts.user
+        self.authPassword = opts.password
         self.uuid = getBogusUuid(self.userName)
 
         now = time.time()
@@ -133,9 +139,13 @@ class ResourceClient(object):
             sys.stdout.write('.')
             sys.stdout.flush()
         opener = urllib2.build_opener()
+        headers = {'User-Agent': 'GeoCam Tracking Client Simulator',
+                   'Content-Type': 'application/json'}
+        if self.authPassword:
+            auth = base64.encodestring('%s:%s' % (self.authUser, self.authPassword))[:-1]
+            headers['Authorization'] = 'Basic %s' % auth
         req = urllib2.Request(url=self.url + 'tracking/post/',
-                              headers={'User-Agent': 'GeoCam Tracking Client Simulator',
-                                       'Content-Type': 'application/json'},
+                              headers=headers,
                               data=data)
         resp = opener.open(req)
 
@@ -153,6 +163,12 @@ def doit(opts):
     global verbosityG
     verbosityG = opts.verbosity
     
+    if opts.user:
+        if not opts.url.startswith('https'):
+            opts.url = 'https:' + opts.url[5:]
+    if opts.user and not opts.password:
+        opts.password = getpass.getpass('password for %s at %s: ' % (opts.user, opts.url))
+
     resourceClients = [ResourceClient(opts, i) for i in xrange(0, opts.numResources)]
     while True:
         for rc in resourceClients:
@@ -200,6 +216,12 @@ simultaneous posts.
     parser.add_option('-v', '--verbosity',
                       action='count',
                       help='Make simulator more verbose; can specify -v multiple times')
+    parser.add_option('--user',
+                      default=getpass.getuser(),
+                      help='Username for server authentication [%default]')
+    parser.add_option('--password',
+                      default=None,
+                      help='Password for server authentication.')
     return parser
 
 def main():

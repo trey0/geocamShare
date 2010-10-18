@@ -3,3 +3,18 @@ clientSim1:J. Smith, Menlo Fire
 clientSim2:B. Jones, San Mateo Fire
 clientSim3:A. Johnson, Santa Clara Fire
 clientSim4:C. Williams, Menlo Fire
+clientSim5:C. Davis, Menlo Fire
+clientSim6:R. Miller, Menlo Fire
+clientSim7:J. Wilson, Menlo Fire
+clientSim8:B. Moore, San Mateo Fire
+clientSim9:A. Taylor, Santa Clara Fire
+clientSim10:C. Anderson, Menlo Fire
+clientSim11:R. Thomas, Menlo Fire
+clientSim12:J. Jackson, Menlo Fire
+clientSim13:A. White, Santa Clara Fire
+clientSim14:C. Harris, Menlo Fire
+clientSim15:R. Martin, Menlo Fire
+clientSim16:J. Thompson, Menlo Fire
+clientSim17:B. Garcia, San Mateo Fire
+clientSim18:A. Martinez, Santa Clara Fire
+clientSim19:C. Robinson, Menlo Fire

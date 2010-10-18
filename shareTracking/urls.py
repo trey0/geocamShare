@@ -13,7 +13,8 @@ urlpatterns = patterns(
     '',
 
     (r'^resources.json$', views.getResourcesJson),
-    (r'^post/$', views.postPosition),
+    (r'^post/$', views.postPosition,
+     {'challenge': 'basic'}),
     (r'^liveMap/$', views.getLiveMap),
 
     )
