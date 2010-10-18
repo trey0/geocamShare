@@ -32,9 +32,15 @@
                  } else {
                    var icon = 'http://maps.google.com/mapfiles/marker.png';
                  }
+                 if (feature.properties.displayName != null) {
+                   var title = feature.properties.displayName;
+                 } else {
+                   var title = feature.properties.userName;
+                 }
+
                  marker = new google.maps.Marker({
                    position: pos,
-                   title: feature.properties.userName,
+                   title: title,
                    icon: icon
                    });
                  marker.setMap(mapG);
