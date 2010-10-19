@@ -55,7 +55,6 @@
   }
 
   function updateResourcePositions() {
-    console.log('updateResourcePositions');
     $.getJSON("{{ settings.SCRIPT_NAME }}tracking/resources.json",
               handleResourcePositionsResponse);
   }
