@@ -15,6 +15,9 @@ class Resource(models.Model):
     displayName = models.CharField(max_length=80)
     uuid = models.CharField(max_length=128)
 
+    def __unicode__(self):
+        return '%s %s' % (self.__class__.__name__, self.userName)
+
 class ResourcePosition(models.Model):
     resource = models.ForeignKey(Resource)
     timestamp = models.DateTimeField()

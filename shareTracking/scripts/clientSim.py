@@ -81,7 +81,7 @@ class ResourceClient(object):
         if self.url != '' and not self.url.endswith('/'):
             self.url += '/'
 
-        self.userName = 'clientSim%s' % i
+        self.userName = 'nasa%02d' % (i+1)
         self.authUser = opts.user
         self.authPassword = opts.password
         self.uuid = getBogusUuid(self.userName)
