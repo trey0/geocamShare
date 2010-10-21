@@ -9,11 +9,13 @@ def doit(opts, args):
     for fname in args:
         f = file(fname, 'r')
         for line in f:
+            line = line[:-1] # chop final cr
             # remove comments
             line = re.sub(r'\s*\#.*$', '', line)
             # skip blank lines
             if line == '':
                 continue
+            print line
             # userName, displayName in format: 'jdoe:John Doe'
             userName, displayName = [s.strip() for s in line.split(':', 1)]
             matches = Resource.objects.filter(userName=userName)

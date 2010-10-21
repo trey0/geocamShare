@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 
 def doit(opts, args):
     for arg in args:
-        username = 'phone_'+arg
+        username = 'nasa'+arg
         numMatches = User.objects.filter(username=username).count()
         if numMatches:
             print 'skipping %s, user exists' % arg
