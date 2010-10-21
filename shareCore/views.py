@@ -100,7 +100,8 @@ class ViewCore(ViewKml):
                         'GALLERY_THUMB_SIZE',
                         'DESC_THUMB_SIZE',
                         'MAP_BACKEND',
-                        'USE_MARKER_CLUSTERING']
+                        'USE_MARKER_CLUSTERING',
+                        'USE_TRACKING']
         exportDict = dict(((f, getattr(settings, f))
                            for f in exportedVars))
         return json.dumps(exportDict)

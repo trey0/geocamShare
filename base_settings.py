@@ -197,3 +197,5 @@ MAP_BACKEND = 'maps'
 
 # enable/disable clustering of markers (if supported by the current MAP_BACKEND)
 USE_MARKER_CLUSTERING = False
+
+USE_TRACKING = False

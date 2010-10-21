@@ -130,6 +130,7 @@ def collectMedia():
     installDirs('shareCore/media/static/*', 'build/media/')
     if BUILDING_FOR_GEOCAM:
         installDirs('shareGeocam/media/static/*', 'build/media/')
+        installDirs('shareTracking/media/static/*', 'build/media/')
     installDir('%s/contrib/admin/media' % DJANGO_DIR,
                'build/media/admin')
     gigapanMediaDir = findDirContaining('PanoramaViewer.swf',

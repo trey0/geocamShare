@@ -361,6 +361,14 @@ geocamShare.core = {
     },
     
     setViewIfReady: function () {
+        // this is a hack, figure out a cleaner integration of tracking later
+        if (geocamShare.core.mapG != null
+            && geocamShare.core.settings.USE_TRACKING
+            && geocamShare.core.settings.MAP_BACKEND == 'maps'
+            && geocamShare.tracking != null) {
+            geocamShare.tracking.startTracking();
+        }
+
         if (geocamShare.core.mapG != null && geocamShare.core.mapG.isReady && geocamShare.core.newFeaturesG != null) {
             var oldFeatures = geocamShare.core.featuresG;
             geocamShare.core.featuresG = geocamShare.core.newFeaturesG;
