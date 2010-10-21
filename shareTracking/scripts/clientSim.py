@@ -74,6 +74,7 @@ class Disc(object):
 class ResourceClient(object):
     def __init__(self, opts, i):
         self.disc = Disc(opts)
+        self.altitude = opts.altitude
         self.speedMetersPerSecond = opts.speed * 1000.0 / 3600
         self.minPeriodSeconds = opts.period
         self.turnDistanceMeters = opts.turnDistance * 1000.0
@@ -116,8 +117,12 @@ class ResourceClient(object):
             self.pos = tryPos
         
     def getGeometry(self):
+        if self.altitude == None:
+            coordinates = self.pos
+        else:
+            coordinates = (self.pos[0], self.pos[1], self.altitude)
         return dict(type='Point',
-                    coordinates=self.pos)
+                    coordinates=coordinates)
 
     def getProperties(self):
         return dict(userName=self.userName,
@@ -198,6 +203,9 @@ simultaneous posts.
     parser.add_option('--longitude',
                       type='float', default=-122.083986,
                       help='Center longitude of disc to move around in [%default]')
+    parser.add_option('--altitude',
+                      type='float', default=None,
+                      help='Constant altitude to use [%default]')
     parser.add_option('-r', '--radius',
                       type='float', default=2,
                       help='Radius of disc to move around in (km) [%default]')

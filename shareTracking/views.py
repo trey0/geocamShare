@@ -12,7 +12,7 @@ import iso8601
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from share2.shareTracking.models import Resource, ResourcePosition
+from share2.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
 
 try:
     import json
@@ -71,12 +71,17 @@ def postPosition(request):
         attrs = dict(timestamp=timestamp,
                      longitude=coordinates[0],
                      latitude=coordinates[1])
+        if len(coordinates) >= 3:
+            attrs['altitude'] = coordinates[2]
         rp, created = ResourcePosition.objects.get_or_create(resource=resource,
                                                              defaults=attrs)
         if not created:
             for field, val in attrs.iteritems():
                 setattr(rp, field, val)
             rp.save()
+
+        # add a PastResourcePosition historical entry
+        PastResourcePosition(resource=resource, **attrs).save()
 
         return HttpResponse(dumps(dict(result='ok')),
                             mimetype='application/json')

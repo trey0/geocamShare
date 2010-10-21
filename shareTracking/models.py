@@ -18,11 +18,12 @@ class Resource(models.Model):
     def __unicode__(self):
         return '%s %s' % (self.__class__.__name__, self.userName)
 
-class ResourcePosition(models.Model):
+class AbstractResourcePosition(models.Model):
     resource = models.ForeignKey(Resource)
     timestamp = models.DateTimeField()
     latitude = models.FloatField()
     longitude = models.FloatField()
+    altitude = models.FloatField(null=True)
 
     def getGeometry(self):
         return dict(type='Point',
@@ -52,3 +53,12 @@ class ResourcePosition(models.Model):
                    self.timestamp,
                    self.latitude,
                    self.longitude))
+
+    class Meta:
+        abstract = True
+
+class ResourcePosition(AbstractResourcePosition):
+    pass
+
+class PastResourcePosition(AbstractResourcePosition):
+    pass

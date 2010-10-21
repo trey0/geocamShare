@@ -10,3 +10,4 @@ from share2.shareTracking.models import *
 
 admin.site.register(Resource)
 admin.site.register(ResourcePosition)
+admin.site.register(PastResourcePosition)
