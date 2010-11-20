@@ -8,7 +8,7 @@
   #map_canvas { height: 100% }
 </style>
 <script type="text/javascript"
-    src="http://maps.google.com/maps/api/js?sensor=false">
+    src="http://maps.google.com/maps/api/js?sensor=true">
 </script>
 <script type="text/javascript"
     src="{{ settings.MEDIA_URL }}external/jquery.min.js">
@@ -26,12 +26,21 @@
                                                 feature.geometry.coordinates[0]);
                var marker = markersByIdG[feature.id];
                if (marker == null) {
+                 /*
                  if (markerCountG < 26) {
                    var letter = String.fromCharCode(65 + markerCountG);
                    var icon = 'http://maps.google.com/mapfiles/marker' + letter + '.png';
                  } else {
                    var icon = 'http://maps.google.com/mapfiles/marker.png';
                  }
+                 */
+       
+                 var name = feature.properties.userName;
+                 var icon = '../icon/' + name;
+
+                 if (isMobileBrowser())
+                   icon += '?scale=0.65';
+                 
                  if (feature.properties.displayName != null) {
                    var title = feature.properties.displayName;
                  } else {
@@ -64,21 +73,40 @@
     setTimeout(updateResourcePositionsLoop, 5000);
   }
 
-  function initialize() {
+  function isMobileBrowser() {
+    var useragent = navigator.userAgent;
+    
+    if (useragent.indexOf('iPhone') != -1 ||
+        useragent.indexOf('Android') != -1)
+    { return true; }
+
+    return false;
+  }
+
+  $(function() {
     var latlng = new google.maps.LatLng(37.385715, -122.083986);
     var myOptions = {
       zoom: 13,
       center: latlng,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
-    mapG = new google.maps.Map(document.getElementById("map_canvas"),
-        myOptions);
+
+    if (isMobileBrowser()) {
+      $.extend(myOptions, {
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+        }
+      });
+    }
+
+    mapG = new google.maps.Map($('#map_canvas')[0], myOptions);
     updateResourcePositionsLoop();
-  }
+  });
 
 </script>
 </head>
-<body onload="initialize()">
+<body>
   <div id="map_canvas" style="width:100%; height:100%"></div>
 </body>
 </html>

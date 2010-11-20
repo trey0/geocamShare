@@ -90,3 +90,40 @@ def getLiveMap(request):
     return render_to_response('liveMap.html',
                               dict(),
                               context_instance=RequestContext(request))
+
+from StringIO import StringIO
+import Image, ImageDraw, ImageFont
+
+import os
+import os.path as op
+
+AVATAR_DIR = 'shareTracking/media/avatars'
+PLACARD_FRESH = 'shareTracking/media/mapIcons/placard.png'
+
+def getIcon(request, userName):
+    placard = Image.open(PLACARD_FRESH)
+
+    avatar = None
+    avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
+    if op.exists(avatar_file):
+        avatar = Image.open(avatar_file)
+    else:
+        avatar = Image.new("RGB", (8, 8), "#FFFFFF")
+        font = ImageFont.load_default()
+        draw  = ImageDraw.Draw(avatar)
+        draw.text((1, -2), userName.upper()[0], font=font, fill=0)
+        del draw
+
+    avatar = avatar.resize((36,36))
+    placard.paste(avatar, (10, 8))
+
+    if ("scale" in request.REQUEST):
+        scale = float(request.REQUEST['scale'])
+        new_size = (int(placard.size[0] * scale),
+                    int(placard.size[1] * scale))
+        placard = placard.resize(new_size)
+
+    strio = StringIO()
+    placard.save(strio, "PNG")
+    return HttpResponse(strio.getvalue(),
+                        mimetype='image/png')

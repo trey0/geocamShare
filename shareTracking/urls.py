@@ -14,7 +14,8 @@ urlpatterns = patterns(
 
     (r'^resources.json$', views.getResourcesJson),
     (r'^post/$', views.postPosition,
-     {'challenge': 'basic'}),
+     {'challenge': 'digest'}),
     (r'^liveMap/$', views.getLiveMap),
+    (r'^icon/(\S+)', views.getIcon),
 
     )
