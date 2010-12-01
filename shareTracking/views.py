@@ -4,8 +4,11 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
+import os
 import sys
+from StringIO import StringIO
 
+from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.conf import settings
 import iso8601
@@ -21,6 +24,9 @@ except ImportError:
 
 class ExampleError(Exception):
     pass
+
+AVATAR_DIR = '%s/shareTracking/media/avatars' % settings.CHECKOUT_DIR
+PLACARD_FRESH = '%s/shareTracking/media/mapIcons/placard.png' % settings.CHECKOUT_DIR
 
 def getIndex(request):
     return render_to_response('trackingIndex.html',
@@ -132,21 +138,12 @@ def getLiveMap(request):
                               dict(),
                               context_instance=RequestContext(request))
 
-from StringIO import StringIO
-import Image, ImageDraw, ImageFont
-
-import os
-import os.path as op
-
-AVATAR_DIR = 'shareTracking/media/avatars'
-PLACARD_FRESH = 'shareTracking/media/mapIcons/placard.png'
-
 def getIcon(request, userName):
     placard = Image.open(PLACARD_FRESH)
 
     avatar = None
-    avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
-    if op.exists(avatar_file):
+    avatar_file = os.path.join(AVATAR_DIR, "%s.png" % userName)
+    if os.path.exists(avatar_file):
         avatar = Image.open(avatar_file)
     else:
         avatar = Image.new("RGB", (8, 8), "#FFFFFF")
