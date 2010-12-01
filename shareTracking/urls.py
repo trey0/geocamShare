@@ -12,10 +12,26 @@ import views
 urlpatterns = patterns(
     '',
 
-    (r'^resources.json$', views.getResourcesJson),
+    (r'^$', views.getIndex,
+     {'readOnly': True}),
+
+    (r'^resources.json$', views.getResourcesJson,
+     {'readOnly': True}),
+    (r'^icon/(\S+)', views.getIcon,
+     {'readOnly': True}),
+    (r'^liveMap/$', views.getLiveMap,
+     {'readOnly': True}),
+    (r'^liveMap.kml$', views.getKmlNetworkLink,
+     {'readOnly': True,
+      'challenge': 'digest' # Google Earth can't handle django challenge
+      }),
+    (r'^latest.kml$', views.getKmlLatest,
+     {'readOnly': True,
+      'challenge': 'digest' # Google Earth can't handle django challenge
+      }),
+
     (r'^post/$', views.postPosition,
-     {'challenge': 'digest'}),
-    (r'^liveMap/$', views.getLiveMap),
-    (r'^icon/(\S+)', views.getIcon),
+     {'challenge': 'digest' # for best support of future mobile apps
+      }),
 
     )

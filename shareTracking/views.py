@@ -22,6 +22,11 @@ except ImportError:
 class ExampleError(Exception):
     pass
 
+def getIndex(request):
+    return render_to_response('trackingIndex.html',
+                              {},
+                              context_instance=RequestContext(request))
+
 def getGeoJsonDict():
     return dict(type='FeatureCollection',
                 crs=dict(type='name',
@@ -35,6 +40,42 @@ def getGeoJsonDictWithErrorHandling():
         return dict(error=dict(code=-32099,
                                message='This is how we would signal an err'))
     return dict(result=result)
+
+def wrapKml(text):
+    # xmlns:gx="http://www.google.com/kml/ext/2.2"
+    return '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+     xmlns:kml="http://www.opengis.net/kml/2.2"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+%s
+</kml>
+''' % text
+
+def getKmlResponse(text):
+    return HttpResponse(wrapKml(text),
+                        mimetype='application/vnd.google-earth.kml+xml')
+
+def getKmlNetworkLink(request):
+    url = request.build_absolute_uri(settings.SCRIPT_NAME + 'tracking/latest.kml')
+    return getKmlResponse('''
+<NetworkLink>
+  <name>GeoCam Track</name>
+  <Link>
+    <href>%(url)s</href>
+    <refreshMode>onInterval</refreshMode>
+    <refreshInterval>5</refreshInterval>
+  </Link>
+</NetworkLink>
+''' % dict(url=url))
+
+def getKmlLatest(request):
+    text = '<Document>\n'
+    text += '  <name>GeoCam Track</name>\n'
+    positions = ResourcePosition.objects.all().order_by('resource__displayName')
+    for i, pos in enumerate(positions):
+        text += pos.getKml(i)
+    text += '</Document>\n'
+    return getKmlResponse(text)
 
 def dumps(obj):
     if settings.DEBUG:

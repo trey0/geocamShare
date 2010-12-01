@@ -46,6 +46,38 @@ class AbstractResourcePosition(models.Model):
                     geometry=self.getGeometry(),
                     properties=self.getProperties())
 
+    def getIconForIndex(self, index):
+        if index == None or index >= 26:
+            letter = ''
+        else:
+            letter = chr(65 + index)
+        return 'http://maps.google.com/mapfiles/marker%s.png' % letter
+
+    def getKml(self, index=None):
+        coords = '%f,%f' % (self.longitude, self.latitude)
+        #if self.altitude != None:
+        #    coords += ',%f' % self.altitude
+        return ('''
+<Placemark id="%(id)s">
+  <name>%(displayName)s</name>
+  <description>%(displayName)s</description>
+  <Point>
+    <coordinates>%(coords)s</coordinates>
+  </Point>
+  <Style>
+    <IconStyle>
+      <Icon>
+        <href>%(icon)s</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+</Placemark>
+'''
+                % dict(id='resource-' + self.resource.userName,
+                       displayName=self.resource.displayName,
+                       coords=coords,
+                       icon=self.getIconForIndex(index)))
+
     def __unicode__(self):
         return ('%s %s %s %s %s'
                 % (self.__class__.__name__,
