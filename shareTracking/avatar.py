@@ -5,9 +5,10 @@ import os
 import sys
 import time
 import stat
+import re
 from StringIO import StringIO
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -81,6 +82,19 @@ def getGravatarPath(userName, email):
 
 def renderAvatar(request, userName):
     placard = Image.open(PLACARD_FRESH)
+
+    # Colorize base placard
+    if "color" in request.REQUEST:
+        color = request.REQUEST['color']
+        if re.match(r'^[0-9a-fA-F]{6}$', color):
+            placard.load()
+            bands = placard.split()
+            placardGray = placard.convert("L")
+            placardColored = ImageOps.colorize(placardGray, 
+                                               "#000000", 
+                                               "#" + color);
+            placard = placardColored.convert("RGBA");
+            placard.putalpha(bands[3]);
 
     avatar = None
     avatar_file = os.path.join(AVATAR_DIR, "%s.png" % userName)

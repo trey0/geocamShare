@@ -140,8 +140,13 @@ def postPosition(request):
                             mimetype='application/json')
 
 def getLiveMap(request):
+    userData = { 'loggedIn': False }
+    if request.user.is_authenticated():
+        userData['loggedIn'] = True
+        userData['userName'] = request.user.username
+
     return render_to_response('liveMap.html',
-                              dict(),
+                              { 'userData': dumps(userData) },
                               context_instance=RequestContext(request))
 
 def getIcon(request, userName):
