@@ -2,10 +2,12 @@
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<link rel="stylesheet" 
+      href="{{ settings.MEDIA_URL }}external/jquery.mobile-1.0a2.min.css" />
 <style type="text/css">
   html { height: 100% }
   body { height: 100%; margin: 0px; padding: 0px }
-  #map_canvas { height: 100% }
+  #map_canvas { height: 100%, z-index: 1000 }
 
   .map-control-ui {
     background: white;
@@ -28,7 +30,10 @@
     src="http://maps.google.com/maps/api/js?sensor=true">
 </script>
 <script type="text/javascript"
-    src="{{ settings.MEDIA_URL }}external/jquery.min.js">
+    src="{{ settings.MEDIA_URL }}external/jquery-1.4.4.min.js">
+</script>
+<script type="text/javascript"
+    src="{{ settings.MEDIA_URL }}external/jquery.mobile-1.0a2.min.js">
 </script>
 <script type="text/javascript">
   var mapG = null;
@@ -39,6 +44,7 @@
   var zoomToBounds = true;
 
   var user = {{ userData|safe }};
+  var features = {};
 
   function handleResourcePositionsResponse(response) {
     if (response.result == null) return;
@@ -80,8 +86,15 @@
           marker.setMap(mapG);
           markersByIdG[feature.id] = marker;
           markerCountG++;
-        }
 
+          google.maps.event.addListener(marker, 'click', function() {
+          feature = this.geoFeature;
+            $('#info-header').text(feature.properties.userName);
+            $.mobile.changePage('#info', 'slide', false, true);
+          });
+        
+}
+        marker.geoFeature = feature;
         if (!pos.equals(marker.position)) {
           marker.setPosition(pos);
         }
@@ -116,7 +129,6 @@
 
   $(function() {
     var latlng = new google.maps.LatLng(37.385715, -122.083986);
-    //var latlng = new google.maps.LatLng(37.75748, -122.40687);
 
     var myOptions = {
       zoom: 13,
@@ -140,6 +152,17 @@
     var zoomDiv = document.createElement('DIV');
     var zoomControl = new ZoomToFitControl(mapG, zoomDiv);
     mapG.controls[google.maps.ControlPosition.TOP_RIGHT].push(zoomDiv);
+
+    var height, width;
+    $('#page-map').bind('pagebeforehide', function() {
+      height = $('#page-map').height();
+      width = $('#page-map').width();
+    });
+  
+    $('#page-map').bind('pageshow', function() {
+      $('#page-map').height(height).width(width);
+      google.maps.event.trigger(mapG, 'resize');
+    });
 
     updateResourcePositionsLoop();
   });
@@ -180,6 +203,21 @@
 </script>
 </head>
 <body>
-  <div id="map_canvas" style="width:100%; height:100%"></div>
+  
+  <div id="page-map" data-role="page" style="width: 100%; height: 100%;">
+    <div data-role="content" style="height: 100%; width: 100%; padding: 0px;">
+      <div id="map_canvas" style="height: 100%; width: 100%"></div>
+    </div>
+  </div>
+  
+  <div id="info" data-role="page">
+    <div data-role="header"><h1 id="info-header">Test</h1></div>
+    <div data-role="content" id="info-content">
+        <ul data-role="listview" data-inset="true">
+          <li>Test</li>
+        </ul>
+    </div>
+  </div>
+
 </body>
 </html>
