@@ -4,15 +4,19 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
+import os
 import sys
+from StringIO import StringIO
 
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.conf import settings
 import iso8601
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.contrib.auth.models import User
 
 from share2.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
+from share2.shareTracking.avatar import renderAvatar
 
 try:
     import json
@@ -21,6 +25,11 @@ except ImportError:
 
 class ExampleError(Exception):
     pass
+
+def getIndex(request):
+    return render_to_response('trackingIndex.html',
+                              {},
+                              context_instance=RequestContext(request))
 
 def getGeoJsonDict():
     return dict(type='FeatureCollection',
@@ -35,6 +44,42 @@ def getGeoJsonDictWithErrorHandling():
         return dict(error=dict(code=-32099,
                                message='This is how we would signal an err'))
     return dict(result=result)
+
+def wrapKml(text):
+    # xmlns:gx="http://www.google.com/kml/ext/2.2"
+    return '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+     xmlns:kml="http://www.opengis.net/kml/2.2"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+%s
+</kml>
+''' % text
+
+def getKmlResponse(text):
+    return HttpResponse(wrapKml(text),
+                        mimetype='application/vnd.google-earth.kml+xml')
+
+def getKmlNetworkLink(request):
+    url = request.build_absolute_uri(settings.SCRIPT_NAME + 'tracking/latest.kml')
+    return getKmlResponse('''
+<NetworkLink>
+  <name>GeoCam Track</name>
+  <Link>
+    <href>%(url)s</href>
+    <refreshMode>onInterval</refreshMode>
+    <refreshInterval>5</refreshInterval>
+  </Link>
+</NetworkLink>
+''' % dict(url=url))
+
+def getKmlLatest(request):
+    text = '<Document>\n'
+    text += '  <name>GeoCam Track</name>\n'
+    positions = ResourcePosition.objects.all().order_by('resource__user__username')
+    for i, pos in enumerate(positions):
+        text += pos.getKml(i)
+    text += '</Document>\n'
+    return getKmlResponse(text)
 
 def dumps(obj):
     if settings.DEBUG:
@@ -59,10 +104,18 @@ def postPosition(request):
         # create or update Resource
         properties = featureDict['properties']
         featureUserName = properties['userName']
+        matchingUsers = User.objects.filter(username=featureUserName)
+        if matchingUsers:
+            user = matchingUsers[0]
+        else:
+            user = User.objects.create_user(featureUserName, '%s@example.com' % featureUserName, '12345')
+            user.first_name = featureUserName
+            user.is_active = False
+            user.save()
         resource, created = Resource.objects.get_or_create(uuid=featureDict['id'],
-                                                           defaults=dict(userName=featureUserName))
-        if resource.userName != featureUserName:
-            resource.userName = featureUserName
+                                                           defaults=dict(user=user))
+        if resource.user.username != featureUserName:
+            resource.user = user
             resource.save()
 
         # create or update ResourcePosition
@@ -96,53 +149,6 @@ def getLiveMap(request):
                               { 'userData': dumps(userData) },
                               context_instance=RequestContext(request))
 
-from StringIO import StringIO
-import Image, ImageDraw, ImageFont, ImageOps
-
-import re
-import os
-import os.path as op
-
-AVATAR_DIR = 'shareTracking/media/avatars'
-PLACARD_FRESH = 'shareTracking/media/mapIcons/placard.png'
-
 def getIcon(request, userName):
-    placard = Image.open(PLACARD_FRESH)
-
-    # Colorize base placard
-    if "color" in request.REQUEST:
-        color = request.REQUEST['color']
-        if re.match(r'^[0-9a-fA-F]{6}$', color):
-            placard.load()
-            bands = placard.split()
-            placardGray = placard.convert("L")
-            placardColored = ImageOps.colorize(placardGray, 
-                                               "#000000", 
-                                               "#" + color);
-            placard = placardColored.convert("RGBA");
-            placard.putalpha(bands[3]);
-
-    avatar = None
-    avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
-    if op.exists(avatar_file):
-        avatar = Image.open(avatar_file)
-    else:
-        avatar = Image.new("RGB", (8, 8), "#FFFFFF")
-        font = ImageFont.load_default()
-        draw  = ImageDraw.Draw(avatar)
-        draw.text((1, -2), userName.upper()[0], font=font, fill=0)
-        del draw
-
-    avatar = avatar.resize((36,36))
-    placard.paste(avatar, (10, 8))
-
-    if ("scale" in request.REQUEST):
-        scale = float(request.REQUEST['scale'])
-        new_size = (int(placard.size[0] * scale),
-                    int(placard.size[1] * scale))
-        placard = placard.resize(new_size)
-
-    strio = StringIO()
-    placard.save(strio, "PNG")
-    return HttpResponse(strio.getvalue(),
+    return HttpResponse(renderAvatar(request, userName),
                         mimetype='image/png')
