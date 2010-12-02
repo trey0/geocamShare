@@ -87,13 +87,19 @@ def postPosition(request):
                             mimetype='application/json')
 
 def getLiveMap(request):
+    userData = { 'loggedIn': False }
+    if request.user.is_authenticated():
+        userData['loggedIn'] = True
+        userData['userName'] = request.user.username
+
     return render_to_response('liveMap.html',
-                              dict(),
+                              { 'userData': dumps(userData) },
                               context_instance=RequestContext(request))
 
 from StringIO import StringIO
-import Image, ImageDraw, ImageFont
+import Image, ImageDraw, ImageFont, ImageOps
 
+import re
 import os
 import os.path as op
 
@@ -102,6 +108,19 @@ PLACARD_FRESH = 'shareTracking/media/mapIcons/placard.png'
 
 def getIcon(request, userName):
     placard = Image.open(PLACARD_FRESH)
+
+    # Colorize base placard
+    if "color" in request.REQUEST:
+        color = request.REQUEST['color']
+        if re.match(r'^[0-9a-fA-F]{6}$', color):
+            placard.load()
+            bands = placard.split()
+            placardGray = placard.convert("L")
+            placardColored = ImageOps.colorize(placardGray, 
+                                               "#000000", 
+                                               "#" + color);
+            placard = placardColored.convert("RGBA");
+            placard.putalpha(bands[3]);
 
     avatar = None
     avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
