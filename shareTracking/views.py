@@ -8,14 +8,15 @@ import os
 import sys
 from StringIO import StringIO
 
-from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.conf import settings
 import iso8601
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.contrib.auth.models import User
 
 from share2.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
+from share2.shareTracking.avatar import renderAvatar
 
 try:
     import json
@@ -24,9 +25,6 @@ except ImportError:
 
 class ExampleError(Exception):
     pass
-
-AVATAR_DIR = '%s/shareTracking/media/avatars' % settings.CHECKOUT_DIR
-PLACARD_FRESH = '%s/shareTracking/media/mapIcons/placard.png' % settings.CHECKOUT_DIR
 
 def getIndex(request):
     return render_to_response('trackingIndex.html',
@@ -77,7 +75,7 @@ def getKmlNetworkLink(request):
 def getKmlLatest(request):
     text = '<Document>\n'
     text += '  <name>GeoCam Track</name>\n'
-    positions = ResourcePosition.objects.all().order_by('resource__displayName')
+    positions = ResourcePosition.objects.all().order_by('resource__user__username')
     for i, pos in enumerate(positions):
         text += pos.getKml(i)
     text += '</Document>\n'
@@ -106,10 +104,18 @@ def postPosition(request):
         # create or update Resource
         properties = featureDict['properties']
         featureUserName = properties['userName']
+        matchingUsers = User.objects.filter(username=featureUserName)
+        if matchingUsers:
+            user = matchingUsers[0]
+        else:
+            user = User.objects.create_user(featureUserName, '%s@example.com' % featureUserName, '12345')
+            user.first_name = featureUserName
+            user.is_active = False
+            user.save()
         resource, created = Resource.objects.get_or_create(uuid=featureDict['id'],
-                                                           defaults=dict(userName=featureUserName))
-        if resource.userName != featureUserName:
-            resource.userName = featureUserName
+                                                           defaults=dict(user=user))
+        if resource.user.username != featureUserName:
+            resource.user = user
             resource.save()
 
         # create or update ResourcePosition
@@ -139,29 +145,5 @@ def getLiveMap(request):
                               context_instance=RequestContext(request))
 
 def getIcon(request, userName):
-    placard = Image.open(PLACARD_FRESH)
-
-    avatar = None
-    avatar_file = os.path.join(AVATAR_DIR, "%s.png" % userName)
-    if os.path.exists(avatar_file):
-        avatar = Image.open(avatar_file)
-    else:
-        avatar = Image.new("RGB", (8, 8), "#FFFFFF")
-        font = ImageFont.load_default()
-        draw  = ImageDraw.Draw(avatar)
-        draw.text((1, -2), userName.upper()[0], font=font, fill=0)
-        del draw
-
-    avatar = avatar.resize((36,36))
-    placard.paste(avatar, (10, 8))
-
-    if ("scale" in request.REQUEST):
-        scale = float(request.REQUEST['scale'])
-        new_size = (int(placard.size[0] * scale),
-                    int(placard.size[1] * scale))
-        placard = placard.resize(new_size)
-
-    strio = StringIO()
-    placard.save(strio, "PNG")
-    return HttpResponse(strio.getvalue(),
+    return HttpResponse(renderAvatar(request, userName),
                         mimetype='image/png')
