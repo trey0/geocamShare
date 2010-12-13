@@ -128,13 +128,13 @@ class Unit(models.Model):
     name = models.CharField(max_length=80)
     permissions = models.ManyToManyField(Permission)
 
-class Operation(models.Model):
+class AbstractOperation(models.Model):
     """Represents an area where a team is operating.  Could be a regular
     station posting, an incident, an exercise, or whatever makes sense.
     For a discussion of incident file naming conventions see
     http://gis.nwcg.gov/2008_GISS_Resource/student_workbook/unit_lessons/Unit_08_File_Naming_Review.pdf"""
 
-    folder = models.ForeignKey(Folder, related_name='owningFolder', default=1)
+    folder = models.ForeignKey(Folder, related_name='%(app_label)s_%(class)s_owningFolder', default=1)
     name = models.CharField(max_length=32, blank=True,
                             help_text="A descriptive name for this operation.  Example: 'beaver_pond'.")
     operationId = models.CharField(max_length=32, blank=True, verbose_name='operation id',
@@ -151,18 +151,16 @@ class Operation(models.Model):
     uuid = models.CharField(max_length=48, default=makeUuid,
                             help_text="Universally unique id used to identify this db record across servers.")
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
+    objects = AbstractClassManager(parentModel=None)
 
-    def asLeafClass(self):
-        '''If self is the parent-class portion of a derived class instance, this returns the
-        full derived class instance. See http://www.djangosnippets.org/snippets/1031/'''
-        leafModel = self.contentType.model_class()
-        if leafModel == Operation:
-            return self
-        else:
-            return leafModel.objects.get(id=self.id)
+    class Meta:
+        abstract = True
 
     def __unicode__(self):
         return '%s %s %s' % (self.__class__.__name__, self.name, self.operationId)
+
+class Operation(AbstractOperation):
+    objects = LeafClassManager(parentModel=AbstractOperation)
 
 class Assignment(models.Model):
     folder = models.ForeignKey(Folder)
