@@ -211,9 +211,6 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
         self.rotateIcons()
         self.makeLocalSourceme()
         self.makeLocalSettings()
-        if not os.path.exists('django.wsgi'):
-            # backward compatible with older share installations
-            dosys('ln -s djangoWsgi.py django.wsgi')
         dosys('touch djangoWsgi.py')
         self.builder.finish()
 
