@@ -41,15 +41,20 @@ def rotateAntialias(im, angle, reqSize=REQ_SIZE):
     r = r.crop(getbbox(r, 128))
     return r
 
-def copyThumbnails(inDir, outDir, nameTransform=None, reqSize=REQ_SIZE):
+def copyThumbnail(inPath, outPath, reqSize):
+    im = Image.open(inPath)
+    im.thumbnail(reqSize, Image.ANTIALIAS)
+    im.save(outPath)
+
+def copyThumbnails(builder, inDir, outDir, nameTransform=None, reqSize=REQ_SIZE):
     icons = glob('%s/*.png' % inDir) + glob('%s/*.jpg' % inDir)
-    for p in icons:
-        im = Image.open(p)
-        im.thumbnail(REQ_SIZE, Image.ANTIALIAS)
-        base, ext = os.path.splitext(os.path.basename(p))
+    for inPath in icons:
+        base, ext = os.path.splitext(os.path.basename(inPath))
         if nameTransform != None:
             base = nameTransform(base)
-        im.save('%s/%s%s' % (outDir, base, ext))
+        outPath = '%s/%s%s' % (outDir, base, ext)
+        builder.applyRule(outPath, [inPath],
+                          lambda: copyThumbnail(inPath, outPath, reqSize))
 
 def getOutPath(imPath, outputDir, angle):
     base, ext = os.path.splitext(os.path.basename(imPath))
