@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-<link rel="stylesheet" 
-      href="{{ settings.MEDIA_URL }}external/jquery.mobile-1.0a2.min.css" />
+<meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
 <style type="text/css">
-  html { height: 100% }
-  body { height: 100%; margin: 0px; padding: 0px }
-  #map_canvas { height: 100%, z-index: 1000 }
+  html, body { height: 100%; margin: 0px; padding: 0px; }
+
+  #map_canvas { 
+    position: absolute;
+    top: 0px; 
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+  }
 
   .map-control-ui {
     background: white;
@@ -49,11 +53,9 @@
     src="{{ settings.MEDIA_URL }}external/jquery-1.4.4.min.js">
 </script>
 <script type="text/javascript"
-    src="{{ settings.MEDIA_URL }}external/jquery.mobile-1.0a2.min.js">
-</script>
-<script type="text/javascript"
     src="{{ settings.MEDIA_URL }}external/infobubble-compiled.js">
 </script>
+
 <script type="text/javascript">
   var mapG = null;
   var markersByIdG = {};
@@ -82,12 +84,11 @@
     arrowStyle: 2
   });
 
-  $(infoBubble.c).click(function() {
-    feature = infoBubble.geoFeature;
-    $('#info-header').text(feature.properties.userName);
-    $.mobile.changePage('#info', 'slide', false, true);
-    infoBubble.close();
+  /* Do something when the user clicks
+  $('#infobubble-text').click(function() {
+    return;
   });
+  */
 
   function handleResourcePositionsResponse(response) {
     if (response.result == null) return;
@@ -200,17 +201,7 @@
     var zoomControl = new ZoomToFitControl(mapG, zoomDiv);
     mapG.controls[google.maps.ControlPosition.TOP_RIGHT].push(zoomDiv);
   
-    /*
-    var height, width;
-    $('#page-map').bind('pagebeforehide', function() {
-      height = $('#page-map').height();
-      width = $('#page-map').width();
-    });
-    */
-  
-    $('#page-map').bind('pageshow', function() {
-      google.maps.event.trigger(mapG, 'resize');
-    });
+      updateResourcePositionsLoop();
 
     // Cache-buster
     $.ajaxSetup({"cache":false});
@@ -234,48 +225,19 @@
 
     $(div).append(control.append(text));
   }
-
-  // Hide URL bar
-  /*
-  $(document).ready(function(){
-    setTimeout(function() { 
-      scrollTo(0, window.innerHeight);
-    }, 200);
-
-    $('#map_canvas').height($(window).height() + 'px');
-    $(document).resize(function() {
-      $('#map_canvas').height($(window).outerHeight() + 'px');
-    });
-  });
-  */
-
 </script>
 </head>
 <body>
-  
-  <div id="page-map" data-role="page" style="width: 100%; height: 100%;">
-    <div data-role="content" style="height: 100%; width: 100%; padding: 0px;">
-      <div id="map_canvas" style="height: 100%; width: 100%"></div>
-    </div>
-  </div>
-  
-  <div id="info" data-role="page">
-    <div data-role="header"><h1 id="info-header">Test</h1></div>
-    <div data-role="content" id="info-content">
-        <ul data-role="listview" data-inset="true">
-          <li data-role="list-divider">Information</li>
-          <li class="ui-grid-a">
-            <div class="ui-block-a">
-              Location
-            </div>
-            <div class="ui-block-b" style="font-weight: normal">
-              <span id="info-latitude">37.1337</span>,
-              <span id="info-longitude">-122.666</span>
-            </div>
-          </li>
-        </ul>
-    </div>
-  </div>
+  <div id="map_canvas"></div>
 
+  <div id="loading">
+    <img src="{{ settings.MEDIA_URL }}external/loading.gif">
+  </div>
+  <div style="display: none">
+    <div id="infobubble-content">
+      <div id="infobubble-text" class="map-infotext">
+      </div>
+    </div>
+  </div>
 </body>
 </html>
