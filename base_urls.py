@@ -10,16 +10,24 @@ from django.contrib import admin
 
 admin.autodiscover()
 
-urltuple = (
+urlpatterns = patterns(
+    '',
+    
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^comments/', include('django.contrib.comments.urls')),
 )
 
 if settings.USE_STATIC_SERVE:
-    urltuple += (
+    urlpatterns += patterns(
+        '',
+        
         (r'^media/(?P<path>.*)$', 'django.views.static.serve',
          dict(document_root=settings.MEDIA_ROOT,
               show_indexes=True,
               readOnly=True)),
+        (r'^favicon.ico$', 'django.views.generic.simple.redirect_to',
+         {'url': settings.MEDIA_URL + 'share/camera.ico',
+          'readOnly': True}
+         ),
         )

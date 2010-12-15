@@ -4,14 +4,14 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-# Django settings for gds project.
-
 import os
 import re
 from glob import glob
 
-CHECKOUT_DIR = os.path.dirname(os.path.realpath(__file__))
-os.environ['CHECKOUT_DIR'] = CHECKOUT_DIR
+# can override CHECKOUT_DIR by setting the environment variable before
+# importing base_settings
+DEFAULT_CHECKOUT_DIR = os.path.dirname(os.path.realpath(__file__))
+CHECKOUT_DIR = os.environ.get('CHECKOUT_DIR', DEFAULT_CHECKOUT_DIR)
 
 SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
 if not SCRIPT_NAME.endswith('/'):

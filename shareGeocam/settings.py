@@ -13,6 +13,8 @@ INSTALLED_APPS = INSTALLED_APPS + (
     'share2.shareGeocam',
     )
 
+MAIN_APP = 'share2.shareGeocam'
+
 ######################################################################
 # settings specific to share app, not Django-related
 ######################################################################

@@ -19,6 +19,13 @@ from django.conf import settings
 class NoDataError(Exception):
     pass
 
+def importModuleByName(name):
+    mod = __import__(name)
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
 def getMiddleFileWithExtension(ext, path):
     allXmps = glob.glob('%s/*.%s' % (path, ext))
     allXmps = [x for x in allXmps
