@@ -17,14 +17,23 @@ import PIL
 
 from django.conf import settings
 
+IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.png')
+
+def findImageName(xmpName):
+    base = os.path.splitext(xmpName)[0]
+    for ext in IMAGE_EXTENSIONS:
+        if os.path.exists(base + ext):
+            return base + ext
+    raise Exception('no image corresponding to xmp file %s' % xmpName)
+
 class Xmp:
     def __init__(self, fname):
-        self.fname = fname
         self.graph = Graph()
-        if os.path.splitext(fname)[1].lower() in ('.jpg', '.jpeg', '.png'):
+        if os.path.splitext(fname)[1].lower() in IMAGE_EXTENSIONS:
             self.parseImageHeader(fname)
         else:
             self.parseXmp(fname)
+            self.xmpName = fname
             
     def parseImageHeader(self, fname):
         fd, xmpFname = tempfile.mkstemp('-parseImageHeader.xmp')
@@ -179,7 +188,7 @@ class Xmp:
         if widthStr != None and heightStr != None:
             widthPixels, heightPixels = int(widthStr), int(heightStr)
         else:
-            im = PIL.Image.open(self.fname)
+            im = PIL.Image.open(findImageName(self.xmpName))
             widthPixels, heightPixels = im.size
             del im
 
