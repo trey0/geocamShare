@@ -128,6 +128,11 @@ class ChainQuerySet:
         self._evalQuery()
         return len(self._resultCache)
 
+    def delete(self):
+        self._evalQuery()
+        for obj in self._resultCache:
+            obj.delete()
+
 class LeafClassManager(models.Manager):
     def __init__(self, parentModel):
         super(LeafClassManager, self).__init__()
