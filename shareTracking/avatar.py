@@ -2,6 +2,7 @@
 import hashlib
 import urllib2
 import os
+import os.path as op
 import sys
 import time
 import stat
@@ -14,6 +15,7 @@ from django.contrib.auth.models import User
 
 AVATAR_DIR = '%s/shareTracking/media/avatars' % settings.CHECKOUT_DIR
 GRAVATAR_DIR = '%s/gravatars' % AVATAR_DIR
+CACHE_DIR = '%s/cache' % AVATAR_DIR
 PLACARD_FRESH = '%s/shareTracking/media/mapIcons/placard.png' % settings.CHECKOUT_DIR
 
 # time to wait before retry after failed gravatar fetch
@@ -80,25 +82,59 @@ def getGravatarPath(userName, email):
     else:
         return None
 
+def parse_params(params):
+    color = None
+    if 'color' in params:
+        if re.match(r'^[0-9a-fA-F]{6}$', params['color']):
+            color = params['color'].lower()
+
+    scale = None
+    if 'scale' in params:
+        try:
+            scale = float(params['scale'])
+        except ValueError:
+            pass
+
+    stale = False
+    if 'stale' in params:
+        stale = True
+
+    return (color, scale, stale)
+
 def renderAvatar(request, userName):
+    # Parse junk
+    (color, scale, stale) = parse_params(request.REQUEST)
+
+    # See if we can return cached image
+    image_name = userName
+    if color:
+        image_name += "_%s" % color
+    if scale:
+        image_name += "_%s" % scale
+    if stale:
+        image_name += '_stale'
+    image_name += '.png'
+    full_path = op.join(CACHE_DIR, image_name);
+    if op.exists(full_path):
+        return open(full_path, 'r').read()
+
     placard = Image.open(PLACARD_FRESH)
 
     # Colorize base placard
-    if "color" in request.REQUEST:
-        color = request.REQUEST['color']
-        if re.match(r'^[0-9a-fA-F]{6}$', color):
-            placard.load()
-            bands = placard.split()
-            placardGray = placard.convert("L")
-            placardColored = ImageOps.colorize(placardGray, 
-                                               "#000000", 
-                                               "#" + color);
-            placard = placardColored.convert("RGBA");
-            placard.putalpha(bands[3]);
+    if color:
+        placard.load()
+        bands = placard.split()
+        placardGray = placard.convert("L")
+        placardColored = ImageOps.colorize(placardGray, 
+                                           "#000000", 
+                                           "#" + color);
+        placard = placardColored.convert("RGBA");
+        placard.putalpha(bands[3]);
 
+    # Find avatar, gravatar or lettered image
     avatar = None
-    avatar_file = os.path.join(AVATAR_DIR, "%s.png" % userName)
-    if os.path.exists(avatar_file):
+    avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
+    if op.exists(avatar_file):
         avatar = Image.open(avatar_file)
     else:
         featureUser = User.objects.get(username=userName)
@@ -112,15 +148,20 @@ def renderAvatar(request, userName):
             draw.text((1, -2), userName.upper()[0], font=font, fill=0)
             del draw
     
+    # Paste generated/opened image into placard
     avatar = avatar.resize((36,36))
     placard.paste(avatar, (10, 8))
     
-    if ("scale" in request.REQUEST):
-        scale = float(request.REQUEST['scale'])
+    # Optionally scale image
+    if scale:
         new_size = (int(placard.size[0] * scale),
                     int(placard.size[1] * scale))
         placard = placard.resize(new_size)
-        
+    
+    # Save image in cache
+    placard.save(full_path, "PNG")
+
+    # Send image to browser
     strio = StringIO()
     placard.save(strio, "PNG")
     return strio.getvalue()
