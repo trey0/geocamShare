@@ -212,8 +212,9 @@
       google.maps.event.trigger(mapG, 'resize');
     });
 
-    updateResourcePositionsLoop();
-  });
+    // Cache-buster
+    $.ajaxSetup({"cache":false});
+  }
 
   function ZoomToFitControl(map, div) {
     this.map = map;
