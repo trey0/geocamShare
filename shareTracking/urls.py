@@ -34,4 +34,4 @@ urlpatterns = patterns(
      {'challenge': 'digest' # for best support of future mobile apps
       }),
 
-    )
+)

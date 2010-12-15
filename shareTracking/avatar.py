@@ -29,8 +29,8 @@ def mkdirP(dir):
         os.makedirs(dir)
 
 def fetchGravatarImage(email, fname):
-    '''Grabs the Gravatar image for the given email address and writes it to fname.
-    Returns False on error.'''
+    '''Grabs the Gravatar image for the given email address and writes it to 
+    fname.  Returns False on error.'''
     hex = hashlib.md5(email.strip().lower()).hexdigest()
     url = 'http://www.gravatar.com/avatar/%s.jpg?d=404' % hex
     req = urllib2.Request(url)
