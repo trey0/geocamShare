@@ -21,13 +21,10 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.safestring import mark_safe
 from django.template import RequestContext
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
 from django.conf import settings
 from django.contrib.auth.models import User
 
+from share2.shareCore.utils import anyjson as json
 from share2.shareCore.utils import makeUuid, mkdirP
 from share2.shareCore.Pager import Pager
 from share2.shareCore.models import Image, Track, EmptyTrackError

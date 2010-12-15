@@ -5,11 +5,9 @@
 # __END_LICENSE__
 
 from django.db import models
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
 from django.core.exceptions import ValidationError
+
+from share2.shareCore.utils import anyjson as json
 
 class Extras(object):
     # At the moment this object exists pretty much solely to let you

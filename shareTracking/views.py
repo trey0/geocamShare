@@ -12,12 +12,8 @@ import iso8601
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+from share2.shareCore.utils import anyjson as json
 from share2.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
-
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
 
 class ExampleError(Exception):
     pass

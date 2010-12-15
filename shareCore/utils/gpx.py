@@ -6,12 +6,10 @@
 
 import datetime
 from xml.dom import minidom
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
 
 import iso8601
+
+from share2.shareCore.utils import anyjson as json
 
 class RaiseValueError:
     pass

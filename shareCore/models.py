@@ -11,10 +11,6 @@ import shutil
 import datetime
 import random
 import re
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
 
 import pytz
 import PIL.Image
@@ -27,6 +23,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 import tagging
 
+from share2.shareCore.utils import anyjson as json
 from share2.shareCore.utils import mkdirP, makeUuid, Xmp
 from share2.shareCore.utils.gpx import TrackLog
 from share2.shareCore.ExtrasField import ExtrasField
