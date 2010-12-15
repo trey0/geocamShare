@@ -52,17 +52,34 @@
   .map-info {
     background: -webkit-gradient(linear,left top,left bottom,color-stop(0, rgb(112,112,112)),color-stop(0.51, rgb(94,94,94)),color-stop(0.52, rgb(57,57,57)));
     background: -moz-linear-gradient(center top,rgb(112,112,112) 0%,rgb(94,94,94) 51%,rgb(57,57,57) 52%);
-   }
- 
-   .map-infotext {
-     text-shadow: 0 -1px 0 #000;
-     color: #fff;
-     font-family: Helvetica Neue, Helvetica, arial;
-     font-size: 18px;
-     line-height: 25px;
-     padding: 4px 15px 4px 15px;
-     font-weight: bold;
-   }
+  }
+
+  .map-infoclose {
+    padding: 0px 8px;
+    padding-top: 8px;
+    float: left;
+    cursor: pointer;
+  }
+
+  .map-infotext {
+    border-left: solid 1px #2c2c2c;
+    text-shadow: 0 -1px 0 #000;
+    color: #fff;
+    font-family: Helvetica Neue, Helvetica, arial;
+    margin-left: 34px;
+    padding: 4px 15px 4px 8px;
+    white-space: nowrap;
+  }
+
+  .map-infouser {
+    font-size: 18px;
+    line-height: 25px;
+    font-weight: bold;
+  }
+  
+  .map-infotime {
+    font-size: 10px;
+  }
 
 </style>
 
@@ -135,12 +152,14 @@
 
           google.maps.event.addListener(marker, 'click', function() {
             feature = this.geoFeature;
+
             if (infoBubble.isOpen())
               infoBubble.close();
+            infoBubble.open(mapG, this);
 
             infoBubble.geoFeature = feature;
-            infoBubble.open(mapG, this);
-            infoBubble.setContent('<div class="map-infotext">' + feature.properties.userName + '</div>');
+            $(infoBubble.getContent()).find('.map-infouser').html(feature.properties.userName);
+            infoBubble.content_changed();
           });
         }
 
@@ -274,9 +293,14 @@
   <div id="loading">
     <img src="{{ settings.MEDIA_URL }}external/loading.gif">
   </div>
+
   <div style="display: none">
     <div id="infobubble-content">
+      <div id="infobubble-close" class="map-infoclose">
+        <img src="{{ settings.MEDIA_URL }}external/close_button.gif">
+      </div>
       <div id="infobubble-text" class="map-infotext">
+	<div id="infobubble-user" class="map-infouser">Username</div>
       </div>
     </div>
   </div>
