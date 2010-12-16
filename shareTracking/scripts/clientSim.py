@@ -80,6 +80,9 @@ class ResourceClient(object):
             self.url += '/'
 
         self.userName = 'nasa%02d' % (i+1)
+        if opts.userName:
+            self.userName = opts.userName;
+
         self.authUser = opts.user
         self.authPassword = opts.password
         self.uuid = getBogusUuid(self.userName)
@@ -165,13 +168,28 @@ def doit(opts):
     global verbosityG
     verbosityG = opts.verbosity
     
-    if opts.user:
+    if opts.user and not opts.noSSL:
         if not opts.url.startswith('https'):
             opts.url = 'https:' + opts.url[5:]
     if opts.user and not opts.password:
         opts.password = getpass.getpass('password for %s at %s: ' % (opts.user, opts.url))
 
-    resourceClients = [ResourceClient(opts, i) for i in xrange(0, opts.numResources)]
+    resourceClients = [];
+    if opts.namesFile:
+        try:
+            f = open(opts.namesFile, "r")
+            for line in f:
+                opts.userName = line.strip()
+                resourceClients.append(ResourceClient(opts, 1))
+        except IOError:
+            print "Unable to open %s. Aborting."
+            return
+        finally:
+            f.close()
+    else:
+        opts.userName = None
+        resourceClients = [ResourceClient(opts, i) for i in xrange(0, opts.numResources)]
+
     while True:
         for rc in resourceClients:
             rc.update()
@@ -227,6 +245,12 @@ simultaneous posts.
     parser.add_option('--password',
                       default=None,
                       help='Password for server authentication.')
+    parser.add_option('--noSSL', 
+                      dest='noSSL', action='store_true', default=False,
+                      help='Do not force SSL for authentication.')
+    parser.add_option('--namesFile', 
+                      dest="namesFile", default=None,
+                      help='File with usernames for the resources.')
     return parser
 
 def main():

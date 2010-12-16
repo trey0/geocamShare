@@ -11,12 +11,21 @@ import pytz
 
 class Resource(models.Model):
     name = models.CharField(max_length=32)
-    userName = models.CharField(max_length=32)
-    displayName = models.CharField(max_length=80)
+    user = models.ForeignKey(User)
     uuid = models.CharField(max_length=128)
 
+    def getUserNameAbbreviated(self):
+        if self.user.first_name:
+            if not self.user.last_name or self.user.last_name == 'group':
+                abbrevName = self.user.first_name
+            else:
+                abbrevName = '%s. %s' % (self.user.first_name[0], self.user.last_name)
+        else:
+            abbrevName = self.user.username
+        return abbrevName
+
     def __unicode__(self):
-        return '%s %s' % (self.__class__.__name__, self.userName)
+        return '%s %s' % (self.__class__.__name__, self.user.username)
 
 class AbstractResourcePosition(models.Model):
     resource = models.ForeignKey(Resource)
@@ -33,9 +42,10 @@ class AbstractResourcePosition(models.Model):
         timezone = pytz.timezone(settings.TIME_ZONE)
         localTime = timezone.localize(self.timestamp)
         props0 = dict(subtype='ResourcePosition',
-                      userName=self.resource.userName,
-                      displayName=self.resource.displayName,
-                      timestamp=localTime.isoformat())
+                      userName=self.resource.user.username,
+                      displayName=self.resource.getUserNameAbbreviated(),
+                      timestamp=localTime.isoformat(),
+                      unixstamp=localTime.strftime("%s"))
         props = dict(((k, v) for k, v in props0.iteritems()
                       if v not in ('', None)))
         return props
@@ -46,10 +56,42 @@ class AbstractResourcePosition(models.Model):
                     geometry=self.getGeometry(),
                     properties=self.getProperties())
 
+    def getIconForIndex(self, index):
+        if index == None or index >= 26:
+            letter = ''
+        else:
+            letter = chr(65 + index)
+        return 'http://maps.google.com/mapfiles/marker%s.png' % letter
+
+    def getKml(self, index=None):
+        coords = '%f,%f' % (self.longitude, self.latitude)
+        #if self.altitude != None:
+        #    coords += ',%f' % self.altitude
+        return ('''
+<Placemark id="%(id)s">
+  <name>%(displayName)s</name>
+  <description>%(displayName)s</description>
+  <Point>
+    <coordinates>%(coords)s</coordinates>
+  </Point>
+  <Style>
+    <IconStyle>
+      <Icon>
+        <href>%(icon)s</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+</Placemark>
+'''
+                % dict(id='resource-' + self.resource.user.username,
+                       displayName=self.resource.getUserNameAbbreviated(),
+                       coords=coords,
+                       icon=self.getIconForIndex(index)))
+
     def __unicode__(self):
         return ('%s %s %s %s %s'
                 % (self.__class__.__name__,
-                   self.resource.userName,
+                   self.resource.user.username,
                    self.timestamp,
                    self.latitude,
                    self.longitude))
