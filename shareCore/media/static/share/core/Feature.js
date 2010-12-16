@@ -48,6 +48,13 @@ geocamShare.core.Feature = new Class(
             + '</a>\n';
     },
 
+    getFullResLinkHtml: function () {
+        return ''
+            + '  <div style="margin-top: 10px;"><a href="' + this.getViewerUrl() + '" target="_blank">\n'
+            + '    View full-res image'
+            + '  </a></div>\n'
+    },
+
     getEditLinkHtml: function () {
         return ''
             + '  <div style="margin-top: 10px;">\n'
@@ -57,15 +64,16 @@ geocamShare.core.Feature = new Class(
             + '  </div>\n';
     },
 
+    getDetailLinksHtml: function () {
+        return this.getFullResLinkHtml() + this.getEditLinkHtml();
+    },
+
     getBalloonHtml: function () {
         return ''
             + '<div>\n'
             + '  ' + this.getDetailImageHtml()
             + '  ' + this.getCaptionHtml()
-            + '  <div style="margin-top: 10px;"><a href="' + this.getViewerUrl() + '" target="_blank">\n'
-            + '    View full-res image'
-            + '  </a></div>\n'
-            + this.getEditLinkHtml()
+            + '  ' + this.getDetailLinksHtml()
             + '</div>\n';
     },
     
