@@ -39,6 +39,7 @@ geocamShare.core = {
             feature.properties.maxLon = bbox[dims];
             feature.properties.maxLat = bbox[dims+1];
         }
+        feature.properties.geometry = feature.geometry;
         result = new geocamShare.core[feature.properties.subtype](feature.properties);
         return result;
     },
@@ -451,4 +452,5 @@ geocamShare.core = {
     setToFeatureEdit: function () {
         $(geocamShare.core).trigger("setToFeatureEdit", arguments);
     }
+
 };

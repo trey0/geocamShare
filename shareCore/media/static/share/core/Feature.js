@@ -48,6 +48,15 @@ geocamShare.core.Feature = new Class(
             + '</a>\n';
     },
 
+    getEditLinkHtml: function () {
+        return ''
+            + '  <div style="margin-top: 10px;">\n'
+            + '    <a id="featureEditLink" href="' + this.getEditUrl() + '" target="_blank">\n'
+            + '      Edit photo information'
+            + '    </a>\n'
+            + '  </div>\n';
+    },
+
     getBalloonHtml: function () {
         return ''
             + '<div>\n'
@@ -56,9 +65,7 @@ geocamShare.core.Feature = new Class(
             + '  <div style="margin-top: 10px;"><a href="' + this.getViewerUrl() + '" target="_blank">\n'
             + '    View full-res image'
             + '  </a></div>\n'
-            + '  <div style="margin-top: 10px;"><a id="featureEditLink" href="' + this.getEditUrl() + '" target="_blank">\n'
-            + '    Edit photo information'
-            + '  </a></div>\n'
+            + this.getEditLinkHtml()
             + '</div>\n';
     },
     
@@ -111,8 +118,83 @@ geocamShare.core.Feature = new Class(
     
     getIconMapRotUrl: function () {
         return geocamShare.core.settings.MEDIA_URL + 'share/mapr/' + this.rotatedIcon.name + '.png';
+    },
+
+    getCaptionNotes: function () {
+        if (this.notes == null) {
+            return ''
+                + '  <tr>\n'
+                + '    <td colspan="2" style="font-size: 1.5em; color: #999;">(no notes)</td>\n'
+                + '  </tr>\n';
+        } else {
+            return ''
+                + '  <tr>\n'
+                + '    <td colspan="2" style="font-size: 1.5em;">' + this.notes + '</td>\n'
+                + '  </tr>\n';
+        }
+    },
+    
+    getCaptionTags: function () {
+        var tags = '  <tr>\n';
+        if (this.tags == '') {
+            tags += '    <td colspan="2" style="color: #777">(no tags)</td>';
+        } else {
+            tags += '    <td colspan="2">';
+            $.each(this.tags,
+                   function (i, tag) {
+                       tags += '#' + tag + ' &nbsp;';
+                   });
+            tags += '    </td>\n';
+        }
+        tags += '  </tr>\n';
+        
+        return tags;
+    },
+
+    getCaptionMisc: function () {
+        var maxTime = this.getMaxTime();
+        
+        // timeShort, author, name
+        return ''
+            + '  <tr>\n'
+            + '    <td style="padding-top: 10px; padding-bottom: 10px;" colspan="2">'
+            + '      <span style="color: #007; font-weight: bold; margin-right: 10px;">' + getTimeShort(maxTime) + '</span>\n'
+            + '      <span style="margin-right: 10px;">' + this.author.displayName + '</span>\n'
+            + '      <span>' + this.name + '</span>\n'
+            + '    </td>\n'
+            + '  </tr>\n';
+    },
+
+    getCaptionTimePrecise: function () {
+        var maxTime = this.getMaxTime();
+        return ''
+            + '  <tr>\n'
+            + '    <td class="captionHeader">time</td>\n'
+            + '    <td>' + getTimePrecise(maxTime) + '</td>\n'
+            + '  </tr>\n';
+    },
+
+    getCaptionHtml: function () {
+        caption = ''
+            + '<table>\n';
+        
+        caption += this.getCaptionNotes();
+        caption += this.getCaptionTags();
+        caption += this.getCaptionMisc(); // relative time, author, name
+        if (this.getCaptionLatLon != null) {
+            caption += this.getCaptionLatLon();
+        }
+        if (this.getCaptionAltitude != null) {
+            caption += this.getCaptionAltitude();
+        }
+        if (this.getCaptionHeading != null) {
+            caption += this.getCaptionHeading();
+        }
+        caption += this.getCaptionTimePrecise();
+        
+        caption += '</table>\n';
+        return caption;
     }
 
-    
 });
 

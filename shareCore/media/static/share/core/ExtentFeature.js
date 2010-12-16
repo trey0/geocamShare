@@ -6,7 +6,11 @@
 
 geocamShare.core.ExtentFeature = new Class(
 {
-    Extends: geocamShare.core.Feature
-    
+    Extends: geocamShare.core.Feature,
+
+    getMaxTime: function () {
+        return this.maxTime;
+    }
+
 });
 

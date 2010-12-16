@@ -8,6 +8,10 @@ geocamShare.core.PointFeature = new Class(
 {
     Extends: geocamShare.core.Feature,
 
+    getMaxTime: function () {
+        return this.timestamp;
+    },
+
     getKml: function () {
         var iconUrl = geocamShare.core.getHostUrl() + this.getIconMapUrl();
         return ''
@@ -24,6 +28,41 @@ geocamShare.core.PointFeature = new Class(
 	    + '    <coordinates>' + this.longitude + ',' + this.latitude + '</coordinates>\n'
 	    + '  </Point>\n'
 	    + '</Placemark>\n';
+    },
+
+    getCaptionLatLon: function () {
+        var ll = ''
+            + '  <tr>\n'
+            + '    <td class="captionHeader">lat, lon</td>\n';
+        if (this.latitude != null) {
+            ll += '    <td>' + this.latitude.toFixed(6) + ', ' + this.longitude.toFixed(6) + '</td>\n';
+        } else {
+            ll += '    <td>(unknown)</td>\n';
+        }
+        ll += ''
+            + '  </tr>\n';
+        
+        return ll;
+    },
+
+    getCaptionAltitude: function () {
+        var alt = ''
+            + '  <tr>\n'
+            + '    <td class="captionHeader">altitude</td>\n';
+        if (this.altitude != null) {
+            var ref;
+            if (this.altitudeRef == null) {
+                ref = 'unknown';
+            } else {
+                ref = this.altitudeRef;
+            }
+            alt += '    <td>' + this.altitude + ' meters (ref. ' + ref + ')&nbsp;&nbsp;</td>\n'
+        } else {
+            alt += '    <td>(unknown)</td>\n'
+        }
+        alt += '  </tr>\n';
+        
+        return alt;
     }
 
 });

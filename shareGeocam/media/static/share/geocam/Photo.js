@@ -8,9 +8,23 @@ geocamShare.geocam.Photo = new Class(
 {
     Extends: geocamShare.core.Image,
 
-    getThumbnailUrl: function (width) {
-        return geocamShare.core.getDirUrl(this) + "th" + width + ".jpg";
+    getCaptionUsng: function () {
+        var usng = ''
+            + '  <tr>\n'
+            + '    <td class="captionHeader">usng</td>\n';
+        if (this.latitude != null) {
+            usng += '    <td>' + LLtoUSNG(this.latitude, this.longitude, 5) + '&nbsp;&nbsp;</td>\n'
+        } else {
+            usng += '    <td>(unknown)</td>\n'
+        }
+        usng += '  </tr>\n';
+        
+        return usng;
+    },
+
+    getCaptionLatLon: function () {
+        var standardFormat = parent();
+        var usngFormat = this.getCaptionUsng();
+        return standardFormat + usngFormat;
     }
-
 });
-

@@ -244,7 +244,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     addFeature: function (feature) {
-        if (geocamShare.core.isImage(feature)) {
+        if (feature.geometry.type == 'Point') {
             if (feature.latitude == null) {
                 return; // skip non-geotagged features
             }
