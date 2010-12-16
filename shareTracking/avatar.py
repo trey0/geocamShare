@@ -18,6 +18,9 @@ GRAVATAR_DIR = '%s/gravatars' % AVATAR_DIR
 CACHE_DIR = '%s/cache' % AVATAR_DIR
 PLACARD_FRESH = '%s/shareTracking/media/mapIcons/placard.png' % settings.CHECKOUT_DIR
 
+# time to wait to refresh avatar image
+AVATAR_CACHE_SECONDS = 24*60*60
+
 # time to wait before retry after failed gravatar fetch
 GRAVATAR_FAIL_RETRY_SECONDS = 24*60*60
 
@@ -101,10 +104,7 @@ def parse_params(params):
 
     return (color, scale, stale)
 
-def renderAvatar(request, userName):
-    # Parse junk
-    (color, scale, stale) = parse_params(request.REQUEST)
-
+def getAvatarCacheName(userName, color, scale, stale):
     # See if we can return cached image
     image_name = userName
     if color:
@@ -114,9 +114,19 @@ def renderAvatar(request, userName):
     if stale:
         image_name += '_stale'
     image_name += '.png'
-    full_path = op.join(CACHE_DIR, image_name);
-    if op.exists(full_path):
-        return open(full_path, 'r').read()
+    return op.join(CACHE_DIR, image_name);
+
+    return 
+
+def renderAvatar(request, userName):
+    # Parse junk
+    (color, scale, stale) = parse_params(request.REQUEST)
+    cachedName = getAvatarCacheName(userName, color, scale, stale)
+    if getAge(cachedName) > AVATAR_CACHE_SECONDS:
+        os.unlink(cachedName)
+
+    if op.exists(cachedName):
+        return open(cachedName, 'r').read()
 
     placard = Image.open(PLACARD_FRESH)
 
@@ -159,7 +169,7 @@ def renderAvatar(request, userName):
         placard = placard.resize(new_size)
     
     # Save image in cache
-    placard.save(full_path, "PNG")
+    placard.save(cachedName, "PNG")
 
     # Send image to browser
     strio = StringIO()
