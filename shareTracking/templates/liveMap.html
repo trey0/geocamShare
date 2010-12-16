@@ -56,7 +56,7 @@
 
   .map-infoclose {
     padding: 0px 8px;
-    padding-top: 8px;
+    padding-top: 14px;
     float: left;
     cursor: pointer;
   }
@@ -109,9 +109,33 @@
   });
   */
 
+  /* Takes two dates, newer and older, and returns a summary of 
+   * the difference between the two.
+   * ie:  "2 days ago" or "3 minutes ago"
+   */
+  function summarize_difference(newer, older) {
+    var sec = (newer.getTime() - older.getTime()) / 1000;
+
+    var minutes = (sec / 60);
+    if (minutes < 1)
+	return Math.round(sec) + " seconds ago";
+
+    var hours = (minutes / 60);
+    if (hours < 1)
+	return Math.round(minutes) + " minutes ago";
+
+    var days = (hours / 24)
+    if (days < 1)
+        return Math.round(hours) + " hours ago";
+
+    return Math.round(days) + " days ago";
+  }
+
   function handleResourcePositionsResponse(response) {
     if (response.result == null) return;
 
+
+    var now = new Date();
     markerBounds = new google.maps.LatLngBounds();
 
     $.each(response.result.features,
@@ -159,10 +183,12 @@
 
             infoBubble.geoFeature = feature;
             $(infoBubble.getContent()).find('.map-infouser').html(feature.properties.userName);
+            $(infoBubble.getContent()).find('.map-infotime').html(feature.properties.updated);
             infoBubble.content_changed();
           });
         }
 
+        feature.properties.updated = summarize_difference(now, (new Date(feature.properties.unixstamp * 1000)));
         marker.geoFeature = feature;
         if (!pos.equals(marker.position)) {
           marker.setPosition(pos);
@@ -301,6 +327,7 @@
       </div>
       <div id="infobubble-text" class="map-infotext">
 	<div id="infobubble-user" class="map-infouser">Username</div>
+	<div id="infobubble-time" class="map-infotime">40 minutes ago</div>
       </div>
     </div>
   </div>

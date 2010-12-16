@@ -44,7 +44,8 @@ class AbstractResourcePosition(models.Model):
         props0 = dict(subtype='ResourcePosition',
                       userName=self.resource.user.username,
                       displayName=self.resource.getUserNameAbbreviated(),
-                      timestamp=localTime.isoformat())
+                      timestamp=localTime.isoformat(),
+                      unixstamp=localTime.strftime("%s"))
         props = dict(((k, v) for k, v in props0.iteritems()
                       if v not in ('', None)))
         return props
