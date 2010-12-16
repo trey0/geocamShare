@@ -21,6 +21,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.contrib.contenttypes import generic
 import tagging
 
 from share2.shareCore.utils import anyjson as json
@@ -427,6 +428,26 @@ class PointFeature(Feature):
         return dict(type='Point',
                     coordinates=[self.longitude, self.latitude])
 
+class Snapshot(models.Model):
+    imgType = models.ForeignKey(ContentType, editable=False)
+    imgId = models.PositiveIntegerField()
+    xmin = models.FloatField()
+    ymin = models.FloatField()
+    xmax = models.FloatField()
+    ymax = models.FloatField()
+    title = models.CharField(max_length=64)
+    comment = models.TextField()
+    dateCreated = models.DateTimeField(null=True, blank=True)
+
+    # img is a virtual field, not actually present in the db.  it
+    # specifies which image this snapshot is associated with based on
+    # imgType (which db table to look in) and imgId (which row in the
+    # table).
+    img = generic.GenericForeignKey('imgType', 'imgId')
+
+    def __unicode__(self):
+        return self.title
+
 class Image(PointFeature):
     roll = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about x in NED frame
     pitch = models.FloatField(blank=True, null=True) # degrees, 0 is level, right-hand rotation about y in NED frame
@@ -438,6 +459,13 @@ class Image(PointFeature):
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
     objects = AbstractClassManager(parentModel=PointFeature)
+
+    # snapshot_set is a virtual field, not actually present in the db,
+    # which specifies how to look up the snapshots associated with this
+    # image.
+    snapshot_set = generic.GenericRelation(Snapshot,
+                                           content_type_field='imgType',
+                                           object_id_field='imgId')
 
     class Meta:
         abstract = True
@@ -758,19 +786,6 @@ class Track(ExtentFeature):
         result = super(Track, self).getGeoJson()
         result['bbox'] = [self.minLon, self.minLat, self.maxLon, self.maxLat]
         return result
-
-class Snapshot(models.Model):
-    imgUuid = models.CharField(max_length=48)
-    xmin = models.FloatField()
-    ymin = models.FloatField()
-    xmax = models.FloatField()
-    ymax = models.FloatField()
-    title = models.CharField(max_length=64)
-    comment = models.TextField()
-    dateCreated = models.DateTimeField(null=True, blank=True)
-
-    def __unicode__(self):
-        return self.title
 
 class GoogleEarthSession(models.Model):
     """Session state for a Google Earth client that is requesting periodic updates."""
