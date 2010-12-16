@@ -116,6 +116,9 @@
   var user = {{ userData|safe }};
   var features = {};
 
+  var haveLocation = false;
+  var locationMarker = null;
+
   var infoBubble = null;
 
   /* Do something when the user clicks
@@ -209,6 +212,9 @@
         if (!pos.equals(marker.position)) {
           marker.setPosition(pos);
         }
+
+        if (haveLocation && feature.properties.userName == user.userName)
+          marker.setVisible(false);
       }
     );
 
@@ -302,6 +308,12 @@
 
       $('#loading').fadeOut();
 
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(locationUpdate, locationError, 
+          { "enableHighAccuracy": true,
+	    "maximumAge": 0 });
+      }
+
       updateResourcePositionsLoop();
     });
 
@@ -312,6 +324,67 @@
         $('#ajax-error').show();
       }
     });
+  }
+
+  function postPosition(position) {
+    $.ajax({
+      type: 'POST',
+      url: '/tracking/post/',
+      data: JSON.stringify(positionToGeoJson(position)),
+      success: function() { },
+      contentType: 'application/json',
+      processData: false,
+      error: function() { }
+    });
+  }
+
+  function locationUpdate(position) {
+    haveLocation = true;
+
+    var pos = new google.maps.LatLng(position.coords.latitude,
+                                     position.coords.longitude);
+ 
+    if (locationMarker == null) {
+      var icon_url = "{{ settings.MEDIA_URL }}external/dot.png";
+      var icon = new google.maps.MarkerImage(icon_url,
+        new google.maps.Size(19, 19),
+        new google.maps.Point(0, 0),
+        new google.maps.Point(9, 9));
+      locationMarker = new google.maps.Marker({
+        position: pos,
+        icon: icon
+      });
+      locationMarker.setMap(mapG);
+    }
+
+    locationMarker.setPosition(pos);
+  }
+
+  function locationError(error) { }
+
+  function positionToGeoJson(position) {
+    obj = {
+      "id": generateUUID(),
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ position.coords.longitude, position.coords.latitude ], 
+      },
+      "properties": {
+        "userName": user.userName,
+        "displayName": user.userName,
+        "timestamp": position.timestamp.toISO8601(),
+        "accuracyMeters": position.coords.accuracy
+      }
+    }
+  
+    if (position.coords.speed != null)
+      obj.properties['speedMetersPerSecond'] = position.coords.speed;
+
+    if (position.coords.altitude != null)
+      obj.geometry.coordinates.push(position.coords.altitude);
+
+    return obj;
   }
 
   function ZoomToFitControl(map, div) {
@@ -332,6 +405,43 @@
 
     $(div).append(control.append(text));
   }
+
+  function padNumber(number) {
+    if (number < 10) return "0" + number;
+    return "" + number;
+  }
+
+  // Return a DateTime object in ISO8601 format:
+  // YYYY-MM-DDTHH:MM:SS-HH:MM
+  Date.prototype.toISO8601 = function() {
+    var retstr = 
+      this.getFullYear() + "-" +
+      padNumber(this.getMonth() + 1) + "-" +
+      padNumber(this.getDate()) + "T" +
+      padNumber(this.getHours()) + ":" +
+      padNumber(this.getMinutes()) + ":" +
+      padNumber(this.getSeconds());
+
+    // This looks wrong, but getTimezoneOffset returns GMT - You, which means
+    // East is positive, west is negative. o_O
+    var offset = this.getTimezoneOffset();
+    if (offset < 0)
+      retstr += '+' + padNumber(Math.abs(Math.ceil(offset / 60)));
+    else
+      retstr += '-' + padNumber(Math.abs(Math.floor(offset / 60)));
+
+    retstr += ':' + padNumber(Math.abs(offset % 60));
+
+    return retstr;
+  };
+
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+    }).toLowerCase();
+  }
+
 </script>
 </head>
 <body>
