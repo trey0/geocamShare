@@ -59,8 +59,11 @@ def fetchGravatarImage(email, fname):
     return True
     
 def getAge(fname):
-    mtime = os.stat(fname)[stat.ST_MTIME]
-    return time.time() - mtime
+    if os.path.exists(fname):
+        mtime = os.stat(fname)[stat.ST_MTIME]
+        return time.time() - mtime
+    else:
+        return time.time()
 
 def getGravatarPath(userName, email):
     """Returns a path on local disk that points to the gravatar icon for
@@ -127,7 +130,8 @@ def renderAvatar(request, userName):
     # Parse junk
     (color, scale, stale) = parse_params(request.REQUEST)
     cachedName = getAvatarCacheName(userName, color, scale, stale)
-    if getAge(cachedName) > AVATAR_CACHE_SECONDS:
+
+    if os.path.exists(cachedName) and getAge(cachedName) > AVATAR_CACHE_SECONDS:
         os.unlink(cachedName)
 
     if op.exists(cachedName):
