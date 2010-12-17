@@ -6,9 +6,7 @@
 
 from django.conf.urls.defaults import *
 
-from base_urls import urlpatterns
-
-from share2.shareCore.base_urls import urlpatterns as basePatterns
+from share2.base_urls import urlpatterns as basePatterns
 from share2.shareCore.urls import urlpatterns as corePatterns
 from share2.shareGeocam.urls import urlpatterns as geocamPatterns
 
