@@ -102,6 +102,9 @@
     src="{{ settings.MEDIA_URL }}external/jquery-1.4.4.min.js">
 </script>
 <script type="text/javascript"
+    src="{{ settings.MEDIA_URL }}external/timeUtils.js">
+</script>
+<script type="text/javascript"
     src="{{ settings.MEDIA_URL }}external/infobubble-compiled.js">
 </script>
 
@@ -207,7 +210,7 @@
           });
         }
 
-        feature.properties.updated = summarize_difference(now, (new Date(feature.properties.unixstamp * 1000)));
+        feature.properties.updated = getTimeShort(feature.properties.timestamp);
         marker.geoFeature = feature;
         if (!pos.equals(marker.position)) {
           marker.setPosition(pos);
