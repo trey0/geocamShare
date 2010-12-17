@@ -235,6 +235,13 @@ function getTimePrecise(timestampStr) {
     return dayStr + ' ' + timestamp.strftime('%H:%M') + ' (' + timestamp.tzinfo + ')';
 }
 
+function getTimeSince(timestampStr) {
+    var timestamp = new Date();
+    timestamp.setIso8601(timestampStr);
+    var now = getNowInTimestampLocalTime(timestamp);
+    return now - timestamp;
+}
+
 // returns human-readable time in formats like:
 //   5 minutes ago
 //   2 hours ago
