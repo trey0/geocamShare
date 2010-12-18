@@ -93,8 +93,8 @@ interpreter will know how to import packages installed in your sandbox.
 You'll need to source the ``activate`` script every time you log in
 to reactivate the sandbox.
 
-Install Dependencies (Basic Version)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install Dependencies
+~~~~~~~~~~~~~~~~~~~~
 
 First install Ubuntu packages::
 
@@ -125,10 +125,17 @@ Note that, maybe confusingly, this is not a standard Python install
 script.  The action it takes is more like "build" than "install".  It
 does not modify anything outside the ``share2`` directory.
 
-To initialize the database, run::
+To set up your shell environment to run Share::
 
-  cd $GEOCAM_DIR/share2
-  ./manage.py syncdb
+  source $GEOCAM_DIR/share2/sourceme.sh
+
+You'll need to source the ``sourceme.sh`` file every time you open a new
+shell if you want to run Share-related Python scripts such as starting
+the Django development web server.
+
+To initialize the database::
+
+  $GEOCAM_DIR/share2/manage.py syncdb
 
 The syncdb script will ask you if you want to create a Django superuser.
 We recommend answering 'yes' and setting the admin username to 'root'
