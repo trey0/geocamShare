@@ -105,7 +105,7 @@ First install Ubuntu packages::
   sudo apt-get sqlite3 libsqlite3-dev
   
   # rendering icons and reading image metadata
-  sudo apt-get install libimage-exiftool-perl imagemagick
+  sudo apt-get install libjpeg-dev libimage-exiftool-perl imagemagick
 
 Then install Python dependencies.  Before running this command, you will
 either need to activate your virtualenv environment (recommended) or
