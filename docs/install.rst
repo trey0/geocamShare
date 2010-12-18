@@ -137,12 +137,58 @@ for compatibility with our utility scripts.
 Import Sample Data
 ~~~~~~~~~~~~~~~~~~
 
+To download and import 37 sample photos::
 
+  cd $GEOCAM_DIR
+  curl http://geocamshare.org/downloads/geocamShareSampleData.tar.gz -O
+  tar xfz geocamShareSampleData.tar.gz
+  python share2/shareGeocam/simpleImport.py --user root geocamShareSampleData
 
-Install Dependencies (Advanced Version)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you need to delete the sample data from the database later, you can
+run ``simpleImport.py`` with the ``-c`` "clean" option.
 
-First install Ubuntu packages::
+Try It Out
+~~~~~~~~~~
+
+To run the Django development web server::
+
+  $GEOCAM_DIR/share2/manage.py runserver
+
+If you can start a web browser on the same machine where Share is
+installed, you can view the app by visiting http://localhost:8000/ in
+that browser.
+
+Otherwise it's a bit more complicated, because for security the Django
+development web server only accepts connections from the host where it
+is running.  Let's suppose the host running your browser is called
+``myclient`` and the host running Share is called ``myserver``.  Here
+are two possible workarounds so you can access the server:
+
+1. On ``myclient``, run the following to open up a secure SSH tunnel to
+``myserver``, so that your browser's request will appear to come from
+``myserver``::
+
+  ssh -L 8000:localhost:8000 myserver -N
+
+then visit http://localhost:8000/ in your browser.
+
+Those instructions assume you have a command-line SSH available on
+``myclient``, but you can also open up tunnels with graphical SSH
+clients on Windows and Mac; check the help for your client.
+
+2. Use remote desktop software to start up a desktop session on
+``myserver`` so that you can run a browser there, then visit
+http://localhost:8000/ .  This approach won't work as well over a slow
+network connection, but might have other advantages.  There are
+many remote desktop solutions to choose from.  The VNC protocol is
+commonly used -- for more information, see the `documentation on VNC for Ubuntu`_.
+
+.. _documentation on VNC for Ubuntu: https://help.ubuntu.com/community/VNC
+
+Advanced Installation: Install Dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First install the Ubuntu packages::
 
   # web server
   sudo apt-get install apache2 libapache2-mod-wsgi
@@ -155,13 +201,14 @@ need to activate your virtualenv environment or become root::
 
   pip install MySQL-python==1.2.2
 
-Foo
-~~~
+Advanced Installation: More Details Coming Soon
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Further steps, not yet documented:
 
- * Modify local_settings.py to connect to your database
- * Add server to your Apache config
+ * Modify ``local_settings.py`` to connect to your MySQL database
+ * Add server to your Apache config (see ``share2/make/templates`` for sample config files)
+ * Modify ``sourceme.sh`` to set the path part of the URL.
 
 | __BEGIN_LICENSE__
 | Copyright (C) 2008-2010 United States Government as represented by
