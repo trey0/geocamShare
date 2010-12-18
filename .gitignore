@@ -14,3 +14,5 @@ sourceme.sh
 gigapan
 django.wsgi
 shareTracking/media/avatars/cache/*.png
+shareTracking/media/avatars/gravatars
+shareTracking/media/avatars/*.png
