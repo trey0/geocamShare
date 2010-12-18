@@ -1,0 +1,16 @@
+Django==1.2.1
+PIL==1.1.7
+django-digest==1.9
+django-tagging==0.3.1
+docutils==0.6
+iso8601==0.1.4
+pyproj==1.8.6
+python-digest==1.5
+pytz==2010k
+rdflib==2.4.2
+
+# basic install db backend
+pysqlite==2.5.5
+
+# advanced install db backend
+# MySQL-python==1.2.2

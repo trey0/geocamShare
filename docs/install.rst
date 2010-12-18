@@ -1,50 +1,148 @@
 =========================================
-GeoCam Share
+GeoCam Share Installation
 =========================================
+
+These installation instructions are a work in progress.  If you follow
+the directions and run into problems, let us know!
+
+We will go through two versions of the installation:
+
+1. Basic installation using Django's built-in development web server and
+a SQLite database.  This version is only suitable for quick testing due
+to security and performance issues.
+
+2. Advanced installation using the Apache web server and a MySQL
+database.  This version is intended for real deployments.
 
 Requirements
 ~~~~~~~~~~~~
 
 Our primary development platform for GeoCam Share is Ubuntu Linux 10.04
-"Lucid Lemur", with Apache 2.2 running Python 2.6 and Django 1.2 under
-modwsgi.
+(Lucid Lemur), running Python 2.6 and Django 1.2.  For the basic
+installation we use Django's built-in development web server with a
+SQLite 3.6 database.  For the advanced installation we use the Apache
+2.2 web server hosting Python using modwsgi 2.8, with a MySQL 5.1
+database.
 
 We have also successfully installed parts of GeoCam Share on RedHat
-Enterprise Linux 5.5 and Mac OS X 10.6 (Snow Leopard).  However, if you
-use these platforms you may need to improvise more during installation.
+Enterprise Linux 5.5 and Mac OS X 10.6 (Snow Leopard).  However, we do
+not officially support those platforms.  Our installation instructions
+below mostly assume Ubuntu, so if you want to use another platform
+you may need to improvise more during installation.
 
-Installation
-~~~~~~~~~~~~
+Set Up an Install Location
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sorry, these installation instructions are a work in progress.
+Let's create a directory to hold the whole Share installation
+and capture the path in an environment variable we can use
+in the instructions below::
 
-How to install dependencies on Ubuntu (some of these packages are recommended but not required)::
+  export GEOCAM_DIR=$HOME/projects/geocam # or choose your own
+  mkdir -p $GEOCAM_DIR
 
-  sudo apt-get install python-docutils python-imaging python-rdflib python-pip git-core apache2 libapache2-mod-wsgi libimage-exiftool-perl imagemagick python-pyproj
-  sudo pip install iso8601 pytz django django-tagging python_digest
+Get the Source
+~~~~~~~~~~~~~~
 
-  # install django_digest from source (pypi version not compatible with django 1.2) -- http://bitbucket.org/akoha/django-digest/src
+Visit the `GeoCam Share repository on GitHub`_, click on the Downloads_
+button, and click on "Download .tar.gz" to get a tarball.  Then drop the
+tarball into the ``$GEOCAM_DIR`` directory and run::
 
-  # if using sqlite (good for simple testing)
-  sudo apt-get install python-pysqlite2
-  # if using mysql (used for production)
-  sudo apt-get install mysql-server python-mysqldb
+  cd $GEOCAM_DIR
+  tar xfz geocam-geocamShare-*.tar.gz
+  # rename the resulting directory to "share2"
+  mv `ls -d geocam-geocamShare-* | head -1` share2
 
-  # not required but recommended for debugging
-  sudo apt-get install ipython
+.. _GeoCam Share repository on GitHub: http://github.com/geocam/geocamShare/
+.. _Downloads: http://github.com/geocam/geocamShare/archives/master
 
-How to fetch the GeoCam Share source::
+**Advanced version:** If you're interested in contributing code to GeoCam
+Share, you can check out our latest revision with::
 
-  git clone https://github.com/geocam/geocamShare.git share2
+  cd $GEOCAM_DIR
+  git clone http://github.com/geocam/geocamShare.git share2
 
-How to install::
+For more information on the Git version control system, visit `the Git home page`_.
+You can install Git on Ubuntu with::
 
-  cd share2
+  sudo apt-get install git-core
+
+.. _the Git home page: http://git-scm.com/
+
+Optionally Install virtualenv (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Especially for a quick test install, we recommend using the virtualenv_
+tool to put Share-related Python packages in an isolated sandbox where
+they won't conflict with other Python tools on your system.
+
+.. _virtualenv: http://pypi.python.org/pypi/virtualenv
+
+To install virtualenv, create a sandbox named ``packages``, and
+"activate" the sandbox::
+
+  sudo apt-get install python-virtualenv
+  cd $GEOCAM_DIR
+  virtualenv packages
+  source packages/bin/activate
+
+After your sandbox is activated, package management tools such as
+``easy_install`` and ``pip`` will install packages into your sandbox
+rather than the standard system-wide Python directory, and the Python
+interpreter will know how to import packages installed in your sandbox.
+
+You'll need to source the ``activate`` script every time you log in
+to reactivate the sandbox.
+
+Install Dependencies (Basic Version)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First install Ubuntu packages::
+
+  # tools for Python package compilation and management
+  sudo apt-get install python2.6-dev python-pip
+
+  # basic database
+  sudo apt-get sqlite3 libsqlite3-dev
+  
+  # rendering icons and reading image metadata
+  sudo apt-get install libimage-exiftool-perl imagemagick
+
+Then install Python dependencies.  Before running this command, you will
+either need to activate your virtualenv environment (recommended) or
+become root::
+
+  pip install -r $GEOCAM_DIR/share2/make/pythonRequirements.txt
+
+Build GeoCam Share
+~~~~~~~~~~~~~~~~~~
+
+Run::
+
+  cd $GEOCAM_DIR/share2
   python setup.py install
 
-Note that this is not a standard Python install script -- the action it takes
-is more like 'build' than 'install'.  It does not modify anything outside the
-current directory.
+Note that, maybe confusingly, this is not a standard Python install
+script.  The action it takes is more like "build" than "install".  It
+does not modify anything outside the ``share2`` directory.
+
+Installing Dependencies (Advanced Version)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First install Ubuntu packages::
+
+  # web server
+  sudo apt-get install apache2 libapache2-mod-wsgi
+
+  # database
+  sudo apt-get install mysql-server
+
+Then install Python packages.  For this command to work, you will either
+need to activate your virtualenv environment or become root::
+
+  pip install mysqldb
+
+Foo
+~~~
 
 Further steps, not yet documented:
 

@@ -6,6 +6,7 @@
 
 import os
 import re
+import sys
 from glob import glob
 
 # can override CHECKOUT_DIR by setting the environment variable before
@@ -17,7 +18,9 @@ SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
 if not SCRIPT_NAME.endswith('/'):
     SCRIPT_NAME += '/'
 
-DEBUG = True
+USING_DJANGO_DEV_SERVER = (sys.argv[-1] == 'runserver')
+
+DEBUG = USING_DJANGO_DEV_SERVER
 TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
@@ -126,7 +129,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
 
-SECURITY_REDIRECT_ENABLED = True
+SECURITY_REDIRECT_ENABLED = not USING_DJANGO_DEV_SERVER
 
 # DIGEST_* -- settings for django_digest HTTP digest authentication
 

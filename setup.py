@@ -41,7 +41,7 @@ def dosys(cmd):
     if ret != 0:
         print '[command exited with non-zero return value %d]' % ret
 
-def findDirContaining(f, dirs, envVar):
+def findDirContaining(f, dirs, envVar, warnOnFailure=False):
     envDir = os.environ.get(envVar, None)
     if envDir:
         if os.path.exists(os.path.join(envDir, f)):
@@ -52,8 +52,9 @@ def findDirContaining(f, dirs, envVar):
         for dir in dirs:
             if os.path.exists(os.path.join(dir, f)):
                 return dir
-        print >>sys.stderr, ('**** warning: no file %s in search path, try setting $%s to the directory that contains it'
-                             % (f, envVar))
+        if warnOnFailure:
+            print >>sys.stderr, ('**** warning: no file %s in search path, try setting $%s to the directory that contains it'
+                                 % (f, envVar))
         return None
 
 def joinNoTrailingSlash(a, b):
@@ -132,7 +133,7 @@ class AppSetupCore(object):
     def collectMedia(self):
         if not os.path.exists('build/s/tmp'):
             dosys('mkdir -p build/s/tmp')
-        installFile('%s/configTemplates/tmp/README.txt' % THIS_DIR,
+        installFile('%s/make/templates/tmp/README.txt' % THIS_DIR,
                     'build/s/tmp')
         dosys('chmod go+rw build/s/tmp')
         installDirs(self.builder,
@@ -168,7 +169,7 @@ class AppSetupCore(object):
             text = """
 # set DJANGO_SCRIPT_NAME to the URL prefix for Django on your web server (with leading slash
 # and trailing slash)
-export DJANGO_SCRIPT_NAME='/share/'
+export DJANGO_SCRIPT_NAME='/'
 
 # the auto-generated PYTHONPATH usually works, but you might need to add more directories
 # depending on how you installed everything
@@ -177,8 +178,6 @@ export PYTHONPATH=%s:$PYTHONPATH
 export DJANGO_SETTINGS_MODULE='share2.settings'
 """ % parentDir
             file(LOCAL_SOURCEME, 'w').write(text)
-            print
-            print '**** Please set DJANGO_SCRIPT_NAME in %s according to the instructions there' % LOCAL_SOURCEME
 
     def makeLocalSettings(self):
         if not os.path.exists(LOCAL_SETTINGS):
@@ -191,15 +190,16 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
-# Make this unique, and don't share it with anybody
+# Make this unique, and don't share it with anybody.  Used by Django's
+# cookie-based authentication mechanism.
 SECRET_KEY = '%s'
 
+# Normally you don't need to set MAPS_API_KEY, but it is required if
+# you're using the alternate mapping backend based on the Google Earth
+# API.
 MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.com/apis/maps/signup.html'
 """.lstrip() % secretKey
             file(LOCAL_SETTINGS, 'w').write(text)
-            print
-            print '**** Please fill in a Google Maps API key for your domain in %s' % LOCAL_SETTINGS
-            print '**** Visit http://code.google.com/apis/maps/signup.html to get one'
 
     def install(self):
         os.chdir(self.workingDir)
