@@ -23,7 +23,7 @@ geocamShare.geocam.Photo = new Class(
     },
 
     getCaptionLatLon: function () {
-        var standardFormat = parent();
+        var standardFormat = this.parent();
         var usngFormat = this.getCaptionUsng();
         return standardFormat + usngFormat;
     }
