@@ -113,10 +113,10 @@ become root::
 
   pip install -r $GEOCAM_DIR/share2/make/pythonRequirements.txt
 
-Build GeoCam Share
-~~~~~~~~~~~~~~~~~~
+Set Up GeoCam Share
+~~~~~~~~~~~~~~~~~~~
 
-Run::
+To render icons and collect media for the server, run::
 
   cd $GEOCAM_DIR/share2
   python setup.py install
@@ -125,8 +125,22 @@ Note that, maybe confusingly, this is not a standard Python install
 script.  The action it takes is more like "build" than "install".  It
 does not modify anything outside the ``share2`` directory.
 
-Installing Dependencies (Advanced Version)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To initialize the database, run::
+
+  cd $GEOCAM_DIR/share2
+  ./manage.py syncdb
+
+The syncdb script will ask you if you want to create a Django superuser.
+We recommend answering 'yes' and setting the admin username to 'root'
+for compatibility with our utility scripts.
+
+Import Sample Data
+~~~~~~~~~~~~~~~~~~
+
+
+
+Install Dependencies (Advanced Version)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First install Ubuntu packages::
 
@@ -139,7 +153,7 @@ First install Ubuntu packages::
 Then install Python packages.  For this command to work, you will either
 need to activate your virtualenv environment or become root::
 
-  pip install mysqldb
+  pip install MySQL-python==1.2.2
 
 Foo
 ~~~

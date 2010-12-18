@@ -151,7 +151,7 @@ DIGEST_ENFORCE_NONCE_COUNT = False
 
 ######################################################################
 
-USE_STATIC_SERVE = False
+USE_STATIC_SERVE = USING_DJANGO_DEV_SERVER
 
 DATA_DIR = '%s/data/' % CHECKOUT_DIR
 DATA_URL = '%sdata/' % SCRIPT_NAME
