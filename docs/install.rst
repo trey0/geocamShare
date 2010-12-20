@@ -102,7 +102,7 @@ First install Ubuntu packages::
   sudo apt-get install python2.6-dev python-pip
 
   # basic database
-  sudo apt-get sqlite3 libsqlite3-dev
+  sudo apt-get install sqlite3 libsqlite3-dev
   
   # rendering icons and reading image metadata
   sudo apt-get install libjpeg-dev libimage-exiftool-perl imagemagick
