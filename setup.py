@@ -16,6 +16,7 @@ from glob import glob
 from random import choice
 
 import django
+from django.template import Template, Context
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
@@ -125,6 +126,20 @@ def svgIcons(builder, pat, outputDir):
     for imPath in glob(pat):
         svg.buildIcon(builder, imPath, outputDir=outputDir)
 
+def fillTemplate(builder, inputFile, outputFile, context):
+    tmpl = Template(file(inputFile, 'r').read())
+    text = tmpl.render(context)
+    file(outputFile, 'w').write(text)
+
+def fillTemplates(builder, pat, outputDir, context):
+    print 'fillTemplates %s %s' % (pat, outputDir)
+    if not os.path.exists(outputDir):
+        dosys('mkdir -p %s' % outputDir)
+    for inputFile in glob(pat):
+        outputFile = os.path.join(outputDir, os.path.basename(inputFile))
+        builder.applyRule(outputFile, [inputFile, LOCAL_SOURCEME, LOCAL_SETTINGS],
+                          lambda: fillTemplate(builder, inputFile, outputFile, context))
+
 class AppSetupCore(object):
     def __init__(self, opts, workingDir):
         self.workingDir = workingDir
@@ -167,14 +182,16 @@ class AppSetupCore(object):
             print 'writing template %s' % LOCAL_SOURCEME
             parentDir = os.path.dirname(self.workingDir)
             text = """
-# set DJANGO_SCRIPT_NAME to the URL prefix for Django on your web server (with leading slash
-# and trailing slash)
-export DJANGO_SCRIPT_NAME='/'
+# Set DJANGO_SCRIPT_NAME to the URL prefix for Django on your web server (with leading slash
+# and trailing slash).  This setting is ignored if using the built-in Django development web
+# server.
+export DJANGO_SCRIPT_NAME='/share/'
 
-# the auto-generated PYTHONPATH usually works, but you might need to add more directories
-# depending on how you installed everything
+# The auto-generated PYTHONPATH usually works, but you might need to add more directories
+# depending on how you installed everything.
 export PYTHONPATH=%s:$PYTHONPATH
 
+# You should not need to change this.
 export DJANGO_SETTINGS_MODULE='share2.settings'
 """ % parentDir
             file(LOCAL_SOURCEME, 'w').write(text)
@@ -185,10 +202,24 @@ export DJANGO_SETTINGS_MODULE='share2.settings'
             print 'generating a unique secret key for your server'
             secretKey = ''.join([choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
             text = """
+import sys
+
+USING_DJANGO_DEV_SERVER = (sys.argv[-1] == 'runserver')
+
 ADMINS = (
     ('Example', 'root@example.com'),
 )
 MANAGERS = ADMINS
+
+# SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
+if USING_DJANGO_DEV_SERVER:
+    # The built-in Django dev server does not support Share's
+    # authentication strategy.
+    SECURITY_REDIRECT_ENABLED = False
+else:
+    # If your web server does not support SSL you may need to set this to its
+    # INSECURE False setting.
+    SECURITY_REDIRECT_ENABLED = True
 
 # Make this unique, and don't share it with anybody.  Used by Django's
 # cookie-based authentication mechanism.
@@ -201,6 +232,26 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
 """.lstrip() % secretKey
             file(LOCAL_SETTINGS, 'w').write(text)
 
+    def fillConfigTemplates(self):
+        try:
+            from share2.djangoWsgi import getEnvironmentFromSourceMe
+            getEnvironmentFromSourceMe()
+            from django.conf import settings
+        except ImportError:
+            print >>sys.stderr, '*** warning: can\'t fill config templates, error importing settings'
+            return
+        user = os.environ['USER']
+        context = Context(dict(CHECKOUT_DIR=settings.CHECKOUT_DIR,
+                               SCRIPT_NAME=settings.SCRIPT_NAME,
+                               MEDIA_DIR=settings.MEDIA_ROOT,
+                               DATA_DIR=settings.DATA_DIR,
+                               WSGI_USER=user,
+                               WSGI_PROCESS_GROUP='share'+user.capitalize()))
+        fillTemplates(self.builder,
+                      '%s/make/templates/*.conf' % THIS_DIR,
+                      'build/apache2/',
+                      context)
+
     def install(self):
         os.chdir(self.workingDir)
         if not os.path.exists('build'):
@@ -211,6 +262,7 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
         self.rotateIcons()
         self.makeLocalSourceme()
         self.makeLocalSettings()
+        self.fillConfigTemplates()
         dosys('touch djangoWsgi.py')
         self.builder.finish()
 

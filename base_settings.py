@@ -20,6 +20,10 @@ if not SCRIPT_NAME.endswith('/'):
 
 USING_DJANGO_DEV_SERVER = (sys.argv[-1] == 'runserver')
 
+if USING_DJANGO_DEV_SERVER:
+    # django dev server deployment won't work with other SCRIPT_NAME settings
+    SCRIPT_NAME = '/'
+
 DEBUG = USING_DJANGO_DEV_SERVER
 TEMPLATE_DEBUG = DEBUG
 
@@ -126,10 +130,6 @@ CACHE_BACKEND = 'locmem://?timeout=30'
 # time out sessions after 30 minutes of inactivity
 SESSION_COOKIE_AGE = 30*60
 SESSION_SAVE_EVERY_REQUEST = True
-
-# SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
-
-SECURITY_REDIRECT_ENABLED = not USING_DJANGO_DEV_SERVER
 
 # DIGEST_* -- settings for django_digest HTTP digest authentication
 

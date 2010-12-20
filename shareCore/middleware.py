@@ -45,7 +45,7 @@ def requestIsSecure(request):
 class SecurityRedirectMiddleware(object):
     # can override these built-in defaults with same-name variables in your Django settings
     SECURITY_REDIRECT_ENABLED = True
-    SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT = False
+    SECURITY_REDIRECT_SSL_REQUIRED_BY_DEFAULT = True
     SECURITY_REDIRECT_TURN_OFF_SSL_WHEN_NOT_REQUIRED = False
 
     # can specify True, False, or 'write'.  if 'write', login is required to access urls that
