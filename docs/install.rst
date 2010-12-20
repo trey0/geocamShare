@@ -131,7 +131,9 @@ To set up your shell environment to run Share::
 
 You'll need to source the ``sourceme.sh`` file every time you open a new
 shell if you want to run Share-related Python scripts such as starting
-the Django development web server.
+the Django development web server.  The ``sourceme.sh`` file will also
+take care of activating your virtualenv environment in new shells (if
+you were in a virtualenv when you ran ``setup.py``).
 
 To initialize the database::
 

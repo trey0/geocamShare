@@ -181,7 +181,16 @@ class AppSetupCore(object):
         if not os.path.exists(LOCAL_SOURCEME):
             print 'writing template %s' % LOCAL_SOURCEME
             parentDir = os.path.dirname(self.workingDir)
-            text = """
+            text = ''
+            
+            VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
+            if VIRTUAL_ENV:
+                text += """
+# Activate virtualenv environment
+source %s/bin/activate
+""" % VIRTUAL_ENV
+            
+            text += """
 # Set DJANGO_SCRIPT_NAME to the URL prefix for Django on your web server (with leading slash
 # and trailing slash).  This setting is ignored if using the built-in Django development web
 # server.
