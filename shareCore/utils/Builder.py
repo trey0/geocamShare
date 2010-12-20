@@ -30,6 +30,8 @@ class Builder:
             dstMode = dstStat[stat.ST_MODE]
             if stat.S_ISLNK(dstMode) or stat.S_ISDIR(dstMode):
                 # assume symlinks and directories are up to date
+                if self.verbose > 2:
+                    print 'builder: symlink or directory, no rebuild needed'
                 rebuild = False
             else:
                 dstTime = dstStat[stat.ST_MTIME]
@@ -42,7 +44,10 @@ class Builder:
                         print ('[could not stat source file %s in rule to generate %s]'
                                % (src, dst))
                         sys.exit(1)
-                maxSrcTime = max(maxSrcTime, srcTime)
+                    maxSrcTime = max(maxSrcTime, srcTime)
+                if self.verbose > 2:
+                    print 'builder: srcs = %s' % srcs
+                    print 'builder: maxSrcTime = %f, dstTime = %s' % (maxSrcTime, dstTime)
                 rebuild = (maxSrcTime > dstTime)
         else:
             rebuild = True
