@@ -94,7 +94,7 @@ def installFile(src, dst):
         if USE_SYMLINKS:
             if os.path.isdir(dst):
                 dst = os.path.join(dst, os.path.basename(src))
-            if os.path.exists(dst):
+            if os.path.lexists(dst):
                 os.unlink(dst)
             os.symlink(os.path.realpath(src), dst)
         else:
@@ -244,7 +244,7 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
     def fillConfigTemplates(self):
         try:
             from share2.djangoWsgi import getEnvironmentFromSourceMe
-            getEnvironmentFromSourceMe()
+            getEnvironmentFromSourceMe(self.workingDir)
             from django.conf import settings
         except ImportError:
             print >>sys.stderr, '*** warning: can\'t fill config templates, error importing settings'
