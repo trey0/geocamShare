@@ -5,6 +5,7 @@ build
 data
 importData
 sqlite3.db
+sqlite3.db-journal
 local_settings.py
 sourceme
 sourceme.sh
