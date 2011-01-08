@@ -20,7 +20,7 @@ from django.template import Template, Context
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DJANGO_DIR = os.path.dirname(os.path.realpath(django.__file__))
-LOCAL_SETTINGS = 'local_settings.py'
+SETTINGS_FILE = 'settings.py'
 LOCAL_SOURCEME = 'sourceme.sh'
 BUILDING_FOR_GEOCAM = (__name__ == '__main__')
 USE_SYMLINKS = True
@@ -137,7 +137,7 @@ def fillTemplates(builder, pat, outputDir, context):
         dosys('mkdir -p %s' % outputDir)
     for inputFile in glob(pat):
         outputFile = os.path.join(outputDir, os.path.basename(inputFile))
-        builder.applyRule(outputFile, [inputFile, LOCAL_SOURCEME, LOCAL_SETTINGS],
+        builder.applyRule(outputFile, [inputFile, LOCAL_SOURCEME, SETTINGS_FILE],
                           lambda: fillTemplate(builder, inputFile, outputFile, context))
 
 class AppSetupCore(object):
@@ -205,13 +205,15 @@ export DJANGO_SETTINGS_MODULE='share2.settings'
 """ % parentDir
             file(LOCAL_SOURCEME, 'w').write(text)
 
-    def makeLocalSettings(self):
-        if not os.path.exists(LOCAL_SETTINGS):
-            print 'writing template %s' % LOCAL_SETTINGS
+    def makeSettings(self):
+        if not os.path.exists(SETTINGS_FILE):
+            print 'writing template %s' % SETTINGS_FILE
             print 'generating a unique secret key for your server'
             secretKey = ''.join([choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
             text = """
 import sys
+
+from siteSettings import *
 
 USING_DJANGO_DEV_SERVER = (sys.argv[-1] == 'runserver')
 
@@ -239,7 +241,7 @@ SECRET_KEY = '%s'
 # API.
 MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.com/apis/maps/signup.html'
 """.lstrip() % secretKey
-            file(LOCAL_SETTINGS, 'w').write(text)
+            file(SETTINGS_FILE, 'w').write(text)
 
     def fillConfigTemplates(self):
         try:
@@ -270,7 +272,7 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
         self.renderIcons()
         self.rotateIcons()
         self.makeLocalSourceme()
-        self.makeLocalSettings()
+        self.makeSettings()
         self.fillConfigTemplates()
         dosys('touch djangoWsgi.py')
         self.builder.finish()
