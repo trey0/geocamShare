@@ -99,8 +99,8 @@ def signupCallback(request):
                               dict(next=request.session['next']),
                               context_instance=RequestContext(request))
 
-@login_required
-def currentPosition(request):
+
+def getLatitudeClient(request):
     profile = None
     try:
         profile = LatitudeProfile.objects.get(user=request.user)
@@ -108,12 +108,24 @@ def currentPosition(request):
         pass # catch this below
     if not profile or not profile.oauthToken:
         raise Exception("You have not authorized Share to monitor your position in Latitude")
-    
-    c = LatitudeClient(settings.LATITUDE_CONSUMER_KEY, settings.LATITUDE_CONSUMER_SECRET,
-                       profile.oauthToken, profile.oauthSecret)
+
+    return LatitudeClient(settings.LATITUDE_CONSUMER_KEY, settings.LATITUDE_CONSUMER_SECRET,
+                          profile.oauthToken, profile.oauthSecret)
+
+@login_required
+def currentPosition(request):
+    c = getLatitudeClient(request)
     try:
         loc = c.getCurrentLocation()
     except LatitudeClient.LatitudeError, e:
         raise Exception("Error trying to get current location from Latitude server: %s" % e)
+    return HttpResponse('<pre>%s</pre>' % json.dumps(loc, indent=4))
 
+@login_required
+def locationList(request):
+    c = getLatitudeClient(request)
+    try:
+        loc = c.getLocationList()
+    except LatitudeClient.LatitudeError, e:
+        raise Exception("Error trying to get current location from Latitude server: %s" % e)
     return HttpResponse('<pre>%s</pre>' % json.dumps(loc, indent=4))

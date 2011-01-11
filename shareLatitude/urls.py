@@ -24,4 +24,7 @@ urlpatterns = patterns(
     (r'^currentPosition/$', views.currentPosition,
      {'readOnly': True}),
 
+    (r'^locationList/$', views.locationList,
+     {'readOnly': True}),
+
 )

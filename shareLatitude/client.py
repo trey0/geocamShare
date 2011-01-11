@@ -70,4 +70,24 @@ class LatitudeClient(object):
         return contentJson
  
     def getCurrentLocation(self):    
-        return self._invoke("/currentLocation") #, {'granularity': 'best'})
+        return self._invoke("/currentLocation", {'granularity': 'best'})
+
+    def getLocationList(self, params={}):
+        """
+        Available parameters: minTime, maxTime, maxResults.  minTime and maxTime are
+        expressed as milliseconds since UNIX epoch (like a Java timestamp).
+        """
+        
+        # map from python-friendly param names to the names used by the latitude api
+        NAME_MAPPING = (('minTime', 'min-time'),
+                        ('maxTime', 'max-time'),
+                        ('maxResults', 'max-results'))
+        for pyName, latName in NAME_MAPPING:
+            if params.has_key(pyName):
+                params[latName] = params[pyName]
+                del params[pyName]
+
+        useParams = {'granularity': 'best'}
+        useParams.update(params)
+
+        return self._invoke("/location", useParams)
