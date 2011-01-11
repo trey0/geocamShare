@@ -110,6 +110,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'share2.shareCore',
     'share2.shareTracking',
+    'share2.shareLatitude',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
