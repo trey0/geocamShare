@@ -28,7 +28,7 @@ def importModuleByName(name):
     return mod
 
 def getMiddleFileWithExtension(ext, path):
-    allXmps = glob.glob('%s/*.%s' % (path, ext))
+    allXmps = glob.glob('%s/*%s' % (path, ext))
     allXmps = [x for x in allXmps
                if not x.startswith('thumbnail')]
     if not allXmps:
