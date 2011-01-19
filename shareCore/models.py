@@ -391,6 +391,10 @@ class PointFeature(Feature):
     def getKml(self, request=None):
         if self.longitude == None:
             return ''
+        if self.yaw == None:
+            headingStr = ''
+        else:
+            headingStr = '<heading>%s</heading>' % self.yaw
         relIconUrl = '%sshare/map/%sPoint.png' % (settings.MEDIA_URL, self.icon)
         iconUrl = request.build_absolute_uri(relIconUrl)
         return ("""
@@ -402,7 +406,7 @@ class PointFeature(Feature):
       <Icon>
         <href>%(iconUrl)s</href>
       </Icon>
-      <heading>%(yaw)s</heading>
+      %(headingStr)s
     </IconStyle>
   </Style>
   <Point>
@@ -412,7 +416,7 @@ class PointFeature(Feature):
 """ % dict(name=self.name,
            balloonHtml=self.getBalloonHtml(request),
            iconUrl=iconUrl,
-           yaw=self.yaw,
+           headingStr=headingStr,
            lon=self.longitude,
            lat=self.latitude))
     
