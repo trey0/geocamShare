@@ -18,7 +18,7 @@ SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
 if not SCRIPT_NAME.endswith('/'):
     SCRIPT_NAME += '/'
 
-USING_DJANGO_DEV_SERVER = (sys.argv[-1] == 'runserver')
+USING_DJANGO_DEV_SERVER = ('runserver' in sys.argv)
 
 if USING_DJANGO_DEV_SERVER:
     # django dev server deployment won't work with other SCRIPT_NAME settings
@@ -110,6 +110,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'share2.shareCore',
     'share2.shareTracking',
+    'share2.shareLatitude',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

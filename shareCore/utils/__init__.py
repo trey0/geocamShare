@@ -11,6 +11,7 @@ import errno
 import datetime
 import time
 import tempfile
+import itertools
 
 import pytz
 
@@ -77,6 +78,28 @@ def mkdirP(dir):
     except OSError, err:
         if err.errno != errno.EEXIST:
             raise
+
+class MultiSettings(object):
+    """
+    A settings container object built out of an ordered list of
+    child settings objects.  When you request the value of an attribute,
+    it returns the value found in the first child that defines that
+    attribute.
+    """
+    def __init__(self, *sources):
+        self._sources = sources
+
+    def __getattr__(self, key):
+        for src in self._sources:
+            if hasattr(src, key):
+                return getattr(src, key)
+        raise AttributeError(key)
+
+    def __dir__(self):
+        return list(itertools.chain(*[dir(src) for src in self._sources]))
+
+    # For Python < 2.6:
+    __members__ = property(lambda self: self.__dir__())
 
 # pull in other modules in this dir so they're exported
 import MimeMultipartFormData

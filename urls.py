@@ -17,4 +17,5 @@ urlpatterns = (basePatterns
     '',
 
     (r'^tracking/', include('share2.shareTracking.urls')),
+    (r'^latitude/', include('share2.shareLatitude.urls')),
 ))

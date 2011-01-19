@@ -5,7 +5,8 @@ build
 data
 importData
 sqlite3.db
-local_settings.py
+sqlite3.db-journal
+settings.py
 sourceme
 sourceme.sh
 *--gds.*

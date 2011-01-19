@@ -4,8 +4,11 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-# non-django-related app settings
-from share2.shareGeocam.settings import *
+import django.conf
 
-# settings for this server instance
-from local_settings import *
+from share2.shareCore.utils import MultiSettings
+import defaultSettings
+
+from client import LatitudeClient
+
+settings = MultiSettings(django.conf.settings, defaultSettings)
