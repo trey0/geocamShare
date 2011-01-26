@@ -14,19 +14,29 @@ can do that:
  * We use ``git`` and the GitHub web site to manage our source code.
    You can read up on these tools at the `GitHub help pages`_.
 
- * Try using the `interactive demo version`_ of GeoCam Share.  This is a
-   read-only version that can give you a feel for how the display works.
+ * Try using our tools:
+
+   * Visit an `interactive demo version`_ of GeoCam Share.  This is a
+     read-only version that can give you a feel for how the display works.
+
+   * Our Android native apps are currently in closed beta.  If you want to
+     try them out, please contact a project member.
 
  * If you find any bugs, you can help us out by reporting them at the
    `issue tracker`_.  You can get to the issue tracker by clicking
    on the ``Issues`` button from any GeoCam repository on GitHub.  You
    can also vote on which bugs are most important to you.
 
- * Try installing GeoCam Share from source following `these directions`_.
-   (If you're thinking of contributing changes, you'll want to use
-   ``git`` to grab the source instead of clicking the ``Downloads``
-   button.)  Please report any errors you find in our installation
-   instructions using the issue tracker.
+ * Try installing our tools from source:
+
+   * `Installation instructions for GeoCam Share`_
+
+   * `Installation instructions for GeoCam native Android apps`_
+
+   * If you're thinking of contributing changes, you'll want to use
+     ``git`` to grab the source instead of clicking the ``Downloads``
+     button.)  Please report any errors you find in our installation
+     instructions using the issue tracker.
 
  * If you have any questions, ask on the `geocam-questions group`_.
    That will also give us a chance to get to know you, which will make
@@ -66,7 +76,9 @@ can do that:
 
 .. _issue tracker: https://github.com/geocam/geocamShare/issues
 
-.. _these directions: http://github.com/geocam/geocamShare/tree/master/docs/install.rst
+.. _Installation instructions for GeoCam Share: http://github.com/geocam/geocamShare/tree/master/docs/install.rst
+
+.. _Installation instructions for GeoCam native Android apps: http://github.com/geocam/geocamMobileForAndroid/tree/master/docs/install.rst
 
 
 Contributor License Agreement
