@@ -1,3 +1,6 @@
+=========================================
+GeoCam Share
+=========================================
 
 The GeoCam Project helps disaster responders get information faster by
 sharing maps, photos, and other data using their mobile devices.  The
