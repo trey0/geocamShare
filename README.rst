@@ -1,69 +1,62 @@
-=========================================
-GeoCam Share
-=========================================
 
-About
-~~~~~
+The GeoCam Project helps disaster responders get information faster by
+sharing maps, photos, and other data using their mobile devices.  The
+GeoCam team is part of the `NASA Ames Intelligent Robotics Group`_, and the
+project is funded by Google.  To best serve the wide range of public
+safety agencies, NGOs, and citizen responders, GeoCam software is
+released open source and interoperates using open standards.
 
-The GeoCam Project helps people better understand and respond to disasters.
-GeoCam consists of a GPS-enabled camera (or cell phone) and a web app for
-sharing geotagged photos and other geospatial data.
+.. _NASA Ames Intelligent Robotics Group: http://ti.arc.nasa.gov/tech/asr/intelligent-robotics/
 
-GeoCam Share is the web app component of GeoCam.
+GeoCam Share, our software platform, currently includes the following
+apps:
 
-News
-~~~~
+ * GeoCam Lens: Share photos taken on your cell phone, tagged with
+   position and which way the camera was pointed. Add notes, select an
+   icon to appear in the map, and queue the photo for automatic upload
+   when a data network becomes available.  (Web app and native app for
+   Android mobile devices.)
 
-Visit http://disastercam.blogspot.com/ for updates.
+ * GeoCam Track: View live position of your team members as reported
+   by the GPS in their mobile devices.  (Web app and native app for
+   Android mobile devices.)
 
-Requirements
-~~~~~~~~~~~~
+This ``geocamShare`` repository holds the web app components of the
+GeoCam Share app collection.  The native Android apps are in a separate
+repository called ``geocamMobileForAndroid``.  To see the master copy of
+all our repositories, visit http://github.com/geocam .
 
-Our primary development platform for GeoCam Share is Ubuntu Linux 10.04
-"Lucid Lemur", with Apache 2.2 running Python 2.6 and Django 1.2 under
-modwsgi.
+For more information about ``geocamShare``, see:
 
-We have also successfully installed parts of GeoCam Share on RedHat
-Enterprise Linux 5.5 and Mac OS X 10.6 "Snow Leopard".  However, if you
-use these platforms you may need to improvise more during installation.
+ * `Installation instructions`_
 
-Installation
-~~~~~~~~~~~~
+ * `How you can contribute`_
 
-Sorry, these installation instructions are a work in progress.
+ * Our software is released under the `NASA Open Source Agreement`_, an OSI-approved license
 
-How to install dependencies on Ubuntu (some of these packages are recommended but not required)::
+.. _Installation instructions: http://github.com/geocam/geocamShare/tree/master/docs/install.rst
 
-  sudo apt-get install python-docutils python-imaging python-rdflib python-pip git-core apache2 libapache2-mod-wsgi libimage-exiftool-perl imagemagick python-pyproj
-  sudo pip install iso8601 pytz django django-tagging python_digest
+.. _How you can contribute: http://github.com/geocam/geocamShare/tree/master/docs/contributing.rst
 
-  # install django_digest from source (pypi version not compatible with django 1.2) -- http://bitbucket.org/akoha/django-digest/src
+.. _NASA Open Source Agreement: http://github.com/geocam/geocamShare/tree/master/COPYING
 
-  # if using sqlite (good for simple testing)
-  sudo apt-get install python-pysqlite2
-  # if using mysql (used for production)
-  sudo apt-get install mysql-server python-mysqldb
+For more information about the GeoCam Project:
 
-  # not required but recommended for debugging
-  sudo apt-get install ipython
+ * `Watch our intro video`_
 
-How to fetch the GeoCam Share source::
+ * `Check our blog for updates`_
 
-  git clone https://github.com/geocam/geocamShare.git share2
+ * `Visit an interactive demo version of GeoCam Share`_
 
-How to install::
+ * `Ask a question on the geocam-questions group`_
 
-  cd share2
-  python setup.py install
+.. _Watch our intro video: http://vimeo.com/17019251
 
-Note that this is not a standard Python install script -- the action it takes
-is more like 'build' than 'install'.  It does not modify anything outside the
-current directory.
+.. _Check our blog for updates: http://disastercam.blogspot.com/
 
-Further steps, not yet documented:
+.. _Visit an interactive demo version of GeoCam Share: http://geocamshare.org/demo/share/
 
- * Modify local_settings.py to connect to your database
- * Add server to your Apache config
+.. _Ask a question on the geocam-questions group: http://groups.google.com/group/geocam-questions
 
 | __BEGIN_LICENSE__
 | Copyright (C) 2008-2010 United States Government as represented by

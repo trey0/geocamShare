@@ -25,10 +25,11 @@ SQLite 3.6 database.  For the advanced installation we use the Apache
 database.
 
 We have also successfully installed parts of GeoCam Share on RedHat
-Enterprise Linux 5.5 and Mac OS X 10.6 (Snow Leopard).  However, we do
+Enterprise Linux 5.5, Mac OS X 10.6 (Snow Leopard), and an Ubuntu
+virtual machine running under VMWare on a Windows host.  However, we do
 not officially support those platforms.  Our installation instructions
-below mostly assume Ubuntu, so if you want to use another platform
-you may need to improvise more during installation.
+below mostly assume Ubuntu, so if you want to use another platform you
+may need to improvise more during installation.
 
 Set Up an Install Location
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
