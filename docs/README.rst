@@ -6,9 +6,9 @@ GeoCam Share Documentation
 
  * `How you can contribute`_
 
-.. _Installation instructions: install.rst
+.. _Installation instructions: http://github.com/geocam/geocamShare/tree/master/docs/install.rst
 
-.. _How you can contribute: contributing.rst
+.. _How you can contribute: http://github.com/geocam/geocamShare/tree/master/docs/contributing.rst
 
 | __BEGIN_LICENSE__
 | Copyright (C) 2008-2010 United States Government as represented by
