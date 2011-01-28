@@ -12,18 +12,19 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.test.client import Client
+from xml.dom import minidom
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
+class ValidKmlTest(TestCase):
+    def testStartSessionValid(self):
         """
-        Tests that 1 + 1 always equals 2.
+        Tests that querying startSession.kml returns valid XML.
         """
-        self.failUnlessEqual(1 + 1, 2)
-
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
-
->>> 1 + 1 == 2
-True
-"""}
-
+        c = Client()
+        response = c.get('/kml/startSession.kml')
+        # check for http success status
+        self.failUnlessEqual(response.status_code, 200)
+        # check response is not empty
+        self.failIfEqual("", response.content)
+        # check response parses as XML (if not, exception causes failure)
+        minidom.parseString(response.content)
