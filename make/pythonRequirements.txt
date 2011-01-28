@@ -20,4 +20,5 @@ pysqlite==2.5.5
 # MySQL-python==1.2.2
 
 # needed only for unit testing django-digest
-mocker==1.0
+# mocker==1.0
+# decorator==3.3.0
