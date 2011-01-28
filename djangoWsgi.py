@@ -40,7 +40,13 @@ def sendError(start_response, text):
     """ % (text, text)]
 
 def downForMaintenance(environ, start_response):
-    return sendError(start_response, '503 Down for maintenance')
+    import stat
+    import time
+    thisDir = os.path.dirname(os.path.realpath(__file__))
+    downFile = os.path.join(thisDir, 'DOWN_FOR_MAINTENANCE')
+    downMtime = os.stat(downFile)[stat.ST_MTIME]
+    downTimeString = time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(downMtime))
+    return sendError(start_response, '503 Down for maintenance since %s' % downTimeString)
 
 thisDir = os.path.dirname(os.path.realpath(__file__))
 getEnvironmentFromSourceMe(thisDir)
