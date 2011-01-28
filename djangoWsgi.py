@@ -31,5 +31,20 @@ def getEnvironmentFromSourceMe(thisDir):
         envPath = re.sub(':$', '', os.environ['PYTHONPATH'])
         sys.path = envPath.split(':') + sys.path
 
-getEnvironmentFromSourceMe(os.path.dirname(os.path.realpath(__file__)))
-application = WSGIHandler()
+def sendError(start_response, text):
+    start_response(text, [('Content-type', 'text/html')])
+    return ["""<html>
+  <head><title>%s</title></head>
+  <body><h1>%s</h1></body>
+</html>
+    """ % (text, text)]
+
+def downForMaintenance(environ, start_response):
+    return sendError(start_response, '503 Down for maintenance')
+
+thisDir = os.path.dirname(os.path.realpath(__file__))
+getEnvironmentFromSourceMe(thisDir)
+if os.path.exists(os.path.join(thisDir, 'DOWN_FOR_MAINTENANCE')):
+    application = downForMaintenance
+else:
+    application = WSGIHandler()
