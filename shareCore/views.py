@@ -31,7 +31,7 @@ from share2.shareCore.models import Image, Track, EmptyTrackError
 from share2.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
 from share2.shareCore.icons import cacheIconSize
 from share2.shareCore.kml.ViewKml import ViewKml
-from share2.shareCore.middleware import requestIsSecure
+from share2.shareCore.middleware.SecurityRedirectMiddleware import requestIsSecure
 from share2.shareCore import search
 
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
