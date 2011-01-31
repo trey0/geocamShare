@@ -215,7 +215,7 @@ import sys
 
 from siteSettings import *
 
-USING_DJANGO_DEV_SERVER = (sys.argv[-1] == 'runserver')
+USING_DJANGO_DEV_SERVER = ('runserver' in sys.argv)
 
 ADMINS = (
     ('Example', 'root@example.com'),
