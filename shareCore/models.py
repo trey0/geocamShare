@@ -535,7 +535,7 @@ class Image(PointFeature):
         if importFile and not os.path.exists(self.getImagePath()):
             if not os.path.exists(self.getDir()):
                 mkdirP(self.getDir())
-            shutil.copy(importFile, self.getImagePath())
+            shutil.copyfile(importFile, self.getImagePath())
         self.makeThumbnail(settings.GALLERY_THUMB_SIZE)
         self.makeThumbnail(settings.DESC_THUMB_SIZE)
         # remember to call save() after process()
