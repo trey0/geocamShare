@@ -6,6 +6,6 @@
 
 from django.contrib import admin
 
-from share2.shareGeocam.models import *
+from geocamShare.shareGeocam.models import *
 
 admin.site.register(Photo)

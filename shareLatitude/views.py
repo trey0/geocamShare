@@ -17,10 +17,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
-from share2.shareCore.utils import anyjson as json
-from share2.shareLatitude.models import LatitudeProfile
-from share2.shareLatitude import LatitudeClient
-from share2.shareLatitude import settings
+from geocamShare.shareCore.utils import anyjson as json
+from geocamShare.shareLatitude.models import LatitudeProfile
+from geocamShare.shareLatitude import LatitudeClient
+from geocamShare.shareLatitude import settings
 
 def getIndex(request):
     return render_to_response('latitudeIndex.html',

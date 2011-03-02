@@ -6,7 +6,7 @@
 
 from django.contrib import admin
 
-from share2.shareTracking.models import *
+from geocamShare.shareTracking.models import *
 
 admin.site.register(Resource)
 admin.site.register(ResourcePosition)

@@ -4,8 +4,8 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from share2.shareCore.search import SearchCore
-from share2.shareCore.models import PointFeature
+from geocamShare.shareCore.search import SearchCore
+from geocamShare.shareCore.models import PointFeature
 
 class SearchGeocam(SearchCore):
     def getAllFeatures(self):

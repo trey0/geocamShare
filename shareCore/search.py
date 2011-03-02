@@ -9,7 +9,7 @@ import sys
 
 from django.db.models import Q
 
-from share2.shareCore import TimeUtils
+from geocamShare.shareCore import TimeUtils
 
 class BadQuery(Exception):
     pass

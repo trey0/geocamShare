@@ -18,9 +18,9 @@ updating an existing install that pre-dates ``shareLatitude``, you'll
 need to re-run the following steps::
 
   # make sure shareLatitude dependencies are met (httplib2, oauth2)
-  pip install -r $GEOCAM_DIR/share2/make/pythonRequirements.txt
+  pip install -r $GEOCAM_DIR/geocamShare/make/pythonRequirements.txt
   # install shareLatitude db tables
-  $GEOCAM_DIR/share2/manage.py syncdb
+  $GEOCAM_DIR/geocamShare/manage.py syncdb
 
 Try It Out
 ~~~~~~~~~~

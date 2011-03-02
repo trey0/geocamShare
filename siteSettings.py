@@ -6,11 +6,11 @@
 
 import os
 
-from share2.base_settings import *
+from geocamShare.base_settings import *
 
 # django settings overrides for shareGeocam
 INSTALLED_APPS = INSTALLED_APPS + (
-    'share2.shareGeocam',
+    'geocamShare.shareGeocam',
     )
 
-MAIN_APP = 'share2.shareGeocam'
+MAIN_APP = 'geocamShare.shareGeocam'

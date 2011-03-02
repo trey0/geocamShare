@@ -6,6 +6,6 @@
 
 from django.contrib import admin
 
-from share2.shareLatitude.models import *
+from geocamShare.shareLatitude.models import *
 
 admin.site.register(LatitudeProfile)

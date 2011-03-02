@@ -18,7 +18,7 @@ from django.conf import settings
 import pyproj
 import urllib2
 
-from share2.shareCore.utils import anyjson as json
+from geocamShare.shareCore.utils import anyjson as json
 
 geodG = pyproj.Geod(ellps='WGS84')
 rndG = random.Random()

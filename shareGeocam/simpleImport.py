@@ -25,10 +25,10 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from share2.shareCore.models import Feature, Folder
-from share2.shareGeocam.models import Photo
-from share2.shareCore.utils import mkdirP, UploadClient
-from share2.shareCore import TimeUtils
+from geocamShare.shareCore.models import Feature, Folder
+from geocamShare.shareGeocam.models import Photo
+from geocamShare.shareCore.utils import mkdirP, UploadClient
+from geocamShare.shareCore import TimeUtils
 
 def checkMissing(val):
     if val == -999:

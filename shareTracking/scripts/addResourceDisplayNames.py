@@ -8,7 +8,7 @@
 import re
 import sys
 
-from share2.shareTracking.models import Resource
+from geocamShare.shareTracking.models import Resource
 
 def doit(opts, args):
     for fname in args:

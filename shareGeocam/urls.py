@@ -7,7 +7,7 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
-from share2.shareGeocam.views import viewSingleton as views
+from geocamShare.shareGeocam.views import viewSingleton as views
 
 urlpatterns = patterns(
     '',

@@ -24,13 +24,13 @@ from django.core.cache import cache
 from django.contrib.contenttypes import generic
 import tagging
 
-from share2.shareCore.utils import anyjson as json
-from share2.shareCore.utils import mkdirP, makeUuid, Xmp
-from share2.shareCore.utils.gpx import TrackLog
-from share2.shareCore.ExtrasField import ExtrasField
-from share2.shareCore.icons import getIconSize
-from share2.shareCore.TimeUtils import parseUploadTime
-from share2.shareCore.managers import AbstractClassManager, LeafClassManager
+from geocamShare.shareCore.utils import anyjson as json
+from geocamShare.shareCore.utils import mkdirP, makeUuid, Xmp
+from geocamShare.shareCore.utils.gpx import TrackLog
+from geocamShare.shareCore.ExtrasField import ExtrasField
+from geocamShare.shareCore.icons import getIconSize
+from geocamShare.shareCore.TimeUtils import parseUploadTime
+from geocamShare.shareCore.managers import AbstractClassManager, LeafClassManager
 
 ICON_CHOICES = [(i,i) for i in settings.ICONS]
 DEFAULT_ICON = settings.ICONS[0]

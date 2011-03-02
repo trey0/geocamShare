@@ -14,7 +14,7 @@ import sys
 
 from django.conf import settings
 
-from share2.shareCore import utils
+from geocamShare.shareCore import utils
 
 def getTempName(prefix, suffix=''):
     return '%s/%s-%s-%s%s' % (settings.TMP_DIR,

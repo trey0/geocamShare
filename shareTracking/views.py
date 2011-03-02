@@ -15,9 +15,9 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
 
-from share2.shareCore.utils import anyjson as json
-from share2.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
-from share2.shareTracking.avatar import renderAvatar
+from geocamShare.shareCore.utils import anyjson as json
+from geocamShare.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
+from geocamShare.shareTracking.avatar import renderAvatar
 
 class ExampleError(Exception):
     pass

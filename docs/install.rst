@@ -50,8 +50,8 @@ tarball into the ``$GEOCAM_DIR`` directory and run::
 
   cd $GEOCAM_DIR
   tar xfz geocam-geocamShare-*.tar.gz
-  # rename the resulting directory to "share2"
-  mv `ls -d geocam-geocamShare-* | head -1` share2
+  # rename the resulting directory to "geocamShare"
+  mv `ls -d geocam-geocamShare-* | head -1` geocamShare
 
 .. _GeoCam Share repository on GitHub: http://github.com/geocam/geocamShare/
 .. _Downloads: http://github.com/geocam/geocamShare/archives/master
@@ -60,7 +60,7 @@ tarball into the ``$GEOCAM_DIR`` directory and run::
 Share, you can check out our latest revision with::
 
   cd $GEOCAM_DIR
-  git clone http://github.com/geocam/geocamShare.git share2
+  git clone http://github.com/geocam/geocamShare.git geocamShare
 
 For more information on the Git version control system, visit `the Git home page`_.
 You can install Git on Ubuntu with::
@@ -112,23 +112,23 @@ Then install Python dependencies.  For this command to work, you will
 either need to make sure your virtualenv environment is activated (as
 explained above, recommended) or run with ``sudo``::
 
-  pip install -r $GEOCAM_DIR/share2/make/pythonRequirements.txt
+  pip install -r $GEOCAM_DIR/geocamShare/make/pythonRequirements.txt
 
 Set Up GeoCam Share
 ~~~~~~~~~~~~~~~~~~~
 
 To render icons and collect media for the server, run::
 
-  cd $GEOCAM_DIR/share2
+  cd $GEOCAM_DIR/geocamShare
   python setup.py install
 
 Note that, maybe confusingly, this is not a standard Python install
 script.  The action it takes is more like "build" than "install".  It
-does not modify anything outside the ``share2`` directory.
+does not modify anything outside the ``geocamShare`` directory.
 
 To set up your shell environment to run Share::
 
-  source $GEOCAM_DIR/share2/sourceme.sh
+  source $GEOCAM_DIR/geocamShare/sourceme.sh
 
 You'll need to source the ``sourceme.sh`` file every time you open a new
 shell if you want to run Share-related Python scripts such as starting
@@ -138,7 +138,7 @@ you were in a virtualenv when you ran ``setup.py``).
 
 To initialize the database::
 
-  $GEOCAM_DIR/share2/manage.py syncdb
+  $GEOCAM_DIR/geocamShare/manage.py syncdb
 
 The syncdb script will ask you if you want to create a Django superuser.
 We recommend answering 'yes' and setting the admin username to ``root``
@@ -152,7 +152,7 @@ To download and import 37 sample photos::
   cd $GEOCAM_DIR
   curl http://geocamshare.org/downloads/geocamShareSampleData.tar.gz -O
   tar xfz geocamShareSampleData.tar.gz
-  python share2/shareGeocam/simpleImport.py --user root geocamShareSampleData
+  python geocamShare/shareGeocam/simpleImport.py --user root geocamShareSampleData
 
 You can also clean out all the photos in the database by running
 ``simpleImport.py`` with the ``-c`` "clean" option.  This is handy if
@@ -163,7 +163,7 @@ Try It Out
 
 To run the Django development web server::
 
-  $GEOCAM_DIR/share2/manage.py runserver
+  $GEOCAM_DIR/geocamShare/manage.py runserver
 
 Now you're ready to try it out!  If you can open a web browser on the
 same host where Share is installed, you can start using the app by
@@ -182,7 +182,7 @@ app from a remote host:
    development web server, telling it to accept connections from outside
    hosts::
 
-     $GEOCAM_DIR/share2/manage.py runserver 0.0.0.0:8000
+     $GEOCAM_DIR/geocamShare/manage.py runserver 0.0.0.0:8000
 
    then visit http://myserver:8000/ in your browser.
 
@@ -250,23 +250,23 @@ Advanced Installation: Initialize MySQL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To tell Share to use MySQL as its database, add the following to your
-``share2/local_settings.py`` file.  This overrides the default setting
+``geocamShare/local_settings.py`` file.  This overrides the default setting
 to use a SQLite database::
 
   DATABASES = {
       'default': {
           'ENGINE': 'mysql',
-          'NAME': 'share2',
+          'NAME': 'geocamShare',
           'USER': 'root',
           'PASSWORD': 'MYSQL_ROOT_PASSWORD',
           'HOST': '127.0.0.1'
       },
   }
 
-To initialize the MySQL ``share2`` database::
+To initialize the MySQL ``geocamShare`` database::
 
-  mysqladmin -u root -p create share2
-  $GEOCAM_DIR/share2/manage.py syncdb
+  mysqladmin -u root -p create geocamShare
+  $GEOCAM_DIR/geocamShare/manage.py syncdb
 
 Next, you should import some sample data for testing, following the
 instructions above.
@@ -316,7 +316,7 @@ process we won't go into.
 .. _certificate authority: http://en.wikipedia.org/wiki/Certificate_authority
 
 If you want to skip past all the security setup, for testing purposes
-only, you can edit ``$GEOCAM_DIR/share2/local_settings.py`` and set::
+only, you can edit ``$GEOCAM_DIR/geocamShare/local_settings.py`` and set::
 
   SECURITY_REDIRECT_ENABLED = False
 
@@ -378,7 +378,7 @@ this:
    conflicts by giving them distinct ``DJANGO_SCRIPT_NAME`` settings.
 
 4. Apache's instructions for loading Share are in the
-   ``httpd-share2.conf`` file, which we installed above.  If you're
+   ``httpd-geocamShare.conf`` file, which we installed above.  If you're
    running multiple instances of Share on the same Apache server, you'll
    want two different versions of that file in the
    ``/etc/apache2/conf.d/`` directory, one for each instance.
@@ -393,7 +393,7 @@ this:
    needed.
 
    Regardless of how many Share instances you run, you only need one copy
-   of the ``httpd-share2-mimetypes.conf`` file per web server.
+   of the ``httpd-geocamShare-mimetypes.conf`` file per web server.
 
 | __BEGIN_LICENSE__
 | Copyright (C) 2008-2010 United States Government as represented by

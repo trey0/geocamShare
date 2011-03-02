@@ -9,7 +9,7 @@ import oauth2 as oauth
 import urllib
 import httplib2
  
-from share2.shareCore.utils import anyjson as json
+from geocamShare.shareCore.utils import anyjson as json
 
 RESOURCE_URL_PREFIX = "https://www.googleapis.com/latitude/v1/"
 

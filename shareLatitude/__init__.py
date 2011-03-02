@@ -6,7 +6,7 @@
 
 import django.conf
 
-from share2.shareCore.utils import MultiSettings
+from geocamShare.shareCore.utils import MultiSettings
 import defaultSettings
 
 from client import LatitudeClient

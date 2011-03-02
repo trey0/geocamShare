@@ -10,8 +10,8 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.auth.models import User
 
-from share2.shareCore.fields import UuidField
-from share2.shareCore.models import Track, Image
+from geocamShare.shareCore.fields import UuidField
+from geocamShare.shareCore.models import Track, Image
 
 # the field names in this form are currently retained for backward compatibility with old versions
 # of GeoCam Mobile

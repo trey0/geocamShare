@@ -25,16 +25,16 @@ LOCAL_SOURCEME = 'sourceme.sh'
 BUILDING_FOR_GEOCAM = (__name__ == '__main__')
 USE_SYMLINKS = True
 
-# avoid obscure error message if share2 module is not found
+# avoid obscure error message if geocamShare module is not found
 try:
-    import share2
+    import geocamShare
 except ImportError:
     # try adding parent directory to $PYTHONPATH
     sys.path = [os.path.dirname(THIS_DIR)] + sys.path
-    import share2
+    import geocamShare
 
-from share2.shareCore import utils
-from share2.shareCore.icons import rotate, svg
+from geocamShare.shareCore import utils
+from geocamShare.shareCore.icons import rotate, svg
 
 def dosys(cmd):
     print cmd
@@ -201,7 +201,7 @@ export DJANGO_SCRIPT_NAME='/share/'
 export PYTHONPATH=%s:$PYTHONPATH
 
 # You should not need to change this.
-export DJANGO_SETTINGS_MODULE='share2.settings'
+export DJANGO_SETTINGS_MODULE='geocamShare.settings'
 """ % parentDir
             file(LOCAL_SOURCEME, 'w').write(text)
 
@@ -245,7 +245,7 @@ MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.
 
     def fillConfigTemplates(self):
         try:
-            from share2.djangoWsgi import getEnvironmentFromSourceMe
+            from geocamShare.djangoWsgi import getEnvironmentFromSourceMe
             getEnvironmentFromSourceMe(self.workingDir)
             from django.conf import settings
         except ImportError:

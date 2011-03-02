@@ -7,7 +7,7 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
-from share2.shareCore.utils import importModuleByName
+from geocamShare.shareCore.utils import importModuleByName
 
 views = importModuleByName('%s.views' % settings.MAIN_APP).viewSingleton
 

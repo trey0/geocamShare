@@ -7,7 +7,7 @@
 '''A wrapper module that tries multiple methods of importing JSON
 support.  Recommended usage:
 
-from share2.shareCore.utils import anyjson as json
+from geocamShare.shareCore.utils import anyjson as json
 
 '''
 

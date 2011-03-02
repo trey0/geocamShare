@@ -24,15 +24,15 @@ from django.template import RequestContext
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from share2.shareCore.utils import anyjson as json
-from share2.shareCore.utils import makeUuid, mkdirP
-from share2.shareCore.Pager import Pager
-from share2.shareCore.models import Image, Track, EmptyTrackError
-from share2.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
-from share2.shareCore.icons import cacheIconSize
-from share2.shareCore.kml.ViewKml import ViewKml
-from share2.shareCore.middleware.SecurityRedirectMiddleware import requestIsSecure
-from share2.shareCore import search
+from geocamShare.shareCore.utils import anyjson as json
+from geocamShare.shareCore.utils import makeUuid, mkdirP
+from geocamShare.shareCore.Pager import Pager
+from geocamShare.shareCore.models import Image, Track, EmptyTrackError
+from geocamShare.shareCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
+from geocamShare.shareCore.icons import cacheIconSize
+from geocamShare.shareCore.kml.ViewKml import ViewKml
+from geocamShare.shareCore.middleware.SecurityRedirectMiddleware import requestIsSecure
+from geocamShare.shareCore import search
 
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
 cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))

@@ -6,9 +6,9 @@
 
 from django.conf.urls.defaults import *
 
-from share2.base_urls import urlpatterns as basePatterns
-from share2.shareCore.urls import urlpatterns as corePatterns
-from share2.shareGeocam.urls import urlpatterns as geocamPatterns
+from geocamShare.base_urls import urlpatterns as basePatterns
+from geocamShare.shareCore.urls import urlpatterns as corePatterns
+from geocamShare.shareGeocam.urls import urlpatterns as geocamPatterns
 
 urlpatterns = (basePatterns
                + corePatterns
@@ -16,6 +16,6 @@ urlpatterns = (basePatterns
                + patterns(
     '',
 
-    (r'^tracking/', include('share2.shareTracking.urls')),
-    (r'^latitude/', include('share2.shareLatitude.urls')),
+    (r'^tracking/', include('geocamShare.shareTracking.urls')),
+    (r'^latitude/', include('geocamShare.shareLatitude.urls')),
 ))

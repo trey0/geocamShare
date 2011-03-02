@@ -85,8 +85,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "share2.shareCore.context_processors.serverRoot",
-    "share2.shareCore.context_processors.settings",
+    "geocamShare.shareCore.context_processors.serverRoot",
+    "geocamShare.shareCore.context_processors.settings",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -95,11 +95,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'share2.shareCore.middleware.SecurityRedirectMiddleware',
-    'share2.shareCore.middleware.LogErrorsMiddleware',
+    'geocamShare.shareCore.middleware.SecurityRedirectMiddleware',
+    'geocamShare.shareCore.middleware.LogErrorsMiddleware',
 )
 
-ROOT_URLCONF = 'share2.urls'
+ROOT_URLCONF = 'geocamShare.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -108,9 +108,9 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'share2.shareCore',
-    'share2.shareTracking',
-    'share2.shareLatitude',
+    'geocamShare.shareCore',
+    'geocamShare.shareTracking',
+    'geocamShare.shareLatitude',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

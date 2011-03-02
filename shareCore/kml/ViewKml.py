@@ -11,7 +11,7 @@ import sys
 from django.conf import settings
 
 import KmlUtils
-from share2.shareCore.models import Feature, GoogleEarthSession
+from geocamShare.shareCore.models import Feature, GoogleEarthSession
 
 class BogusRequest:
     def build_absolute_uri(self, text):

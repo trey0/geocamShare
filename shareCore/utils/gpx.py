@@ -9,7 +9,7 @@ from xml.dom import minidom
 
 import iso8601
 
-from share2.shareCore.utils import anyjson as json
+from geocamShare.shareCore.utils import anyjson as json
 
 class RaiseValueError:
     pass
