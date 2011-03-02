@@ -33,8 +33,8 @@ except ImportError:
     sys.path = [os.path.dirname(THIS_DIR)] + sys.path
     import geocamShare
 
-from geocamShare.shareCore import utils
-from geocamShare.shareCore.icons import rotate, svg
+from geocamCore import utils
+from geocamCore.icons import rotate, svg
 
 def dosys(cmd):
     print cmd
@@ -152,7 +152,7 @@ class AppSetupCore(object):
                     'build/s/tmp')
         dosys('chmod go+rw build/s/tmp')
         installDirs(self.builder,
-                    '%s/shareCore/media/static/*' % THIS_DIR,
+                    '%s/geocamCore/media/static/*' % THIS_DIR,
                     'build/media/')
         installDir(self.builder,
                    '%s/contrib/admin/media' % DJANGO_DIR,
@@ -167,7 +167,7 @@ class AppSetupCore(object):
 
     def renderIcons(self):
         svgIcons(self.builder,
-                 '%s/shareCore/media/svgIcons/*.svg' % THIS_DIR,
+                 '%s/geocamCore/media/svgIcons/*.svg' % THIS_DIR,
                  'build/media/share/map/')
 
     def rotateIcons(self):
@@ -222,7 +222,7 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
-# SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see shareCore/middleware.py
+# SECURITY_REDIRECT_* -- settings for SecurityRedirectMiddleware; see geocamCore/middleware.py
 if USING_DJANGO_DEV_SERVER:
     # The built-in Django dev server does not support Share's
     # authentication strategy.
@@ -281,16 +281,16 @@ class AppSetupGeoCam(AppSetupCore):
     def collectMedia(self):
         super(AppSetupGeoCam, self).collectMedia()
         installDirs(self.builder,
-                    '%s/shareGeocam/media/static/*' % THIS_DIR,
+                    '%s/geocamDisasterSkin/media/static/*' % THIS_DIR,
                     'build/media/')
         installDirs(self.builder,
-                    '%s/shareTracking/media/static/*' % THIS_DIR,
+                    '%s/geocamTrack/media/static/*' % THIS_DIR,
                     'build/media/')
 
     def renderIcons(self):
         super(AppSetupGeoCam, self).renderIcons()
         svgIcons(self.builder,
-                 '%s/shareGeocam/media/svgIcons/*.svg' % THIS_DIR,
+                 '%s/geocamDisasterSkin/media/svgIcons/*.svg' % THIS_DIR,
                  'build/media/share/map/')
 
 def main():

@@ -4,13 +4,8 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-import os
+from django.contrib import admin
 
-from geocamShare.base_settings import *
+from geocamDisasterSkin.models import *
 
-# django settings overrides for geocamDisasterSkin
-INSTALLED_APPS = INSTALLED_APPS + (
-    'geocamDisasterSkin',
-    )
-
-MAIN_APP = 'geocamDisasterSkin'
+admin.site.register(Photo)

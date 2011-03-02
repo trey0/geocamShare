@@ -85,8 +85,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "geocamShare.shareCore.context_processors.serverRoot",
-    "geocamShare.shareCore.context_processors.settings",
+    "geocamCore.context_processors.serverRoot",
+    "geocamCore.context_processors.settings",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -95,8 +95,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'geocamShare.shareCore.middleware.SecurityRedirectMiddleware',
-    'geocamShare.shareCore.middleware.LogErrorsMiddleware',
+    'geocamCore.middleware.SecurityRedirectMiddleware',
+    'geocamCore.middleware.LogErrorsMiddleware',
 )
 
 ROOT_URLCONF = 'geocamShare.urls'
@@ -108,9 +108,9 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'geocamShare.shareCore',
-    'geocamShare.shareTracking',
-    'geocamShare.shareLatitude',
+    'geocamCore',
+    'geocamTrack',
+    'geocamLatitude',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -122,7 +122,7 @@ INSTALLED_APPS = (
     'django_digest',
 )
 
-AUTH_PROFILE_MODULE = 'shareCore.UserProfile'
+AUTH_PROFILE_MODULE = 'geocamCore.UserProfile'
 
 LOGIN_URL = SCRIPT_NAME + 'accounts/login/'
 

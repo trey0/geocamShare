@@ -14,6 +14,6 @@ sourceme.sh
 *--tracking.*
 gigapan
 django.wsgi
-shareTracking/media/avatars/cache/*.png
-shareTracking/media/avatars/gravatars
-shareTracking/media/avatars/*.png
+apps/geocamTrack/media/avatars/cache/*.png
+apps/geocamTrack/media/avatars/gravatars
+apps/geocamTrack/media/avatars/*.png

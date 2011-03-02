@@ -58,19 +58,19 @@ def doit(opts):
             stem, ext = os.path.splitext(p)
             links.append(('%s/%s' % (opts.gdsDir, p), '%s--gds%s' % (stem, ext)))
 
-    # gds symlinks in shareCore
+    # gds symlinks in geocamCore
     if not opts.noGds:
         for p in matchFiles('%s/shareGds' % opts.gdsDir, EXTENSIONS):
             stem, ext = os.path.splitext(p)
-            links.append(('%s/shareGds/%s' % (opts.gdsDir, p), 'shareCore/%s--gds%s' % (stem, ext)))
+            links.append(('%s/shareGds/%s' % (opts.gdsDir, p), 'geocamCore/%s--gds%s' % (stem, ext)))
 
-    # local app symlinks in shareCore
+    # local app symlinks in geocamCore
     for shareApp in ('geocam', 'tracking'):
         suffix = 'share' + shareApp.capitalize()
         appDir = os.path.join(CHECKOUT_DIR, suffix)
         for p in matchFiles(appDir, EXTENSIONS):
             stem, ext = os.path.splitext(p)
-            links.append(('%s/%s' % (appDir, p), 'shareCore/%s--%s%s' % (stem, shareApp, ext)))
+            links.append(('%s/%s' % (appDir, p), 'geocamCore/%s--%s%s' % (stem, shareApp, ext)))
     
     for targ, src in links:
         if opts.clean:

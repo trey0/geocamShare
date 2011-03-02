@@ -4,13 +4,10 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-import os
+from django.db import models
 
-from geocamShare.base_settings import *
+from geocamCore.models import Image
+from geocamCore.managers import LeafClassManager
 
-# django settings overrides for geocamDisasterSkin
-INSTALLED_APPS = INSTALLED_APPS + (
-    'geocamDisasterSkin',
-    )
-
-MAIN_APP = 'geocamDisasterSkin'
+class Photo(Image):
+    objects = LeafClassManager(parentModel=Image)

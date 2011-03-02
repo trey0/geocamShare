@@ -4,13 +4,11 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-import os
+import django.conf
 
-from geocamShare.base_settings import *
+from geocamCore.utils import MultiSettings
+import defaultSettings
 
-# django settings overrides for geocamDisasterSkin
-INSTALLED_APPS = INSTALLED_APPS + (
-    'geocamDisasterSkin',
-    )
+from client import LatitudeClient
 
-MAIN_APP = 'geocamDisasterSkin'
+settings = MultiSettings(django.conf.settings, defaultSettings)
