@@ -17,3 +17,4 @@ django.wsgi
 apps/geocamTrack/media/avatars/cache/*.png
 apps/geocamTrack/media/avatars/gravatars
 apps/geocamTrack/media/avatars/*.png
+apps/geocamUtil

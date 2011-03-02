@@ -1,0 +1,10 @@
+# This is a pip requirements file
+# http://pip.openplans.org/requirement-format.html
+
+# If you have the geocamUtil app, these requirements will be installed
+# when you run "manage.py installreqs".  This default version just
+# installs the requirements of the apps within the site by including the
+# auto-generated appRequirements.txt file, but you can do whatever you
+# want.
+
+-r ../build/management/appRequirements.txt

@@ -5,6 +5,14 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
+import os
+import sys
+
+# try to bootstrap before hooking into django management stuff
+ret = os.spawnl(os.P_WAIT, sys.executable, sys.executable, '%s/management/bootstrap.py' % os.path.dirname(__file__), '-v')
+if ret != 0:
+    sys.exit(ret)
+
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.
