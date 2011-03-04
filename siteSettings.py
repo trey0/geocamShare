@@ -8,6 +8,13 @@ import os
 
 from geocamShare.base_settings import *
 
+USING_DJANGO_DEV_SERVER = ('runserver' in sys.argv)
+
+ADMINS = (
+    ('Trey Smith', 'info@geocamshare.org'),
+)
+MANAGERS = ADMINS
+
 # django settings overrides for geocamDisasterSkin
 INSTALLED_APPS = INSTALLED_APPS + (
     'geocamDisasterSkin',

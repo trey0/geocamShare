@@ -111,6 +111,7 @@ INSTALLED_APPS = (
     'geocamCore',
     'geocamTrack',
     'geocamLatitude',
+    'geocamUtil',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
