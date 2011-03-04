@@ -2,6 +2,7 @@
 \#*
 *.pyc
 /build
+/apps/*/build
 /data
 /importData
 /dev.db
