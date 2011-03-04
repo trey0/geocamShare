@@ -4,8 +4,8 @@
 /build
 /data
 /importData
-/sqlite3.db
-/sqlite3.db-journal
+/dev.db
+/dev.db-journal
 /settings.py
 /sourceme.sh
 *--gds.*
