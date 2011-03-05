@@ -15,7 +15,7 @@ from geocamUtil.icons import svg, rotate
 from geocamUtil.Installer import Installer
 
 class Command(NoArgsCommand):
-    help = 'Prep geocamDisasterSkin app'
+    help = 'Prep geocamDisasterStyle app'
     
     def handle_noargs(self, **options):
         up = os.path.dirname
@@ -25,14 +25,14 @@ class Command(NoArgsCommand):
 
         # render svg to png
         svgGlob = '%s/media_src/icons/*.svg' % appDir
-        svgOutput = '%s/build/media/geocamDisasterSkin/icons/map/' % appDir
+        svgOutput = '%s/build/media/geocamDisasterStyle/icons/map/' % appDir
         logging.debug('svgIcons %s %s' % (svgGlob, svgOutput))
         for imPath in glob(svgGlob):
             svg.buildIcon(builder, imPath, outputDir=svgOutput)
 
         # rotate pngs
-        rotGlob = '%s/build/media/geocamDisasterSkin/icons/map/*Point.png' % appDir
-        rotOutput = '%s/build/media/geocamDisasterSkin/icons/mapr' % appDir
+        rotGlob = '%s/build/media/geocamDisasterStyle/icons/map/*Point.png' % appDir
+        rotOutput = '%s/build/media/geocamDisasterStyle/icons/mapr' % appDir
         logging.debug('rotateIcons %s %s' % (rotGlob, rotOutput))
         for imPath in glob(rotGlob):
             rotate.buildAllDirections(builder, imPath, outputDir=rotOutput)

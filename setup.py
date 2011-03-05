@@ -281,7 +281,7 @@ class AppSetupGeoCam(AppSetupCore):
     def collectMedia(self):
         super(AppSetupGeoCam, self).collectMedia()
         installDirs(self.builder,
-                    '%s/geocamDisasterSkin/media/static/*' % THIS_DIR,
+                    '%s/geocamDisasterStyle/media/static/*' % THIS_DIR,
                     'build/media/')
         installDirs(self.builder,
                     '%s/geocamTrack/media/static/*' % THIS_DIR,
@@ -290,7 +290,7 @@ class AppSetupGeoCam(AppSetupCore):
     def renderIcons(self):
         super(AppSetupGeoCam, self).renderIcons()
         svgIcons(self.builder,
-                 '%s/geocamDisasterSkin/media/svgIcons/*.svg' % THIS_DIR,
+                 '%s/geocamDisasterStyle/media/svgIcons/*.svg' % THIS_DIR,
                  'build/media/share/map/')
 
 def main():

@@ -15,9 +15,9 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
-# django settings overrides for geocamDisasterSkin
+# django settings overrides for geocamDisasterStyle
 INSTALLED_APPS = INSTALLED_APPS + (
-    'geocamDisasterSkin',
+    'geocamDisasterStyle',
     )
 
-MAIN_APP = 'geocamDisasterSkin'
+MAIN_APP = 'geocamDisasterStyle'

@@ -6,6 +6,6 @@
 
 from django.contrib import admin
 
-from geocamDisasterSkin.models import *
+from geocamDisasterStyle.models import *
 
 admin.site.register(Photo)

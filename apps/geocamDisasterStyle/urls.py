@@ -7,7 +7,7 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
-from geocamDisasterSkin.views import viewSingleton as views
+from geocamDisasterStyle.views import viewSingleton as views
 
 urlpatterns = patterns(
     '',

@@ -5,8 +5,8 @@
 # __END_LICENSE__
 
 from geocamCore.views import ViewCore
-from geocamDisasterSkin.models import Photo
-from geocamDisasterSkin.search import SearchGeocam
+from geocamDisasterStyle.models import Photo
+from geocamDisasterStyle.search import SearchGeocam
 
 class ViewGeocam(ViewCore):
     search = SearchGeocam()

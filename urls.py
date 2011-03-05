@@ -8,7 +8,7 @@ from django.conf.urls.defaults import *
 
 from geocamShare.base_urls import urlpatterns as basePatterns
 from geocamCore.urls import urlpatterns as corePatterns
-from geocamDisasterSkin.urls import urlpatterns as geocamPatterns
+from geocamDisasterStyle.urls import urlpatterns as geocamPatterns
 
 urlpatterns = (basePatterns
                + corePatterns
