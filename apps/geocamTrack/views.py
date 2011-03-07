@@ -14,7 +14,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
 
-from geocamUtils import anyjson as json
+from geocamUtil import anyjson as json
 from geocamTrack.models import Resource, ResourcePosition, PastResourcePosition
 from geocamTrack.avatar import renderAvatar
 from geocamTrack import settings

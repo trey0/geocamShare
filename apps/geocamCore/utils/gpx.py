@@ -9,7 +9,7 @@ from xml.dom import minidom
 
 import iso8601
 
-from geocamCore.utils import anyjson as json
+from geocamUtil import anyjson as json
 
 class RaiseValueError:
     pass

@@ -17,7 +17,7 @@ import getpass
 import pyproj
 import urllib2
 
-from geocamUtils import anyjson as json
+from geocamUtil import anyjson as json
 from geocamTrack import settings
 
 geodG = pyproj.Geod(ellps='WGS84')

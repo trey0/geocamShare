@@ -23,11 +23,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.contrib.contenttypes import generic
 import tagging
+from geocamUtil import anyjson as json
+from geocamUtil.models.ExtrasField import ExtrasField
 
-from geocamCore.utils import anyjson as json
 from geocamCore.utils import mkdirP, makeUuid, Xmp
 from geocamCore.utils.gpx import TrackLog
-from geocamCore.ExtrasField import ExtrasField
 from geocamCore.icons import getIconSize
 from geocamCore.TimeUtils import parseUploadTime
 from geocamCore.managers import AbstractClassManager, LeafClassManager

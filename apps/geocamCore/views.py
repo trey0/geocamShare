@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from geocamCore.utils import anyjson as json
+from geocamUtil import anyjson as json
 from geocamCore.utils import makeUuid, mkdirP
 from geocamCore.Pager import Pager
 from geocamCore.models import Image, Track, EmptyTrackError

@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
-from geocamCore.utils import anyjson as json
+from geocamUtil import anyjson as json
 from geocamTrack.latitude.models import LatitudeProfile
 from geocamTrack.latitude import LatitudeClient
 from geocamTrack.latitude import settings

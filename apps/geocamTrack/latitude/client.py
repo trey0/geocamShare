@@ -9,7 +9,7 @@ import oauth2 as oauth
 import urllib
 import httplib2
  
-from geocamCore.utils import anyjson as json
+from geocamUtil import anyjson as json
 
 RESOURCE_URL_PREFIX = "https://www.googleapis.com/latitude/v1/"
 
