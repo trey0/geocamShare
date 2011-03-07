@@ -104,3 +104,7 @@ class ResourcePosition(AbstractResourcePosition):
 
 class PastResourcePosition(AbstractResourcePosition):
     pass
+
+if settings.GEOCAM_TRACK_LATITUDE_ENABLED:
+    # add latitude-related models
+    from geocamTrack.latitude.models import *

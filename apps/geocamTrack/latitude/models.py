@@ -12,3 +12,6 @@ class LatitudeProfile(models.Model):
     oauthToken = models.CharField(max_length=200, blank=True)
     oauthSecret = models.CharField(max_length=200, blank=True)
     mtime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = 'geocamtrack'

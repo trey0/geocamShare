@@ -4,6 +4,4 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-
-# This is a place to put default values for app-specific variables that
-# site admins can override in the django global settings file.
+GEOCAM_TRACK_LATITUDE_ENABLED = True

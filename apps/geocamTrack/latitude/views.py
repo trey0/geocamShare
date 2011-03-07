@@ -18,9 +18,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 from geocamCore.utils import anyjson as json
-from geocamLatitude.models import LatitudeProfile
-from geocamLatitude import LatitudeClient
-from geocamLatitude import settings
+from geocamTrack.latitude.models import LatitudeProfile
+from geocamTrack.latitude import LatitudeClient
+from geocamTrack.latitude import settings
 
 def getIndex(request):
     return render_to_response('latitudeIndex.html',
@@ -42,7 +42,7 @@ def signup(request):
     profile, created = LatitudeProfile.objects.get_or_create(user=request.user)
     next = request.GET.get('next', '%slatitude/' % settings.SCRIPT_NAME)
     request.session['next'] = next
-    return render_to_response('signup.html',
+    return render_to_response('latitudeSignup.html',
                               dict(profile=profile),
                               context_instance=RequestContext(request))
 
@@ -95,7 +95,7 @@ def signupCallback(request):
     profile.oauthSecret = accessToken['oauth_token_secret']
     profile.save()
 
-    return render_to_response('signupComplete.html',
+    return render_to_response('latitudeSignupComplete.html',
                               dict(next=request.session['next']),
                               context_instance=RequestContext(request))
 

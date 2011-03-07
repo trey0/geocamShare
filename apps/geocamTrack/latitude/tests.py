@@ -12,7 +12,6 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from django.conf import settings
 
 class SimpleTest(TestCase):
     def test_basic_addition(self):
@@ -27,7 +26,3 @@ Another way to test that 1 + 1 is equal to 2.
 >>> 1 + 1 == 2
 True
 """}
-
-if settings.GEOCAM_TRACK_LATITUDE_ENABLED:
-    # add latitude-related tests
-    from geocamTrack.latitude.tests import *

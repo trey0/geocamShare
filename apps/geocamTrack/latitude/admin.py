@@ -6,6 +6,6 @@
 
 from django.contrib import admin
 
-from geocamLatitude.models import *
+from geocamTrack.latitude.models import *
 
 admin.site.register(LatitudeProfile)
