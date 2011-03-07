@@ -9,15 +9,15 @@ import sys
 from StringIO import StringIO
 
 from django.http import HttpResponse, HttpResponseNotAllowed
-from django.conf import settings
 import iso8601
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.models import User
 
-from geocamCore.utils import anyjson as json
+from geocamUtils import anyjson as json
 from geocamTrack.models import Resource, ResourcePosition, PastResourcePosition
 from geocamTrack.avatar import renderAvatar
+from geocamTrack import settings
 
 class ExampleError(Exception):
     pass

@@ -15,8 +15,9 @@ import re
 from StringIO import StringIO
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-from django.conf import settings
 from django.contrib.auth.models import User
+
+from geocamTrack import settings
 
 AVATAR_DIR = '%s/geocamTrack/media/avatars' % settings.CHECKOUT_DIR
 GRAVATAR_DIR = '%s/gravatars' % AVATAR_DIR

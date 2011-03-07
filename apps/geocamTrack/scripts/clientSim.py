@@ -14,11 +14,11 @@ import sys
 import base64
 import getpass
 
-from django.conf import settings
 import pyproj
 import urllib2
 
-from geocamCore.utils import anyjson as json
+from geocamUtils import anyjson as json
+from geocamTrack import settings
 
 geodG = pyproj.Geod(ellps='WGS84')
 rndG = random.Random()

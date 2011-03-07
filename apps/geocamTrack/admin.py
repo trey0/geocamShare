@@ -5,9 +5,9 @@
 # __END_LICENSE__
 
 from django.contrib import admin
-from django.conf import settings
 
 from geocamTrack.models import *
+from geocamTrack import settings
 
 admin.site.register(Resource)
 admin.site.register(ResourcePosition)

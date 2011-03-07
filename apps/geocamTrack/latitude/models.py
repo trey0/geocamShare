@@ -14,4 +14,4 @@ class LatitudeProfile(models.Model):
     mtime = models.DateTimeField(auto_now=True)
 
     class Meta:
-        app_label = 'geocamtrack'
+        app_label = 'geocamTrack'
