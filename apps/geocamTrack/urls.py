@@ -7,7 +7,7 @@
 from django.conf.urls.defaults import *
 
 from geocamTrack import settings
-import geocamTrack import views
+from geocamTrack import views
 
 urlpatterns = patterns(
     '',

@@ -4,8 +4,8 @@
   {{ block.super }}
 
   {% ifequal settings.MAP_BACKEND "earth" %}
-    <script src="{{ MEDIA_URL }}external/geo-pack.js" type="text/javascript"></script>
-    <script src="{{ MEDIA_URL }}external/extensions-pack.js" type="text/javascript"></script>
+    <script src="{{ MEDIA_URL }}external/js/geo-pack.js" type="text/javascript"></script>
+    <script src="{{ MEDIA_URL }}external/js/extensions-pack.js" type="text/javascript"></script>
     <script src="http://google.com/jsapi?key={{ settings.MAPS_API_KEY }}" type="text/javascript"></script>
   {% endifequal %}
   {% ifequal settings.MAP_BACKEND "maps" %}
@@ -15,26 +15,26 @@
     {% endif %}
   {% endifequal %}
 
-  <script src="{{ MEDIA_URL }}external/jquery.form.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}external/js/jquery.form.js" type="text/javascript"></script>
 
-  <script src="{{ MEDIA_URL }}external/timeUtils.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/Widget.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/WidgetManager.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/MapViewer.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/StubMapViewer.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/MapsApiMapViewer.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/EarthApiMapViewer.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/GalleryWidget.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/SidebarSwitcher.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/FeatureDetailWidget.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/FeatureEditWidget.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/ajaxForm.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/Feature.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/PointFeature.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/ExtentFeature.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/Track.js" type="text/javascript"></script>
-  <script src="{{ MEDIA_URL }}share/core/Image.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}external/js/timeUtils.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/geocamCore.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/Widget.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/WidgetManager.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/MapViewer.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/StubMapViewer.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/MapsApiMapViewer.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/EarthApiMapViewer.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/GalleryWidget.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/SidebarSwitcher.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/FeatureDetailWidget.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/FeatureEditWidget.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/ajaxForm.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/Feature.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/PointFeature.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/ExtentFeature.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/Track.js" type="text/javascript"></script>
+  <script src="{{ MEDIA_URL }}geocamCore/js/Image.js" type="text/javascript"></script>
   {% block extraScripts %}
   {% endblock %}
 

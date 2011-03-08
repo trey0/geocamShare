@@ -27,7 +27,7 @@ if settings.USE_STATIC_SERVE:
               show_indexes=True,
               readOnly=True)),
         (r'^favicon.ico$', 'django.views.generic.simple.redirect_to',
-         {'url': settings.MEDIA_URL + 'share/camera.ico',
+         {'url': settings.MEDIA_URL + 'geocamCore/icons/camera.ico',
           'readOnly': True}
          ),
         )

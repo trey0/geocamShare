@@ -16,6 +16,5 @@ urlpatterns = (basePatterns
                + patterns(
     '',
 
-    (r'^tracking/', include('geocamTrack.urls')),
-    (r'^latitude/', include('geocamLatitude.urls')),
+    (r'^geocamTrack/', include('geocamTrack.urls')),
 ))

@@ -1,6 +1,9 @@
 *~
 \#*
 *.pyc
+*--gds.*
+*--geocam.*
+*--tracking.*
 /build
 /apps/*/build
 /data
@@ -9,11 +12,8 @@
 /dev.db-journal
 /settings.py
 /sourceme.sh
-*--gds.*
-*--geocam.*
-*--tracking.*
 /gigapan
-apps/geocamTrack/media/avatars/cache/*.png
-apps/geocamTrack/media/avatars/gravatars
-apps/geocamTrack/media/avatars/*.png
-apps/geocamUtil
+/apps/geocamTrack/media_src/avatars/cache/*.png
+/apps/geocamTrack/media_src/avatars/gravatars
+/apps/geocamTrack/media_src/avatars/*.png
+/apps/geocamUtil
