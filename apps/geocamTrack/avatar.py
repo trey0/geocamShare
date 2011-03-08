@@ -19,10 +19,12 @@ from django.contrib.auth.models import User
 
 from geocamTrack import settings
 
-AVATAR_DIR = '%s/geocamTrack/media/avatars' % settings.CHECKOUT_DIR
+trackAppDir = os.path.dirname(__file__)
+
+AVATAR_DIR = '%savatars' % settings.MEDIA_ROOT
 GRAVATAR_DIR = '%s/gravatars' % AVATAR_DIR
 CACHE_DIR = '%s/cache' % AVATAR_DIR
-PLACARD_FRESH = '%s/geocamTrack/media/mapIcons/placard.png' % settings.CHECKOUT_DIR
+PLACARD_FRESH = '%s/media_src/mapIcons/placard.png' % trackAppDir
 
 # time to wait to refresh avatar image
 AVATAR_CACHE_SECONDS = 24*60*60
@@ -179,6 +181,9 @@ def renderAvatar(request, userName):
         placard = placard.resize(new_size)
     
     # Save image in cache
+    dir = os.path.dirname(cachedName)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     placard.save(cachedName, "PNG")
 
     # Send image to browser

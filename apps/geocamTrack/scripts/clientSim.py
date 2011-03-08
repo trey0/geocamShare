@@ -149,7 +149,7 @@ class ResourceClient(object):
         if self.authPassword:
             auth = base64.encodestring('%s:%s' % (self.authUser, self.authPassword))[:-1]
             headers['Authorization'] = 'Basic %s' % auth
-        req = urllib2.Request(url=self.url + 'tracking/post/',
+        req = urllib2.Request(url=self.url + 'geocamTrack/post/',
                               headers=headers,
                               data=data)
         resp = opener.open(req)

@@ -99,13 +99,13 @@
 </style>
 
 <script type="text/javascript"
-    src="{{ settings.MEDIA_URL }}external/jquery-1.4.4.min.js">
+    src="{{ settings.MEDIA_URL }}external/js/jquery-1.4.4.min.js">
 </script>
 <script type="text/javascript"
-    src="{{ settings.MEDIA_URL }}external/timeUtils.js">
+    src="{{ settings.MEDIA_URL }}external/js/timeUtils.js">
 </script>
 <script type="text/javascript"
-    src="{{ settings.MEDIA_URL }}external/infobubble-compiled.js">
+    src="{{ settings.MEDIA_URL }}external/js/infobubble-compiled.js">
 </script>
 
 <script type="text/javascript">
@@ -228,7 +228,7 @@
   }
 
   function updateResourcePositions() {
-    $.getJSON("{{ settings.SCRIPT_NAME }}tracking/resources.json",
+    $.getJSON("{{ settings.SCRIPT_NAME }}geocamTrack/resources.json",
               handleResourcePositionsResponse);
   }
 
@@ -348,7 +348,7 @@
                                      position.coords.longitude);
  
     if (locationMarker == null) {
-      var icon_url = "{{ settings.MEDIA_URL }}external/dot.png";
+      var icon_url = "{{ settings.MEDIA_URL }}external/images/dot.png";
       var icon = new google.maps.MarkerImage(icon_url,
         new google.maps.Size(19, 19),
         new google.maps.Point(0, 0),
@@ -459,7 +459,7 @@
   <div style="display: none">
     <div id="infobubble-content">
       <div id="infobubble-close" class="map-infoclose">
-        <img src="{{ settings.MEDIA_URL }}external/close_button.gif">
+        <img src="{{ settings.MEDIA_URL }}external/images/close_button.gif">
       </div>
       <div id="infobubble-text" class="map-infotext">
 	<div id="infobubble-user" class="map-infouser">Username</div>

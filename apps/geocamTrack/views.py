@@ -56,7 +56,7 @@ def getKmlResponse(text):
                         mimetype='application/vnd.google-earth.kml+xml')
 
 def getKmlNetworkLink(request):
-    url = request.build_absolute_uri(settings.SCRIPT_NAME + 'tracking/latest.kml')
+    url = request.build_absolute_uri(settings.SCRIPT_NAME + 'geocamTrack/latest.kml')
     return getKmlResponse('''
 <NetworkLink>
   <name>GeoCam Track</name>
