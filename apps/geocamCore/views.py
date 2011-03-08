@@ -25,17 +25,18 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from geocamUtil import anyjson as json
+from geocamUtil.icons import cacheIcons
+
 from geocamCore.utils import makeUuid, mkdirP
 from geocamCore.Pager import Pager
 from geocamCore.models import Image, Track, EmptyTrackError
 from geocamCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
-from geocamCore.icons import cacheIconSize
 from geocamCore.kml.ViewKml import ViewKml
 from geocamCore.middleware.SecurityRedirectMiddleware import requestIsSecure
 from geocamCore import search
 
-cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'map'))
-cacheIconSize(os.path.join(settings.MEDIA_ROOT, 'share', 'mapr'))
+cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamCore', 'icons', 'map'))
+cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamCore', 'icons', 'mapr'))
 
 class ViewCore(ViewKml):
     # override in derived classes

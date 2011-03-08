@@ -380,7 +380,7 @@ geocamShare.core = {
     },
 
     getLoadingIcon: function () {
-        return '<img src="' + geocamShare.core.settings.MEDIA_URL + 'icons/loading.gif"'
+        return '<img src="' + geocamShare.core.settings.MEDIA_URL + 'geocamCore/icons/loading.gif"'
 	    +'   width="24" height="24" class="loadingIcon" title="loading icon"/>'
     },
 

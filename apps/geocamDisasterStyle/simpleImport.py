@@ -22,13 +22,14 @@ import PIL
 import pytz
 import tagging
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from geocamCore.models import Feature, Folder
-from geocamDisasterStyle.models import Photo
 from geocamCore.utils import mkdirP, UploadClient
 from geocamCore import TimeUtils
+
+from geocamDisasterStyle.models import Photo
+from geocamDisasterStyle import settings
 
 def checkMissing(val):
     if val == -999:

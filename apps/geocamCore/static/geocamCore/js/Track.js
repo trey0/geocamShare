@@ -9,7 +9,7 @@ geocamShare.core.Track = new Class(
     Extends: geocamShare.core.ExtentFeature,
 
     getThumbnailUrl: function (width) {
-        return geocamShare.core.settings.MEDIA_URL + "share/gpsTrack.png";
+        return geocamShare.core.settings.MEDIA_URL + "geocamTrack/gpsTrack.png";
     },
 
     getSizePixels: function () {

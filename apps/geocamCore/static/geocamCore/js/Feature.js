@@ -117,15 +117,15 @@ geocamShare.core.Feature = new Class(
     },
     
     getIconGalleryUrl: function () {
-        return geocamShare.core.settings.MEDIA_URL + 'share/map/' + this.icon.name + '.png';
+        return this.icon.url;
     },
     
     getIconMapUrl: function () {
-        return geocamShare.core.settings.MEDIA_URL + 'share/map/' + this.icon.name + 'Point.png';
+        return this.pointIcon.url;
     },
     
     getIconMapRotUrl: function () {
-        return geocamShare.core.settings.MEDIA_URL + 'share/mapr/' + this.rotatedIcon.name + '.png';
+        return this.rotatedIcon.url;
     },
 
     getCaptionNotes: function () {

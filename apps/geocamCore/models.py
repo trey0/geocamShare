@@ -23,12 +23,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.contrib.contenttypes import generic
 import tagging
+
 from geocamUtil import anyjson as json
 from geocamUtil.models.ExtrasField import ExtrasField
+from geocamUtil.icons import getIconSize, getIconUrl
 
 from geocamCore.utils import mkdirP, makeUuid, Xmp
 from geocamCore.utils.gpx import TrackLog
-from geocamCore.icons import getIconSize
 from geocamCore.TimeUtils import parseUploadTime
 from geocamCore.managers import AbstractClassManager, LeafClassManager
 
@@ -290,10 +291,9 @@ class Feature(models.Model):
     def getDir(self, version=None):
         return os.path.join(settings.DATA_DIR, *self.getDirSuffix(version))
 
-    def getIconDict(self):
-        name = self.icon
-        return dict(name=name,
-                    size=getIconSize(name))
+    def getIconDict(self, kind=''):
+        return dict(url=getIconUrl(self.icon + kind),
+                    size=getIconSize(self.icon + kind))
 
     def getUserDisplayName(self, user):
         if user.last_name == 'group':
@@ -395,7 +395,7 @@ class PointFeature(Feature):
             headingStr = ''
         else:
             headingStr = '<heading>%s</heading>' % self.yaw
-        relIconUrl = '%sshare/map/%sPoint.png' % (settings.MEDIA_URL, self.icon)
+        relIconURl = getIconUrl(self.icon + 'Point')
         iconUrl = request.build_absolute_uri(relIconUrl)
         return ("""
 <Placemark>
@@ -526,7 +526,7 @@ class Image(PointFeature):
             rotRounded = 0
         name = self.icon
         rotName = '%s%03d' % (name, rotRounded)
-        return dict(name=rotName,
+        return dict(url=getIconUrl(rotName),
                     size=getIconSize(rotName))
 
     def process(self, importFile=None):
@@ -722,6 +722,7 @@ class Image(PointFeature):
     def getProperties(self):
         result = super(Image, self).getProperties()
         result.update(sizePixels=[self.widthPixels, self.heightPixels],
+                      pointIcon=self.getIconDict('Point'),
                       rotatedIcon=self.getRotatedIconDict(),
                       roll=self.roll,
                       pitch=self.pitch,

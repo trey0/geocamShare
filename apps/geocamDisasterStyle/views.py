@@ -4,9 +4,17 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
+import os
+
 from geocamCore.views import ViewCore
+from geocamUtil.icons import cacheIcons
+
 from geocamDisasterStyle.models import Photo
 from geocamDisasterStyle.search import SearchGeocam
+from geocamDisasterStyle import settings
+
+cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamDisasterStyle', 'icons', 'map'))
+cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamDisasterStyle', 'icons', 'mapr'))
 
 class ViewGeocam(ViewCore):
     search = SearchGeocam()
