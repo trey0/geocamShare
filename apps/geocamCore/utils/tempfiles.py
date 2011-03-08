@@ -35,11 +35,17 @@ def deleteStaleFiles():
                 traceback.print_exc()
                 print >>sys.stderr, '[tempfiles.deleteStaleFiles: could not unlink %s]' % f
 
-def initZipDir(prefix):
+def makeTempDir(prefix):
+    dir = getTempName(prefix)
+    if not os.path.exists(settings.TMP_DIR):
+        utils.mkdirP(settings.TMP_DIR)
+        os.system('chmod go+rw %s' % settings.TMP_DIR)
     deleteStaleFiles()
-    zipDir = getTempName(prefix)
-    utils.mkdirP(zipDir)
-    return zipDir
+    utils.mkdirP(dir)
+    return dir
+
+def initZipDir(prefix):
+    return makeTempDir(prefix)
 
 def finishZipDir(zipDir):
     zipFile = '%s.zip' % zipDir
