@@ -4,9 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.StubMapViewer = new Class(
+geocamCore.StubMapViewer = new Class(
 {
-    Extends: geocamShare.core.MapViewer,
+    Extends: geocamCore.MapViewer,
 
     domId: null,
 
@@ -25,6 +25,6 @@ geocamShare.core.StubMapViewer = new Class(
 
 });
 
-geocamShare.core.StubMapViewer.factory = function (domId) {
-    return new geocamShare.core.StubMapViewer(domId);
+geocamCore.StubMapViewer.factory = function (domId) {
+    return new geocamCore.StubMapViewer(domId);
 }

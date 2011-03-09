@@ -4,7 +4,7 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.tracking = {
+var geocamTrack = {
     markersById: {},
     markerCount: 0,
 
@@ -14,10 +14,10 @@ geocamShare.tracking = {
                    function (i, feature) {
                        var pos = new google.maps.LatLng(feature.geometry.coordinates[1],
                                                         feature.geometry.coordinates[0]);
-                       var marker = geocamShare.tracking.markersById[feature.id];
+                       var marker = geocamTrack.markersById[feature.id];
                        if (marker == null) {
-                           if (geocamShare.tracking.markerCount < 26) {
-                               var letter = String.fromCharCode(65 + geocamShare.tracking.markerCount);
+                           if (geocamTrack.markerCount < 26) {
+                               var letter = String.fromCharCode(65 + geocamTrack.markerCount);
                                var icon = 'http://maps.google.com/mapfiles/marker' + letter + '.png';
                            } else {
                                var icon = 'http://maps.google.com/mapfiles/marker.png';
@@ -33,9 +33,9 @@ geocamShare.tracking = {
                                    title: title,
                                    icon: icon
                                });
-                           marker.setMap(geocamShare.core.mapG.gmap);
-                           geocamShare.tracking.markersById[feature.id] = marker;
-                           geocamShare.tracking.markerCount++;
+                           marker.setMap(geocamCore.mapG.gmap);
+                           geocamTrack.markersById[feature.id] = marker;
+                           geocamTrack.markerCount++;
                        }
                        if (!pos.equals(marker.position)) {
                            marker.setPosition(pos);
@@ -45,16 +45,16 @@ geocamShare.tracking = {
     },
 
     updateResourcePositions: function () {
-        $.getJSON(geocamShare.core.settings.SCRIPT_NAME + "tracking/resources.json",
-                  geocamShare.tracking.handleResourcePositionsResponse);
+        $.getJSON(geocamCore.settings.SCRIPT_NAME + "tracking/resources.json",
+                  geocamTrack.handleResourcePositionsResponse);
     },
 
     updateResourcePositionsLoop: function () {
-        geocamShare.tracking.updateResourcePositions();
-        setTimeout(geocamShare.tracking.updateResourcePositionsLoop, 5000);
+        geocamTrack.updateResourcePositions();
+        setTimeout(geocamTrack.updateResourcePositionsLoop, 5000);
     },
 
     startTracking: function () {
-        geocamShare.tracking.updateResourcePositionsLoop();
+        geocamTrack.updateResourcePositionsLoop();
     }
 };

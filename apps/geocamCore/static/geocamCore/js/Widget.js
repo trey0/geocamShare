@@ -4,7 +4,7 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.Widget = new Class(
+geocamCore.Widget = new Class(
 {
     // functions to implement in derived classes
     

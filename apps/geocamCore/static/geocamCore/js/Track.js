@@ -4,12 +4,12 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.Track = new Class(
+geocamCore.Track = new Class(
 {
-    Extends: geocamShare.core.ExtentFeature,
+    Extends: geocamCore.ExtentFeature,
 
     getThumbnailUrl: function (width) {
-        return geocamShare.core.settings.MEDIA_URL + "geocamTrack/gpsTrack.png";
+        return geocamCore.settings.MEDIA_URL + "geocamTrack/gpsTrack.png";
     },
 
     getSizePixels: function () {
@@ -31,7 +31,7 @@ geocamShare.core.Track = new Class(
     },
     
     getKml: function () {
-        var iconUrl = geocamShare.core.getHostUrl() + this.getIconMapUrl();
+        var iconUrl = geocamCore.getHostUrl() + this.getIconMapUrl();
         result = ''
 	    + '<Placemark id="' + this.uuid + '">\n'
 	    + '  <Style>\n'

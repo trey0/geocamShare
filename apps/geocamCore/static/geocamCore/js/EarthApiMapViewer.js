@@ -4,9 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.EarthApiMapViewer = new Class(
+geocamCore.EarthApiMapViewer = new Class(
 {
-    Extends: geocamShare.core.MapViewer,
+    Extends: geocamCore.MapViewer,
     
     /**********************************************************************
      * variables
@@ -56,7 +56,7 @@ geocamShare.core.EarthApiMapViewer = new Class(
             
             $.each(diff.featuresToAdd,
                    function (i, feature) {
-                       var kml = geocamShare.core.wrapKml(geocamShare.core.getFeatureKml(feature));
+                       var kml = geocamCore.wrapKml(geocamCore.getFeatureKml(feature));
                        var geFeature = self.ge.parseKml(kml);
                        self.allFeaturesFolder.getFeatures().appendChild(geFeature);
                        feature.mapObject = geFeature;
@@ -67,7 +67,7 @@ geocamShare.core.EarthApiMapViewer = new Class(
         
         if (diff.featuresToDelete.length > 0 || diff.featuresToAdd.length > 0) {
             //self.zoomToFit();
-            geocamShare.core.setGalleryToVisibleSubsetOf(geocamShare.core.featuresG);
+            geocamCore.setGalleryToVisibleSubsetOf(geocamCore.featuresG);
         }
     },
     
@@ -123,13 +123,13 @@ geocamShare.core.EarthApiMapViewer = new Class(
         
         this.gex = new GEarthExtensions(this.ge);
         
-        geocamShare.core.bindEvent(geocamShare.core, this, "highlightFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "unhighlightFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
+        geocamCore.bindEvent(geocamCore, this, "highlightFeature");
+        geocamCore.bindEvent(geocamCore, this, "unhighlightFeature");
+        geocamCore.bindEvent(geocamCore, this, "selectFeature");
+        geocamCore.bindEvent(geocamCore, this, "updateFeatures");
 
         this.isReady = true;
-        geocamShare.core.setViewIfReady();
+        geocamCore.setViewIfReady();
     },
     
     featureIntersectsBounds: function (feature, bounds) {
@@ -158,26 +158,26 @@ geocamShare.core.EarthApiMapViewer = new Class(
                    google.earth.addEventListener(placemark, 'mouseover',
                                                  function (uuid) {
                                                      return function(event) {
-                                                         geocamShare.core.setHighlightedFeature(uuid);
+                                                         geocamCore.setHighlightedFeature(uuid);
                                                      }
                                                  }(feature.uuid));
                    google.earth.addEventListener(placemark, 'mouseout',
                                                  function (uuid) {
                                                      return function(event) {
-                                                         geocamShare.core.clearHighlightedFeature();
+                                                         geocamCore.clearHighlightedFeature();
                                                      }
                                                  }(feature.uuid));
                    google.earth.addEventListener(placemark, 'click',
                                                  function (uuid) {
                                                      return function(event) {
                                                          event.preventDefault();
-                                                         geocamShare.core.setSelectedFeature(uuid);
+                                                         geocamCore.setSelectedFeature(uuid);
                                                      }
                                                  }(feature.uuid));
                });
         
         if (!this.listenersInitialized) {
-            google.earth.addEventListener(this.ge.getView(), 'viewchangeend', geocamShare.core.handleMapViewChange);
+            google.earth.addEventListener(this.ge.getView(), 'viewchangeend', geocamCore.handleMapViewChange);
         }
         this.listenersInitialized = true;
     },
@@ -188,6 +188,6 @@ geocamShare.core.EarthApiMapViewer = new Class(
     
 });
 
-geocamShare.core.EarthApiMapViewer.factory = function (domId) {
-    return new geocamShare.core.EarthApiMapViewer(domId);
+geocamCore.EarthApiMapViewer.factory = function (domId) {
+    return new geocamCore.EarthApiMapViewer(domId);
 }

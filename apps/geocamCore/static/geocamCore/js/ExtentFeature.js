@@ -4,9 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.ExtentFeature = new Class(
+geocamCore.ExtentFeature = new Class(
 {
-    Extends: geocamShare.core.Feature,
+    Extends: geocamCore.Feature,
 
     getMaxTime: function () {
         return this.maxTime;

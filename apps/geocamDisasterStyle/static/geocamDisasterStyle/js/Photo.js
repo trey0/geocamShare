@@ -4,9 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.geocam.Photo = new Class(
+geocamDisasterStyle.Photo = new Class(
 {
-    Extends: geocamShare.core.Image,
+    Extends: geocamCore.Image,
 
     getCaptionUsng: function () {
         var usng = ''

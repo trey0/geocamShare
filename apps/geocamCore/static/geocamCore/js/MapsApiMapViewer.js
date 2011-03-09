@@ -4,9 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.MapsApiMapViewer = new Class(
+geocamCore.MapsApiMapViewer = new Class(
 {
-    Extends: geocamShare.core.MapViewer,
+    Extends: geocamCore.MapViewer,
 
     /**********************************************************************
      * variables
@@ -34,31 +34,31 @@ geocamShare.core.MapsApiMapViewer = new Class(
             mapTypeId: google.maps.MapTypeId.HYBRID
         };
         this.gmap = new google.maps.Map(document.getElementById(domId), myOptions);
-        if (geocamShare.core.viewportG != "") {
-            this.setViewport(geocamShare.core.viewportG);
+        if (geocamCore.viewportG != "") {
+            this.setViewport(geocamCore.viewportG);
             this.boundsAreSet = true;
         }
 
-        if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
+        if (geocamCore.settings.USE_MARKER_CLUSTERING) {
             this.markerClusterer = new MarkerClusterer(this.gmap, [],
                                                        {gridSize: 25});
         }
 
-        geocamShare.core.bindEvent(geocamShare.core, this, "highlightFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "unhighlightFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
+        geocamCore.bindEvent(geocamCore, this, "highlightFeature");
+        geocamCore.bindEvent(geocamCore, this, "unhighlightFeature");
+        geocamCore.bindEvent(geocamCore, this, "selectFeature");
+        geocamCore.bindEvent(geocamCore, this, "updateFeatures");
 
         this.isReady = true;
         
-        geocamShare.core.setViewIfReady();
+        geocamCore.setViewIfReady();
     },
 
     updateFeatures: function (newFeatures, diff) {
         this.setListeners();
 
         if (diff.featuresToDelete.length > 0 || diff.featuresToAdd.length > 0) {
-            if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
+            if (geocamCore.settings.USE_MARKER_CLUSTERING) {
                 // the MarkerClusterer removeMarker() operation is very slow,
                 // so we're better off clearing the markers and then adding them
                 // all back
@@ -89,10 +89,10 @@ geocamShare.core.MapsApiMapViewer = new Class(
             if (!this.boundsAreSet) {
                 this.zoomToFit();
             }
-            // used to call geocamShare.core.setGalleryToVisibleSubsetOf(geocamShare.core.featuresG)
-            // here, but geocamShare.core.handleMapViewChange() gives the map backend
+            // used to call geocamCore.setGalleryToVisibleSubsetOf(geocamCore.featuresG)
+            // here, but geocamCore.handleMapViewChange() gives the map backend
             // some time to adjust after the zoomToFit() call
-            geocamShare.core.handleMapViewChange();
+            geocamCore.handleMapViewChange();
         }
     },
     
@@ -196,21 +196,21 @@ geocamShare.core.MapsApiMapViewer = new Class(
                  (marker, 'mouseover',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.setHighlightedFeature(uuid);
+                          geocamCore.setHighlightedFeature(uuid);
                       }
                   }(feature.uuid));
                  google.maps.event.addListener
                  (marker, 'mouseout',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.clearHighlightedFeature();
+                          geocamCore.clearHighlightedFeature();
                       }
                   }(feature.uuid));
                  google.maps.event.addListener
                  (marker, 'click',
                   function (uuid) {
                       return function () {
-                          geocamShare.core.setSelectedFeature(uuid);
+                          geocamCore.setSelectedFeature(uuid);
                       }
                   }(feature.uuid));
              });
@@ -283,7 +283,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     addToMap: function (marker) {
-        if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
+        if (geocamCore.settings.USE_MARKER_CLUSTERING) {
             this.markerClusterer.addMarker(marker);
         } else {
             marker.setMap(this.gmap);
@@ -291,7 +291,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     },
     
     removeFromMap: function (marker) {
-        if (geocamShare.core.settings.USE_MARKER_CLUSTERING) {
+        if (geocamCore.settings.USE_MARKER_CLUSTERING) {
             this.markerClusterer.removeMarker(marker);
         } else {
             marker.setMap(null);
@@ -300,7 +300,7 @@ geocamShare.core.MapsApiMapViewer = new Class(
     
     getMarkerBounds: function () {
         var bounds = new google.maps.LatLngBounds();
-        $.each(geocamShare.core.featuresG,
+        $.each(geocamCore.featuresG,
                function (i, feature) {
                    if (feature.latitude != null) {
                        bounds.extend(new google.maps.LatLng(feature.latitude, feature.longitude));
@@ -329,13 +329,13 @@ geocamShare.core.MapsApiMapViewer = new Class(
     setListeners: function () {
         var self = this;
         if (!this.mainListenerInitialized) {
-            google.maps.event.addListener(this.gmap, 'bounds_changed', geocamShare.core.handleMapViewChange);
+            google.maps.event.addListener(this.gmap, 'bounds_changed', geocamCore.handleMapViewChange);
             this.mainListenerInitialized = true;
         }
     }
     
 });
 
-geocamShare.core.MapsApiMapViewer.factory = function (domId) {
-    return new geocamShare.core.MapsApiMapViewer(domId);
+geocamCore.MapsApiMapViewer.factory = function (domId) {
+    return new geocamCore.MapsApiMapViewer(domId);
 }

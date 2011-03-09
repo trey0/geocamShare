@@ -4,15 +4,15 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.MapViewer = new Class({
-    Extends: geocamShare.core.Widget,
+geocamCore.MapViewer = new Class({
+    Extends: geocamCore.Widget,
 
     isReady: false,
     
     initialize: function (domId) {
 	// initialize the map
 	this.isReady = true;
-	geocamShare.core.setViewIfReady();
+	geocamCore.setViewIfReady();
     },
     
     updateFeatures: function (newFeatures, diff) {

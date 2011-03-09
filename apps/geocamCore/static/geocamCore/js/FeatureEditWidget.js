@@ -4,9 +4,9 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.FeatureEditWidget = new Class(
+geocamCore.FeatureEditWidget = new Class(
 {
-    Extends: geocamShare.core.Widget,
+    Extends: geocamCore.Widget,
 
     domId: null,
     feature: null,
@@ -14,21 +14,21 @@ geocamShare.core.FeatureEditWidget = new Class(
     initialize: function (domId, uuid) {
         this.domId = domId;
         this.uuid = uuid;
-        this.feature = geocamShare.core.featuresByUuidG[uuid];
+        this.feature = geocamCore.featuresByUuidG[uuid];
 
         var self = this;
         $.get(this.feature.getEditUrl(true),
               function (data) { self.formLoadedHandler(data) });
 
         var content = '<div style="margin: 10px;">'
-            + geocamShare.core.getLoadingIcon()
+            + geocamCore.getLoadingIcon()
             + '<span style="vertical-align: middle;">Loading edit form</span>'
             + '</div>';
         $('#' + this.domId).html(content);
     },
     
     formLoadedHandler: function (formHtml) {
-        geocamShare.core.debugObjectG = formHtml;
+        geocamCore.debugObjectG = formHtml;
 
         var content = ''
             + '<div>\n'
@@ -45,19 +45,19 @@ geocamShare.core.FeatureEditWidget = new Class(
                              this.feature.getEditUrl(true));
 
         $('#editImageCancel').click(function () {
-            geocamShare.core.setToFeatureDetail();
+            geocamCore.setToFeatureDetail();
             return false;
         });
 
-        geocamShare.core.ajaxFormInit('editImage',
+        geocamCore.ajaxFormInit('editImage',
                                       function (updatedFeature) {
-                                          geocamShare.core.updateFeature(updatedFeature);
-                                          geocamShare.core.setToFeatureDetail();
+                                          geocamCore.updateFeature(updatedFeature);
+                                          geocamCore.setToFeatureDetail();
                                       });
     }
 
 });
 
-geocamShare.core.FeatureEditWidget.factory = function (domId, uuid) {
-    return new geocamShare.core.FeatureEditWidget(domId, uuid);
+geocamCore.FeatureEditWidget.factory = function (domId, uuid) {
+    return new geocamCore.FeatureEditWidget(domId, uuid);
 }

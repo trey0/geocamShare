@@ -4,7 +4,7 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-$extend(geocamShare.core,
+$extend(geocamCore,
 {
     ajaxFormSuccessFnG: null,
 
@@ -18,7 +18,7 @@ $extend(geocamShare.core,
 
         // notify user save is in progress
         $('#ajaxFormEditStatus').html('<div class="pendingStatus">'
-			              + geocamShare.core.getLoadingIcon()
+			              + geocamCore.getLoadingIcon()
                                       + '<span style="vertical-align: middle;">Saving your changes.</span>'
 			              + '</div>');
     },
@@ -28,8 +28,8 @@ $extend(geocamShare.core,
             $('#ajaxFormEditStatus').html('<div class="successStatus">'
                                           + 'Your changes were saved.'
                                           + '</div>');
-            if (geocamShare.core.ajaxFormSuccessFnG != undefined) {
-                geocamShare.core.ajaxFormSuccessFnG(responseJson.result);
+            if (geocamCore.ajaxFormSuccessFnG != undefined) {
+                geocamCore.ajaxFormSuccessFnG(responseJson.result);
             }
         } else {
             $('#ajaxFormEditStatus').html('<div class="errorStatus">Please correct the errors below.</div>');
@@ -47,12 +47,12 @@ $extend(geocamShare.core,
 
     ajaxFormInit: function (domId, successFn) {
         // gross
-        geocamShare.core.ajaxFormSuccessFnG = successFn;
+        geocamCore.ajaxFormSuccessFnG = successFn;
 
         $('#' + domId).ajaxForm({
-            beforeSubmit: geocamShare.core.ajaxFormSubmitHandler,
-            success: geocamShare.core.ajaxFormResponseHandler,
-            error: geocamShare.core.ajaxFormErrorHandler,
+            beforeSubmit: geocamCore.ajaxFormSubmitHandler,
+            success: geocamCore.ajaxFormResponseHandler,
+            error: geocamCore.ajaxFormErrorHandler,
             dataType: 'json',
             data: { 'ajax': 1 }
         });

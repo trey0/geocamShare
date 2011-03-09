@@ -4,4 +4,4 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.geocam = {};
+var geocamDisasterStyle = {};

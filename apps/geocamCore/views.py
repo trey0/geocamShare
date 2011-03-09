@@ -83,7 +83,7 @@ class ViewCore(ViewKml):
 
     def featuresJsonJs(self, request):
         response = self.getFeaturesGeoJson(request)
-        return HttpResponse('geocamShare.core.handleNewFeatures(%s);\n' % response,
+        return HttpResponse('geocamCore.handleNewFeatures(%s);\n' % response,
                             mimetype='text/javascript')
 
     def galleryDebug(self, request):

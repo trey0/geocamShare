@@ -4,12 +4,12 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.Image = new Class(
+geocamCore.Image = new Class(
 {
-    Extends: geocamShare.core.PointFeature,
+    Extends: geocamCore.PointFeature,
 
     getThumbnailUrl: function (width) {
-        return geocamShare.core.getDirUrl(this) + "th" + width + ".jpg";
+        return geocamCore.getDirUrl(this) + "th" + width + ".jpg";
     },
 
     getSizePixels: function () {
@@ -21,7 +21,7 @@ geocamShare.core.Image = new Class(
             + '  <tr>\n'
             + '    <td class="captionHeader">heading</td>\n'
         if (this.yaw != null) {
-            var cardinal = geocamShare.core.getHeadingCardinal(this.yaw);
+            var cardinal = geocamCore.getHeadingCardinal(this.yaw);
             var ref;
             if (this.yawRef == null) {
                 ref = 'unknown';

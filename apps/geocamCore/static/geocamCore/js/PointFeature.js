@@ -4,16 +4,16 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.PointFeature = new Class(
+geocamCore.PointFeature = new Class(
 {
-    Extends: geocamShare.core.Feature,
+    Extends: geocamCore.Feature,
 
     getMaxTime: function () {
         return this.timestamp;
     },
 
     getKml: function () {
-        var iconUrl = geocamShare.core.getHostUrl() + this.getIconMapUrl();
+        var iconUrl = geocamCore.getHostUrl() + this.getIconMapUrl();
         return ''
 	    + '<Placemark id="' + this.uuid + '">\n'
 	    + '  <Style>\n'

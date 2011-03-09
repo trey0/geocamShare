@@ -4,8 +4,8 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.getDirUrl = function (feature) {
-    ret = geocamShare.core.settings.DATA_URL + feature.subtype.toLowerCase() + '/';
+geocamCore.getDirUrl = function (feature) {
+    ret = geocamCore.settings.DATA_URL + feature.subtype.toLowerCase() + '/';
     var idStr = feature.localId + 'p';
     for (var i = 0; i < idStr.length; i += 2) {
         if (i > 0) {
@@ -17,7 +17,7 @@ geocamShare.core.getDirUrl = function (feature) {
     return ret;
 }
 
-geocamShare.core.Feature.prototype.getViewerUrl = function () {
+geocamCore.Feature.prototype.getViewerUrl = function () {
     var name = this.name;
     if (name == "") {
         if (this.subtype == "Photo") {
@@ -28,17 +28,17 @@ geocamShare.core.Feature.prototype.getViewerUrl = function () {
             name = "untitled";
         }
     }
-    return geocamShare.core.settings.SCRIPT_NAME + this.subtype.toLowerCase() + "/" + this.localId + "/" + name;
+    return geocamCore.settings.SCRIPT_NAME + this.subtype.toLowerCase() + "/" + this.localId + "/" + name;
 }
 
-geocamShare.core.Feature.prototype.getEditUrl = function (widget) {
+geocamCore.Feature.prototype.getEditUrl = function (widget) {
     var verb;
     if (widget) {
         verb = 'editWidget';
     } else {
         verb = 'edit'
     }
-    return geocamShare.core.settings.SCRIPT_NAME + verb + '/' + this.subtype.toLowerCase() + "/" + this.uuid + "/";
+    return geocamCore.settings.SCRIPT_NAME + verb + '/' + this.subtype.toLowerCase() + "/" + this.uuid + "/";
 }
 
-geocamShare.core.Photo = geocamShare.geocam.Photo;
+geocamCore.Photo = geocamDisasterStyle.Photo;

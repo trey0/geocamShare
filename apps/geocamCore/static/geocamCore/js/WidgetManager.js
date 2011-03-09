@@ -4,7 +4,7 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.WidgetManager = new Class(
+geocamCore.WidgetManager = new Class(
 {
     activeWidgets: {},
     

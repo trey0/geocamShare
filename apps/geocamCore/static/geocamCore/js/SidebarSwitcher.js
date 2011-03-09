@@ -4,20 +4,20 @@
 // All Rights Reserved.
 // __END_LICENSE__
 
-geocamShare.core.SidebarSwitcher = new Class(
+geocamCore.SidebarSwitcher = new Class(
 {
-    Extends: geocamShare.core.WidgetManager,
+    Extends: geocamCore.WidgetManager,
 
     initialize: function (domId) {
         this.domId = domId;
         this.setToGallery();
 
-        geocamShare.core.bindEvent(geocamShare.core, this, "selectFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "unselectFeature");
-        geocamShare.core.bindEvent(geocamShare.core, this, "notifyLoading");
-        geocamShare.core.bindEvent(geocamShare.core, this, "updateFeatures");
-        geocamShare.core.bindEvent(geocamShare.core, this, "setToFeatureDetail");
-        geocamShare.core.bindEvent(geocamShare.core, this, "setToFeatureEdit");
+        geocamCore.bindEvent(geocamCore, this, "selectFeature");
+        geocamCore.bindEvent(geocamCore, this, "unselectFeature");
+        geocamCore.bindEvent(geocamCore, this, "notifyLoading");
+        geocamCore.bindEvent(geocamCore, this, "updateFeatures");
+        geocamCore.bindEvent(geocamCore, this, "setToFeatureDetail");
+        geocamCore.bindEvent(geocamCore, this, "setToFeatureEdit");
     },
 
     selectFeature: function (feature) {
@@ -44,12 +44,12 @@ geocamShare.core.SidebarSwitcher = new Class(
     domId: null,
 
     getDefaultFeature: function () {
-        return geocamShare.core.featuresByUuidG[geocamShare.core.selectedFeatureUuid];
+        return geocamCore.featuresByUuidG[geocamCore.selectedFeatureUuid];
     },
 
     setToGallery: function () {
         this.setWidgetForDomId(this.domId,
-                               geocamShare.core.GalleryWidget.factory);
+                               geocamCore.GalleryWidget.factory);
     },
 
     setToFeatureDetail: function (feature) {
@@ -57,7 +57,7 @@ geocamShare.core.SidebarSwitcher = new Class(
             feature = this.getDefaultFeature();
         }
         this.setWidgetForDomId(this.domId,
-                               geocamShare.core.FeatureDetailWidget.factory,
+                               geocamCore.FeatureDetailWidget.factory,
                                [feature.uuid]);
     },
 
@@ -66,12 +66,12 @@ geocamShare.core.SidebarSwitcher = new Class(
             feature = this.getDefaultFeature();
         }
         this.setWidgetForDomId(this.domId,
-                               geocamShare.core.FeatureEditWidget.factory,
+                               geocamCore.FeatureEditWidget.factory,
                                [feature.uuid]);
     }
 
 });
 
-geocamShare.core.SidebarSwitcher.factory = function (domId) {
-    return new geocamShare.core.SidebarSwitcher(domId);
+geocamCore.SidebarSwitcher.factory = function (domId) {
+    return new geocamCore.SidebarSwitcher(domId);
 }
