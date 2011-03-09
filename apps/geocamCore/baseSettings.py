@@ -97,7 +97,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'geocamUtil.middleware.SecurityRedirectMiddleware',
+    'geocamUtil.middleware.SecurityMiddleware',
     'geocamUtil.middleware.LogErrorsMiddleware',
 )
 
