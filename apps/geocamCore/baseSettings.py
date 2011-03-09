@@ -9,9 +9,11 @@ import re
 import sys
 from glob import glob
 
+from geocamUtil.management.commandUtil import getSiteDir
+
 # can override CHECKOUT_DIR by setting the environment variable before
 # importing base_settings
-DEFAULT_CHECKOUT_DIR = os.path.dirname(os.path.realpath(__file__))
+DEFAULT_CHECKOUT_DIR = getSiteDir() # os.path.dirname(os.path.realpath(__file__))
 CHECKOUT_DIR = os.environ.get('CHECKOUT_DIR', DEFAULT_CHECKOUT_DIR)
 
 SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']

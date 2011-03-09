@@ -6,7 +6,7 @@
 
 from django.conf.urls.defaults import *
 
-from geocamShare.base_urls import urlpatterns as basePatterns
+from geocamCore.baseUrls import urlpatterns as basePatterns
 from geocamCore.urls import urlpatterns as corePatterns
 from geocamDisasterStyle.urls import urlpatterns as geocamPatterns
 

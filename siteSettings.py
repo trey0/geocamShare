@@ -6,7 +6,7 @@
 
 import os
 
-from geocamShare.base_settings import *
+from geocamCore.baseSettings import *
 
 USING_DJANGO_DEV_SERVER = ('runserver' in sys.argv)
 
