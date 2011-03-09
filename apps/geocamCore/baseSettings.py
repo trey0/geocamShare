@@ -11,9 +11,14 @@ from glob import glob
 
 from geocamUtil.management.commandUtil import getSiteDir
 
+######################################################################
+# CHECKOUT_DIR, SCRIPT_NAME, USING_DJANGO_DEV_SERVER -- these are not
+# understood by Django but are used a lot below to calculate other
+# settings
+
 # can override CHECKOUT_DIR by setting the environment variable before
-# importing base_settings
-DEFAULT_CHECKOUT_DIR = getSiteDir() # os.path.dirname(os.path.realpath(__file__))
+# importing baseSettings
+DEFAULT_CHECKOUT_DIR = getSiteDir()
 CHECKOUT_DIR = os.environ.get('CHECKOUT_DIR', DEFAULT_CHECKOUT_DIR)
 
 SCRIPT_NAME = os.environ['DJANGO_SCRIPT_NAME']
@@ -25,6 +30,9 @@ USING_DJANGO_DEV_SERVER = ('runserver' in sys.argv)
 if USING_DJANGO_DEV_SERVER:
     # django dev server deployment won't work with other SCRIPT_NAME settings
     SCRIPT_NAME = '/'
+
+######################################################################
+# This section is for variables understood by Django.
 
 DEBUG = USING_DJANGO_DEV_SERVER
 TEMPLATE_DEBUG = DEBUG
@@ -93,8 +101,6 @@ MIDDLEWARE_CLASSES = (
     'geocamUtil.middleware.LogErrorsMiddleware',
 )
 
-ROOT_URLCONF = 'geocamShare.urls'
-
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -103,7 +109,6 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'geocamCore',
-    'geocamTrack',
     'geocamUtil',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -126,9 +131,8 @@ CACHE_BACKEND = 'locmem://?timeout=30'
 SESSION_COOKIE_AGE = 30*60
 SESSION_SAVE_EVERY_REQUEST = True
 
+######################################################################
 # DIGEST_* -- settings for django_digest HTTP digest authentication
-
-DIGEST_REALM = 'geocamshare.org'
 
 # Nonce count is a security feature that makes replay attacks more
 # difficult.  However, it apparently causes problems when browsers with
@@ -136,6 +140,9 @@ DIGEST_REALM = 'geocamshare.org'
 # server, so it's recommended to turn it off.
 # See http://bitbucket.org/akoha/django-digest/wiki/Home
 DIGEST_ENFORCE_NONCE_COUNT = False
+
+######################################################################
+# DEBUG_* -- settings for optional debug_toolbar app
 
 #DEBUG_TOOLBAR_CONFIG = {
 #    'INTERCEPT_REDIRECTS': False,
@@ -145,55 +152,14 @@ DIGEST_ENFORCE_NONCE_COUNT = False
 #}
 
 ######################################################################
+# The remaining settings are ones we define that are generically
+# useful across different geocam apps.  See geocamCore/defaultSettings
+# for stuff that is more specific to geocamCore.
 
 USE_STATIC_SERVE = USING_DJANGO_DEV_SERVER
 
 DATA_DIR = '%s/data/' % CHECKOUT_DIR
 DATA_URL = '%sdata/' % SCRIPT_NAME
 
-ICON_PATTERN = MEDIA_ROOT + 'share/map/*Point.png'
-ICONS_RAW = [re.sub(r'Point\.png$', '', os.path.basename(i))
-             for i in glob(ICON_PATTERN)]
-# put 'camera' first, indicating the default
-ICONS = ['camera'] + [i for i in ICONS_RAW if i != 'camera']
-ICONS_DICT = dict.fromkeys(ICONS)
-
-BASE_LINE_STYLES = ('solid',)
-LINE_STYLES = BASE_LINE_STYLES
-
-STATIC_DIR = '%s/build/s/' % CHECKOUT_DIR
-TMP_DIR = '%stmp/' % STATIC_DIR
-
-STATIC_URL = '%ss/' % SCRIPT_NAME
-TMP_URL = '%stmp/' % STATIC_URL
-
-DELETE_TMP_FILE_WAIT_SECONDS = 60*60
-
-SITE_TITLE = 'GeoCam Share'
-KML_FLY_TO_VIEW = True
-
-STATUS_CHOICES = (('p', 'pending'), # in db but not fully processed yet
-                  ('a', 'active'),  # active, display this to user
-                  ('d', 'deleted'), # deleted but not purged yet
-                  )
-# define constants like STATUS_PENDING based on above choices
-for code, label in STATUS_CHOICES:
-    globals()['STATUS_' + label.upper()] = code
-
-GALLERY_PAGE_COLS = 3
-GALLERY_PAGE_ROWS = 3
-
-# for multiple thumbnails in sidebar gallery
-GALLERY_THUMB_SIZE = [160, 120]
-# for single thumbnail in sidebar gallery
-DESC_THUMB_SIZE = [480, 360]
-
-THUMB_SIZES = [GALLERY_THUMB_SIZE, DESC_THUMB_SIZE]
-
-# MAP_BACKEND possible values: 'earth', 'maps', 'none'.
-MAP_BACKEND = 'maps'
-
-# enable/disable clustering of markers (if supported by the current MAP_BACKEND)
-USE_MARKER_CLUSTERING = False
-
-USE_TRACKING = False
+TMP_DIR = '%stmp/' % DATA_DIR
+TMP_URL = '%stmp/' % DATA_URL

@@ -18,6 +18,12 @@ MANAGERS = ADMINS
 # django settings overrides for geocamDisasterStyle
 INSTALLED_APPS = INSTALLED_APPS + (
     'geocamDisasterStyle',
+    'geocamTrack',
     )
 
 MAIN_APP = 'geocamDisasterStyle'
+
+ROOT_URLCONF = 'geocamShare.urls'
+
+# DIGEST_* -- settings for django_digest HTTP digest authentication
+DIGEST_REALM = 'geocamshare.org'

@@ -5,9 +5,10 @@
 # __END_LICENSE__
 
 from django.conf.urls.defaults import *
-from django.conf import settings
 
 from geocamUtil.FileUtil import importModuleByName
+
+from geocamCore import settings
 
 views = importModuleByName('%s.views' % settings.MAIN_APP).viewSingleton
 

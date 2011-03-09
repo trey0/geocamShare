@@ -4,9 +4,10 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from django.conf import settings
 from django.conf.urls.defaults import *
 from django.contrib import admin
+
+from geocamCore import settings
 
 admin.autodiscover()
 

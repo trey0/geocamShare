@@ -120,9 +120,9 @@ var geocamCore = {
     init: function () {
         // fetch JSON features and start map loading in parallel
         var mapFactory;
-        if (geocamCore.settings.MAP_BACKEND == "earth") {
+        if (geocamCore.settings.GEOCAM_CORE_MAP_BACKEND == "earth") {
             mapFactory = geocamCore.EarthApiMapViewer.factory;
-        } else if (geocamCore.settings.MAP_BACKEND == "maps") {
+        } else if (geocamCore.settings.GEOCAM_CORE_MAP_BACKEND == "maps") {
             mapFactory = geocamCore.MapsApiMapViewer.factory;
         } else {
             mapFactory = geocamCore.StubMapViewer.factory;
@@ -362,8 +362,8 @@ var geocamCore = {
     setViewIfReady: function () {
         // this is a hack, figure out a cleaner integration of tracking later
         if (geocamCore.mapG != null
-            && geocamCore.settings.USE_TRACKING
-            && geocamCore.settings.MAP_BACKEND == 'maps'
+            && geocamCore.settings.GEOCAM_CORE_USE_TRACKING
+            && geocamCore.settings.GEOCAM_CORE_MAP_BACKEND == 'maps'
             && geocamTrack != null) {
             geocamTrack.startTracking();
         }

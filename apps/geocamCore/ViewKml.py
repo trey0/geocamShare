@@ -8,11 +8,11 @@ import urllib
 import datetime
 import sys
 
-from django.conf import settings
 
 from geocamUtil import KmlUtil
 
 from geocamCore.models import Feature, GoogleEarthSession
+from geocamCore import settings
 
 class BogusRequest:
     def build_absolute_uri(self, text):
@@ -22,19 +22,19 @@ class ViewKml(object):
     def kmlGetStartSessionKml(self, request, sessionId):
         quotedId = urllib.quote_plus(sessionId)
         absUrl = request.build_absolute_uri('%skml/%s/initial.kml' % (settings.SCRIPT_NAME, quotedId))
-        if settings.KML_FLY_TO_VIEW:
+        if settings.GEOCAM_CORE_KML_FLY_TO_VIEW:
             flyToView = '<flyToView>1</flyToView>'
         else:
             flyToView = ''
         return ("""
 <NetworkLink>
-  <name>%(SITE_TITLE)s</name>
+  <name>%(GEOCAM_CORE_SITE_TITLE)s</name>
   <Link>
     <href>%(absUrl)s</href>
   </Link>
   %(flyToView)s
 </NetworkLink>
-""" % dict(SITE_TITLE=settings.SITE_TITLE,
+""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE,
            absUrl=absUrl,
            flyToView=flyToView))
 
@@ -72,7 +72,7 @@ class ViewKml(object):
         updateUrl = request.build_absolute_uri('%skml/%s/update.kml' % (settings.SCRIPT_NAME, quotedId))
         return ("""
 <Document id="allFeatures">
-  <name>%(SITE_TITLE)s</name>
+  <name>%(GEOCAM_CORE_SITE_TITLE)s</name>
 
   <NetworkLink>
     <name>Update</name>
@@ -86,7 +86,7 @@ class ViewKml(object):
   %(allFeaturesFolder)s
 
 </Document>
-""" % dict(SITE_TITLE=settings.SITE_TITLE,
+""" % dict(GEOCAM_CORE_SITE_TITLE=settings.GEOCAM_CORE_SITE_TITLE,
            updateUrl=updateUrl,
            allFeaturesFolder=allFeaturesFolder))
     

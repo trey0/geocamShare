@@ -21,7 +21,6 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.safestring import mark_safe
 from django.template import RequestContext
-from django.conf import settings
 from django.contrib.auth.models import User
 
 from geocamUtil import anyjson as json
@@ -34,6 +33,7 @@ from geocamCore.models import Image, Track, EmptyTrackError
 from geocamCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
 from geocamCore.ViewKml import ViewKml
 from geocamCore import search
+from geocamCore import settings
 
 cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamCore', 'icons', 'map'))
 cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamCore', 'icons', 'mapr'))
@@ -93,13 +93,13 @@ class ViewCore(ViewKml):
         exportedVars = ['SCRIPT_NAME',
                         'MEDIA_URL',
                         'DATA_URL',
-                        'GALLERY_PAGE_COLS',
-                        'GALLERY_PAGE_ROWS',
-                        'GALLERY_THUMB_SIZE',
-                        'DESC_THUMB_SIZE',
-                        'MAP_BACKEND',
-                        'USE_MARKER_CLUSTERING',
-                        'USE_TRACKING']
+                        'GEOCAM_CORE_GALLERY_PAGE_COLS',
+                        'GEOCAM_CORE_GALLERY_PAGE_ROWS',
+                        'GEOCAM_CORE_GALLERY_THUMB_SIZE',
+                        'GEOCAM_CORE_DESC_THUMB_SIZE',
+                        'GEOCAM_CORE_MAP_BACKEND',
+                        'GEOCAM_CORE_USE_MARKER_CLUSTERING',
+                        'GEOCAM_CORE_USE_TRACKING']
         exportDict = dict(((f, getattr(settings, f))
                            for f in exportedVars))
         return json.dumps(exportDict)

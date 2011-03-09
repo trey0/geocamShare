@@ -18,7 +18,6 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from tagging.fields import TagField
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.contrib.contenttypes import generic
@@ -28,17 +27,15 @@ from geocamUtil import anyjson as json
 from geocamUtil.models.ExtrasField import ExtrasField
 from geocamUtil.models.UuidField import UuidField
 from geocamUtil.models.managers import AbstractModelManager, FinalModelManager
-from geocamUtil.icons import getIconSize, getIconUrl
+from geocamUtil.icons import ICON_URL_CACHE, getIconSize, getIconUrl
 from geocamUtil.gpx import TrackLog
 from geocamUtil.Xmp import Xmp
 from geocamUtil.TimeUtil import parseUploadTime
 from geocamUtil.FileUtil import mkdirP
 
-ICON_CHOICES = [(i,i) for i in settings.ICONS]
-DEFAULT_ICON = settings.ICONS[0]
+from geocamCore import settings
 
-LINE_STYLE_CHOICES = [(c,c) for c in settings.LINE_STYLES]
-DEFAULT_LINE_STYLE = settings.LINE_STYLES[0]
+LINE_STYLE_CHOICES = [(c,c) for c in settings.GEOCAM_CORE_LINE_STYLES]
 
 TIME_ZONES = None
 try:
@@ -79,6 +76,14 @@ ALTITUDE_REF_CHOICES = (('', 'unknown'),
 ALTITUDE_REF_LOOKUP = dict(ALTITUDE_REF_CHOICES)
 ALTITUDE_REF_LOOKUP[''] = None
 DEFAULT_ALTITUDE_REF = ALTITUDE_REF_CHOICES[0][0]
+
+STATUS_CHOICES = (('p', 'pending'), # in db but not fully processed yet
+                  ('a', 'active'),  # active, display this to user
+                  ('d', 'deleted'), # deleted but not purged yet
+                  )
+# define constants like STATUS_PENDING based on above choices
+for code, label in STATUS_CHOICES:
+    globals()['STATUS_' + label.upper()] = code
 
 WF_NEEDS_EDITS = 0
 WF_SUBMITTED_FOR_VALIDATION = 1
@@ -216,11 +221,11 @@ class Feature(models.Model):
     isAerial = models.BooleanField(default=False, blank=True, verbose_name='aerial data', help_text="True for aerial data. Generally for non-aerial data we snap to terrain in 3D visualizations so that GPS errors can't cause features to be rendered underground.")
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)
-    icon = models.CharField(max_length=16, choices=ICON_CHOICES, default=DEFAULT_ICON, blank=True)
+    icon = models.CharField(max_length=16, default=settings.GEOCAM_CORE_DEFAULT_ICON, blank=True)
 
     # these fields help us handle changes to data products
-    status = models.CharField(max_length=1, choices=settings.STATUS_CHOICES,
-                              default=settings.STATUS_CHOICES[0][0])
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES,
+                              default=STATUS_CHOICES[0][0])
     processed = models.BooleanField(default=False)
     version = models.PositiveIntegerField(default=0)
     purgeTime = models.DateTimeField(null=True, blank=True)
@@ -506,7 +511,7 @@ class Image(PointFeature):
         self.makeThumbnail0(previewOriginalPath, thumbSize)
 
     def galleryThumb(self):
-        w0, h0 = settings.GALLERY_THUMB_SIZE
+        w0, h0 = settings.GEOCAM_CORE_GALLERY_THUMB_SIZE
         w, h = self.getThumbSize(w0)
         return mark_safe('<td style="vertical-align: top; width: %dpx; height: %dpx;"><img src="%s" width="%d" height="%d"/></td>' % (w0, h0, self.getThumbnailUrl(w0), w, h))
 
@@ -524,14 +529,14 @@ class Image(PointFeature):
                     size=getIconSize(rotName))
 
     def process(self, importFile=None):
-        self.status = settings.STATUS_ACTIVE
+        self.status = STATUS_ACTIVE
         self.processed = True
         if importFile and not os.path.exists(self.getImagePath()):
             if not os.path.exists(self.getDir()):
                 mkdirP(self.getDir())
             shutil.copyfile(importFile, self.getImagePath())
-        self.makeThumbnail(settings.GALLERY_THUMB_SIZE)
-        self.makeThumbnail(settings.DESC_THUMB_SIZE)
+        self.makeThumbnail(settings.GEOCAM_CORE_GALLERY_THUMB_SIZE)
+        self.makeThumbnail(settings.GEOCAM_CORE_DESC_THUMB_SIZE)
         # remember to call save() after process()
 
     def getViewerUrl(self):
@@ -541,9 +546,9 @@ class Image(PointFeature):
         return ''
 
     def getBalloonHtml(self, request):
-        dw, dh = self.getThumbSize(settings.DESC_THUMB_SIZE[0])
+        dw, dh = self.getThumbSize(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0])
         viewerUrl = request.build_absolute_uri(self.getViewerUrl())
-        thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.DESC_THUMB_SIZE[0]))
+        thumbnailUrl = request.build_absolute_uri(self.getThumbnailUrl(settings.GEOCAM_CORE_DESC_THUMB_SIZE[0]))
         captionHtml = self.getCaptionHtml()
         return ("""
 <div>
@@ -651,7 +656,7 @@ class Image(PointFeature):
 
         # if one of the tags is the name of an icon, use that icon
         for t in tagsList:
-            if t in settings.ICONS_DICT:
+            if t in ICON_URL_CACHE:
                 vals['icon'] = t
                 break
 
@@ -760,7 +765,7 @@ class Track(ExtentFeature):
                                  verbose_name='line color',
                                  help_text='A color in HTML #RRGGBBAA hex format, must start with "#" character.')
     lineStyle = models.CharField(max_length=10, blank=True,
-                                 choices=LINE_STYLE_CHOICES, default=DEFAULT_LINE_STYLE,
+                                 choices=LINE_STYLE_CHOICES, default=settings.GEOCAM_CORE_DEFAULT_LINE_STYLE,
                                  verbose_name='line style',
                                  help_text='Line style for visualization')
     json = models.TextField(help_text='GeoJSON encoding exchanged with browser clients')
@@ -768,7 +773,7 @@ class Track(ExtentFeature):
     objects = FinalModelManager(parentModel=ExtentFeature)
 
     def process(self):
-        self.status = settings.STATUS_ACTIVE
+        self.status = STATUS_ACTIVE
         self.processed = True
         data = TrackLog.parseGpxString(self.gpx)
         if not data.getNumPoints():
