@@ -27,8 +27,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from geocamUtil import TimeUtil
 from geocamUtil.FileUtil import mkdirP
 from geocamCore.models import Feature, Folder
-from geocamCore.UploadClient import UploadClient
 
+from geocamDisasterStyle.UploadClient import UploadClient
 from geocamDisasterStyle.models import Photo
 from geocamDisasterStyle import settings
 
