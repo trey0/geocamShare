@@ -21,10 +21,10 @@ from siteSettings import *
 # cookie-based authentication mechanism.
 SECRET_KEY = '{{ secretKey }}'
 
-# Normally you don't need to set MAPS_API_KEY, but it is required if
+# Normally you don't need to set GOOGLE_MAPS_API_KEY, but it is required if
 # you're using the alternate mapping backend based on the Google Earth
 # API.
-#MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.com/apis/maps/signup.html'
+#GOOGLE_MAPS_API_KEY = 'fill in key for your domain here -- get from http://code.google.com/apis/maps/signup.html'
 
 # For example, override the database settings:
 #DATABASES = {

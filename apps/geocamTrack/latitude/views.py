@@ -47,7 +47,7 @@ def signup(request):
                               context_instance=RequestContext(request))
 
 def getConsumer():
-    return oauth.Consumer(settings.LATITUDE_CONSUMER_KEY, settings.LATITUDE_CONSUMER_SECRET)
+    return oauth.Consumer(settings.GEOCAM_TRACK_LATITUDE_CONSUMER_KEY, settings.GEOCAM_TRACK_LATITUDE_CONSUMER_SECRET)
 
 @login_required
 def signup2(request):
@@ -64,7 +64,7 @@ def signup2(request):
     request.session['requestToken'] = requestToken
     
     params = AUTHORIZE_PARAMS.copy()
-    params.update(dict(domain=settings.LATITUDE_CONSUMER_KEY,
+    params.update(dict(domain=settings.GEOCAM_TRACK_LATITUDE_CONSUMER_KEY,
                        oauth_callback=request.build_absolute_uri('../signupCallback/'),
                        oauth_token=requestToken['oauth_token']))
     authorizeUrl = '%s?%s' % (AUTHORIZE_URL, urllib.urlencode(params))
@@ -109,7 +109,7 @@ def getLatitudeClient(request):
     if not profile or not profile.oauthToken:
         raise Exception("You have not authorized Share to monitor your position in Latitude")
 
-    return LatitudeClient(settings.LATITUDE_CONSUMER_KEY, settings.LATITUDE_CONSUMER_SECRET,
+    return LatitudeClient(settings.GEOCAM_TRACK_LATITUDE_CONSUMER_KEY, settings.GEOCAM_TRACK_LATITUDE_CONSUMER_SECRET,
                           profile.oauthToken, profile.oauthSecret)
 
 @login_required
