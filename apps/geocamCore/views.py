@@ -26,9 +26,9 @@ from django.contrib.auth.models import User
 from geocamUtil import anyjson as json
 from geocamUtil.icons import cacheIcons
 from geocamUtil.middleware.SecurityMiddleware import requestIsSecure
-
 from geocamUtil.models.UuidField import makeUuid
 from geocamUtil.FileUtil import mkdirP
+
 from geocamCore.models import Image, Track, EmptyTrackError
 from geocamCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
 from geocamCore.ViewKml import ViewKml
