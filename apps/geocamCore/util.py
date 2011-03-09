@@ -11,7 +11,6 @@ import errno
 import datetime
 import time
 import tempfile
-import itertools
 
 import pytz
 
@@ -28,7 +27,7 @@ def importModuleByName(name):
     return mod
 
 def getMiddleFileWithExtension(ext, path):
-    allXmps = glob.glob('%s/*%s' % (path, ext))
+    allXmps = glob.glob('%s/*.%s' % (path, ext))
     allXmps = [x for x in allXmps
                if not x.startswith('thumbnail')]
     if not allXmps:
@@ -78,34 +77,3 @@ def mkdirP(dir):
     except OSError, err:
         if err.errno != errno.EEXIST:
             raise
-
-class MultiSettings(object):
-    """
-    A settings container object built out of an ordered list of
-    child settings objects.  When you request the value of an attribute,
-    it returns the value found in the first child that defines that
-    attribute.
-    """
-    def __init__(self, *sources):
-        self._sources = sources
-
-    def __getattr__(self, key):
-        for src in self._sources:
-            if hasattr(src, key):
-                return getattr(src, key)
-        raise AttributeError(key)
-
-    def __dir__(self):
-        return list(itertools.chain(*[dir(src) for src in self._sources]))
-
-    # For Python < 2.6:
-    __members__ = property(lambda self: self.__dir__())
-
-# pull in other modules in this dir so they're exported
-import MimeMultipartFormData
-import gpx
-import Printable
-import geo
-from UploadClient import UploadClient
-from Xmp import Xmp
-from Builder import Builder

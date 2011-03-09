@@ -7,7 +7,7 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
-from geocamCore.utils import importModuleByName
+from geocamUtil.FileUtil import importModuleByName
 
 views = importModuleByName('%s.views' % settings.MAIN_APP).viewSingleton
 

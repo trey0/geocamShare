@@ -10,7 +10,8 @@ import sys
 
 from django.conf import settings
 
-import KmlUtils
+from geocamUtil import KmlUtil
+
 from geocamCore.models import Feature, GoogleEarthSession
 
 class BogusRequest:
@@ -41,7 +42,7 @@ class ViewKml(object):
         searchQuery = request.REQUEST.get('q', None)
         sessionId = GoogleEarthSession.getSessionId(searchQuery)
         print >>sys.stderr, "ViewKml: started session %s" % sessionId
-        return KmlUtils.wrapKmlDjango(self.kmlGetStartSessionKml(request, sessionId))
+        return KmlUtil.wrapKmlDjango(self.kmlGetStartSessionKml(request, sessionId))
 
     def kmlGetAllFeaturesFolder(self, request, searchQuery, newUtime):
         features = self.search.searchFeatures(Feature.objects.all(), searchQuery)
@@ -98,8 +99,8 @@ class ViewKml(object):
         #print 'sessionId:', sessionId
         #print 'method:', method
         if method == 'initial':
-            return KmlUtils.wrapKmlDjango(self.kmlGetInitialKml(request, sessionId))
+            return KmlUtil.wrapKmlDjango(self.kmlGetInitialKml(request, sessionId))
         elif method == 'update':
-            return KmlUtils.wrapKmlDjango(self.kmlGetUpdateKml(request, sessionId))
+            return KmlUtil.wrapKmlDjango(self.kmlGetUpdateKml(request, sessionId))
         else:
             raise Exception('method must be "initial" or "update"')

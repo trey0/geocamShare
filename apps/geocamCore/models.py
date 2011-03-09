@@ -26,12 +26,13 @@ import tagging
 
 from geocamUtil import anyjson as json
 from geocamUtil.models.ExtrasField import ExtrasField
+from geocamUtil.models.UuidField import UuidField
+from geocamUtil.models.managers import AbstractModelManager, FinalModelManager
 from geocamUtil.icons import getIconSize, getIconUrl
-
-from geocamCore.utils import mkdirP, makeUuid, Xmp
-from geocamCore.utils.gpx import TrackLog
-from geocamCore.TimeUtils import parseUploadTime
-from geocamCore.managers import AbstractClassManager, LeafClassManager
+from geocamUtil.gpx import TrackLog
+from geocamUtil.Xmp import Xmp
+from geocamUtil.TimeUtil import parseUploadTime
+from geocamUtil.FileUtil import mkdirP
 
 ICON_CHOICES = [(i,i) for i in settings.ICONS]
 DEFAULT_ICON = settings.ICONS[0]
@@ -107,8 +108,7 @@ class Folder(models.Model):
     isArchive = models.BooleanField(default=False,
                                     help_text='If true, disable editing data in this folder.')
     notes = models.TextField(blank=True)
-    uuid = models.CharField(max_length=48, default=makeUuid,
-                            help_text='Universally unique id used to identify this db record across servers.')
+    uuid = UuidField()
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
     def __unicode__(self):
@@ -147,10 +147,9 @@ class AbstractOperation(models.Model):
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)
     contentType = models.ForeignKey(ContentType, editable=False, null=True)
-    uuid = models.CharField(max_length=48, default=makeUuid,
-                            help_text="Universally unique id used to identify this db record across servers.")
+    uuid = UuidField()
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
-    objects = AbstractClassManager(parentModel=None)
+    objects = AbstractModelManager(parentModel=None)
 
     class Meta:
         abstract = True
@@ -159,15 +158,14 @@ class AbstractOperation(models.Model):
         return '%s %s %s' % (self.__class__.__name__, self.name, self.operationId)
 
 class Operation(AbstractOperation):
-    objects = LeafClassManager(parentModel=AbstractOperation)
+    objects = FinalModelManager(parentModel=AbstractOperation)
 
 class Assignment(models.Model):
     folder = models.ForeignKey(Folder)
     unit = models.ForeignKey(Unit,
                              help_text='The unit you are assigned to.')
     title = models.CharField(max_length=64, blank=True, help_text="Your title within unit.  Example: 'Sit Unit Leader'")
-    uuid = models.CharField(max_length=48, default=makeUuid,
-                            help_text='Universally unique id used to identify this db record across servers.')
+    uuid = UuidField()
 
 class UserProfile(models.Model):
     """Adds some extended fields to the django built-in User type."""
@@ -183,8 +181,7 @@ class UserProfile(models.Model):
     assignments = models.ManyToManyField(Assignment)
     homeOrganization = models.CharField(max_length=64, blank=True, help_text="The organization you normally work for.")
     homeTitle = models.CharField(max_length=64, blank=True, help_text="Your normal job title.")
-    uuid = models.CharField(max_length=48, default=makeUuid,
-                            help_text='Universally unique id used to identify this user across servers.')
+    uuid = UuidField()
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
     class Meta:
@@ -207,8 +204,7 @@ class Sensor(models.Model):
                                     help_text='Information that uniquely identifies this particular sensor unit. Example: "serialNumber:HT851N002808 phoneNumber:4126573579" ')
     notes = models.TextField(blank=True)
     tags = TagField(blank=True)
-    uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
-                            help_text="Universally unique id used to identify this db record across servers.")
+    uuid = UuidField()
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
 class Feature(models.Model):
@@ -232,11 +228,10 @@ class Feature(models.Model):
                                                  default=DEFAULT_WORKFLOW_STATUS)
     mtime = models.DateTimeField(null=True, blank=True)
 
-    uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
-                            help_text="Universally unique id used to identify this db record across servers.")
+    uuid = UuidField()
     extras = ExtrasField(help_text="A place to add extra fields if we need them but for some reason can't modify the table schema.  Expressed as a JSON-encoded dict.")
 
-    objects = AbstractClassManager(parentModel=None)
+    objects = AbstractModelManager(parentModel=None)
 
     class Meta:
         abstract = True
@@ -356,8 +351,7 @@ class Change(models.Model):
                               help_text='Brief human-readable description like "upload" or "validation check"')
     workflowStatus = models.PositiveIntegerField(choices=WORKFLOW_STATUS_CHOICES,
                                                  default=DEFAULT_WORKFLOW_STATUS)
-    uuid = models.CharField(max_length=48, default=makeUuid, blank=True,
-                            help_text="Universally unique id used to identify this db record across servers.")
+    uuid = UuidField()
 
 class PointFeature(Feature):
     latitude = models.FloatField(blank=True, null=True) # WGS84 degrees
@@ -367,7 +361,7 @@ class PointFeature(Feature):
                                    choices=ALTITUDE_REF_CHOICES, default=DEFAULT_ALTITUDE_REF,
                                    verbose_name='Altitude ref.')
     timestamp = models.DateTimeField(blank=True)
-    objects = AbstractClassManager(parentModel=Feature)
+    objects = AbstractModelManager(parentModel=Feature)
     
     class Meta:
         abstract = True
@@ -462,7 +456,7 @@ class Image(PointFeature):
                               verbose_name='Heading ref.')
     widthPixels = models.PositiveIntegerField()
     heightPixels = models.PositiveIntegerField()
-    objects = AbstractClassManager(parentModel=PointFeature)
+    objects = AbstractModelManager(parentModel=PointFeature)
 
     # snapshot_set is a virtual field, not actually present in the db,
     # which specifies how to look up the snapshots associated with this
@@ -737,7 +731,7 @@ class ExtentFeature(Feature):
     minLon = models.FloatField(blank=True, null=True, verbose_name='minimum longitude') # WGS84 degrees
     maxLat = models.FloatField(blank=True, null=True, verbose_name='maximum latitude') # WGS84 degrees
     maxLon = models.FloatField(blank=True, null=True, verbose_name='maximum longitude') # WGS84 degrees
-    objects = AbstractClassManager(parentModel=Feature)
+    objects = AbstractModelManager(parentModel=Feature)
 
     def save(self, **kwargs):
         if self.minTime == None:
@@ -771,7 +765,7 @@ class Track(ExtentFeature):
                                  help_text='Line style for visualization')
     json = models.TextField(help_text='GeoJSON encoding exchanged with browser clients')
     gpx = models.TextField(help_text='If this track was imported as a GPX log, we keep the original GPX here in case there are important fields that are not currently captured in our GeoJSON format.')
-    objects = LeafClassManager(parentModel=ExtentFeature)
+    objects = FinalModelManager(parentModel=ExtentFeature)
 
     def process(self):
         self.status = settings.STATUS_ACTIVE

@@ -10,7 +10,8 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.auth.models import User
 
-from geocamCore.fields import UuidField
+from geocamUtil.forms.UuidField import UuidField
+
 from geocamCore.models import Track, Image
 
 # the field names in this form are currently retained for backward compatibility with old versions

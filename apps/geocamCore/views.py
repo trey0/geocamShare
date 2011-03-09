@@ -26,13 +26,13 @@ from django.contrib.auth.models import User
 
 from geocamUtil import anyjson as json
 from geocamUtil.icons import cacheIcons
+from geocamUtil.middleware.SecurityRedirectMiddleware import requestIsSecure
 
-from geocamCore.utils import makeUuid, mkdirP
-from geocamCore.Pager import Pager
+from geocamUtil.models.UuidField import makeUuid
+from geocamUtil.FileUtil import mkdirP
 from geocamCore.models import Image, Track, EmptyTrackError
 from geocamCore.forms import UploadImageForm, UploadTrackForm, EditImageForm
-from geocamCore.kml.ViewKml import ViewKml
-from geocamCore.middleware.SecurityRedirectMiddleware import requestIsSecure
+from geocamCore.ViewKml import ViewKml
 from geocamCore import search
 
 cacheIcons(os.path.join(settings.MEDIA_ROOT, 'geocamCore', 'icons', 'map'))

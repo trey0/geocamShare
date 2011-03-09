@@ -7,7 +7,7 @@
 from django.db import models
 
 from geocamCore.models import Image
-from geocamCore.managers import LeafClassManager
+from geocamUtil.models.managers import FinalModelManager
 
 class Photo(Image):
-    objects = LeafClassManager(parentModel=Image)
+    objects = FinalModelManager(parentModel=Image)

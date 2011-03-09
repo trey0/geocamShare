@@ -78,7 +78,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "geocamCore.context_processors.serverRoot",
     "geocamCore.context_processors.settings",
 )
 
@@ -88,8 +87,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'geocamCore.middleware.SecurityRedirectMiddleware',
-    'geocamCore.middleware.LogErrorsMiddleware',
+    'geocamUtil.middleware.SecurityRedirectMiddleware',
+    'geocamUtil.middleware.LogErrorsMiddleware',
 )
 
 ROOT_URLCONF = 'geocamShare.urls'

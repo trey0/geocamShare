@@ -12,7 +12,7 @@ import base64
 
 import PIL.Image
 
-import MimeMultipartFormData
+from geocamUtil import MimeMultipartFormData
 
 class UploadClient:
     def __init__(self, url, userName='root', password=''):

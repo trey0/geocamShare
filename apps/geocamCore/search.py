@@ -9,7 +9,7 @@ import sys
 
 from django.db.models import Q
 
-from geocamCore import TimeUtils
+from geocamUtil import TimeUtil
 
 class BadQuery(Exception):
     pass
@@ -31,7 +31,7 @@ class SearchCore:
         try:
             # intervalStart=False to get end of specified interval
             # (inclusive before)
-            utcDT = TimeUtils.stringToUtcDT(term, intervalStart=False)
+            utcDT = TimeUtil.stringToUtcDT(term, intervalStart=False)
         except ValueError, msg:
             raise BadQuery("Oops, %s in clause '%s' of search '%s'"
                            % (msg, clause, query))
@@ -43,7 +43,7 @@ class SearchCore:
         try:
             # intervalStart=True to get start of specified interval
             # (inclusive after)
-            utcDT = TimeUtils.stringToUtcDT(term, intervalStart=True)
+            utcDT = TimeUtil.stringToUtcDT(term, intervalStart=True)
         except ValueError, msg:
             raise BadQuery("Oops, %s in clause '%s' of search '%s'"
                            % (msg, clause, query))
