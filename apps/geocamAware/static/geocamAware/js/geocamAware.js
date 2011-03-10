@@ -60,7 +60,7 @@ var geocamAware = {
     },
 
     reloadFeatures: function (query) {
-        var url = geocamAware.settings.SCRIPT_NAME + "features.json";
+        var url = geocamAware.settings.SCRIPT_NAME + "geocamLens/features.json";
         if (query != null) {
             url += '?q=' + escape(query);
         }
