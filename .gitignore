@@ -1,9 +1,6 @@
 *~
 \#*
 *.pyc
-*--gds.*
-*--geocam.*
-*--tracking.*
 /build
 /apps/*/build
 /data
@@ -14,3 +11,5 @@
 /sourceme.sh
 /gigapan
 /apps/geocamUtil
+/apps/geocamAware
+/apps/geocamLens

@@ -1,3 +1,11 @@
 [submodule "submodules/geocamUtilWeb"]
 	path = submodules/geocamUtilWeb
-	url = git@github.com:geocam/geocamUtilWeb.git
+	url = git://github.com/geocam/geocamUtilWeb.git
+
+[submodule "submodules/geocamAwareWeb"]
+	path = submodules/geocamAwareWeb
+	url = git://github.com/geocam/geocamAwareWeb.git
+
+[submodule "submodules/geocamLensWeb"]
+	path = submodules/geocamLensWeb
+	url = git://github.com/geocam/geocamLensWeb.git
