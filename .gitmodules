@@ -9,3 +9,6 @@
 [submodule "submodules/geocamLensWeb"]
 	path = submodules/geocamLensWeb
 	url = git://github.com/geocam/geocamLensWeb.git
+[submodule "submodules/geocamCoreWeb"]
+	path = submodules/geocamCoreWeb
+	url = git@github.com:geocam/geocamCoreWeb.git
