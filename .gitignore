@@ -10,7 +10,4 @@
 /settings.py
 /sourceme.sh
 /gigapan
-/apps/geocamUtil
-/apps/geocamCore
-/apps/geocamAware
-/apps/geocamLens
+/apps

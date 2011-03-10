@@ -107,6 +107,8 @@ def gitInitSubmodules(opts):
 
 def linkSubmodules(opts):
     # assumes each submodule app has a models dir or a models.py file
+    if not os.path.exists('apps'):
+        os.mkdir('apps')
     submoduleAppDirs = [os.path.dirname(d) for d in glob('submodules/*/*/models*')]
     for src in submoduleAppDirs:
         appName = os.path.basename(src)
