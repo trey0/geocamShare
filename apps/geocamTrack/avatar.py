@@ -21,7 +21,7 @@ from geocamTrack import settings
 
 trackAppDir = os.path.dirname(__file__)
 
-AVATAR_DIR = '%savatars' % settings.MEDIA_ROOT
+AVATAR_DIR = '%sgeocamTrack/avatars' % settings.MEDIA_ROOT
 GRAVATAR_DIR = '%s/gravatars' % AVATAR_DIR
 CACHE_DIR = '%s/cache' % AVATAR_DIR
 PLACARD_FRESH = '%s/media_src/mapIcons/placard.png' % trackAppDir

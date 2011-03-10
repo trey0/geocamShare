@@ -348,7 +348,7 @@
                                      position.coords.longitude);
  
     if (locationMarker == null) {
-      var icon_url = "{{ settings.MEDIA_URL }}external/images/dot.png";
+      var icon_url = "{{ settings.MEDIA_URL }}external/icons/dot.png";
       var icon = new google.maps.MarkerImage(icon_url,
         new google.maps.Size(19, 19),
         new google.maps.Point(0, 0),
@@ -453,13 +453,13 @@
   <div id="map_canvas"></div>
 
   <div id="loading">
-    <img src="{{ settings.MEDIA_URL }}external/images/loading.gif">
+    <img src="{{ settings.MEDIA_URL }}external/icons/loading.gif">
   </div>
 
   <div style="display: none">
     <div id="infobubble-content">
       <div id="infobubble-close" class="map-infoclose">
-        <img src="{{ settings.MEDIA_URL }}external/images/close_button.gif">
+        <img src="{{ settings.MEDIA_URL }}external/icons/close_button.gif">
       </div>
       <div id="infobubble-text" class="map-infotext">
 	<div id="infobubble-user" class="map-infouser">Username</div>

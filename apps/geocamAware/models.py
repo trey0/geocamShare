@@ -4,8 +4,4 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from django.test import TestCase
-
-#class SomeTest(TestCase):
-#    def test_blah(self):
-#        pass
+# can add geocamAware models here

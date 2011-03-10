@@ -17,11 +17,12 @@ MANAGERS = ADMINS
 
 # django settings overrides for geocamDisasterStyle
 INSTALLED_APPS = INSTALLED_APPS + (
-    'geocamDisasterStyle',
+    'geocamAware',
+    'geocamLens',
     'geocamTrack',
     )
 
-MAIN_APP = 'geocamDisasterStyle'
+# GEOCAM_LENS_VIEW_MODULE = 'xgds_k10.ViewK10'
 
 ROOT_URLCONF = 'geocamShare.urls'
 

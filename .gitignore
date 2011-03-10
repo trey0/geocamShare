@@ -13,7 +13,4 @@
 /settings.py
 /sourceme.sh
 /gigapan
-/apps/geocamTrack/media_src/avatars/cache/*.png
-/apps/geocamTrack/media_src/avatars/gravatars
-/apps/geocamTrack/media_src/avatars/*.png
 /apps/geocamUtil

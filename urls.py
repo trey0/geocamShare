@@ -5,16 +5,23 @@
 # __END_LICENSE__
 
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 from geocamCore.baseUrls import urlpatterns as basePatterns
 from geocamCore.urls import urlpatterns as corePatterns
-from geocamDisasterStyle.urls import urlpatterns as geocamPatterns
 
 urlpatterns = (basePatterns
                + corePatterns
-               + geocamPatterns
                + patterns(
     '',
 
+    (r'^geocamAware/', include('geocamAware.urls')),
+    (r'^geocamLens/', include('geocamLens.urls')),
     (r'^geocamTrack/', include('geocamTrack.urls')),
+
+
+    (r'^$', 'django.views.generic.simple.redirect_to',
+     {'url': settings.SCRIPT_NAME + 'geocamAware/',
+      'readOnly': True}
+     ),
 ))

@@ -4,8 +4,10 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from django.test import TestCase
+GEOCAM_LENS_DEFAULT_ICON = 'camera'
 
-#class SomeTest(TestCase):
-#    def test_blah(self):
-#        pass
+GEOCAM_LENS_KML_FLY_TO_VIEW = True
+
+GEOCAM_LENS_RENDER_SVG_ICONS = True
+
+GEOCAM_LENS_VIEW_MODULE = 'geocamLens.ViewLensSimple'

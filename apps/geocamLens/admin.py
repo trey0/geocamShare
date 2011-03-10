@@ -4,8 +4,10 @@
 # All Rights Reserved.
 # __END_LICENSE__
 
-from django.test import TestCase
+from django.contrib import admin
 
-#class SomeTest(TestCase):
-#    def test_blah(self):
-#        pass
+from geocamLens.models import *
+
+admin.site.register(Snapshot)
+admin.site.register(GoogleEarthSession)
+admin.site.register(Photo)

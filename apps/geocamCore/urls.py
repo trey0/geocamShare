@@ -6,11 +6,7 @@
 
 from django.conf.urls.defaults import *
 
-from geocamUtil.FileUtil import importModuleByName
-
 from geocamCore import settings
-
-views = importModuleByName('%s.views' % settings.MAIN_APP).viewSingleton
 
 urlpatterns = patterns(
     '',
@@ -22,23 +18,6 @@ urlpatterns = patterns(
     (r'^accounts/logout/$', 'django.contrib.auth.views.logout',
      # show logout page instead of redirecting to log in again
      {'loginRequired': False}),
-    
-    # kml
-    (r'^kml/startSession.kml(?:\?[^/]*)?$', views.kmlStartSession,
-     {'readOnly': True}),
-    (r'^kml/([^/]+)/([^/]+)\.kml$', views.kmlGetSessionResponse,
-     # google earth can't handle django challenge
-     {'challenge': 'digest',
-      'readOnly': True}),
-    
-    # features
-    (r'^features.json', views.featuresJson, {'readOnly': True}),
-    (r'^featuresJson.js', views.featuresJsonJs, {'readOnly': True}),
-    (r'^galleryDebug.html', views.galleryDebug, {'readOnly': True}),
-
-    # main
-    (r'^setVars(?:\?[^/]*)?$', views.setVars, {'readOnly': True}),
-    (r'^$', views.main, {'readOnly': True}),
 
     )
 

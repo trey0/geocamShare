@@ -1,0 +1,9 @@
+{% extends "main0.html" %}
+
+{% block jsInit %}
+  geocamAware.ajaxFormInit('editImage');
+{% endblock %}
+
+{% block contents %}
+  {% include "editImage.html" %}
+{% endblock %}
